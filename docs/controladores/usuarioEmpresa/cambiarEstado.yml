@@ -1,0 +1,22 @@
+/api/v1/usuario_empresa/cambiarEstado/{id}: 
+  put:
+    tags:
+      - usuarioEmpresa
+    description: Cambiar el estado del usuario de una empresa
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+        description: El id del usuario al cual se le quiere cambiar el estado
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Cambio realizado correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+            example: "Cambio realizado correctamente"

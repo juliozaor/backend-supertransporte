@@ -1,0 +1,59 @@
+/api/v1/empresa/cambiarEstado/{id}:
+  put:
+    tags:
+      - Empresa
+    description: Cambia el estado de una empresa por su ID
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+        description: El id de la empresa
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Cambio realizado correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+            example: "Cambio realizado correctamente"
+      500:
+        description: Problema en el servidor
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                error:
+                  type: object
+                  properties:
+                    length:
+                      type: int
+                    name:
+                      type: string
+                    severity:
+                      type: string
+                    code:
+                      type: string
+                    where:
+                      type: string
+                    file:
+                      type: string
+                    line:
+                      type: string
+                    routine:
+                      type: string
+            example:
+              {
+                "length": 190,
+                "name": "error",
+                "severity": "ERROR",
+                "code": "22P02",
+                "where": "portal sin nombre, parámetro 1 = '...'",
+                "file": "uuid.c",
+                "line": "137",
+                "routine": "string_to_uuid"
+              }

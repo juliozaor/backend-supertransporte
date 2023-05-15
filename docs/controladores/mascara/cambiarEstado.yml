@@ -1,0 +1,22 @@
+/api/v1/mascara/cambiarEstado/{id}: 
+  put:
+    tags:
+      - Mascara
+    description: Cambiar el estado de la mascara
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+        description: El id de la mascara a la cual se le quiere cambiar el estado
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Cambio realizado correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+            example: "Cambio realizado correctamente"

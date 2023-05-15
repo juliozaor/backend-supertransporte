@@ -1,0 +1,14 @@
+definitions:
+  Empresa:
+    type: object
+    properties:
+      id:
+        type: string
+      nombre:
+        type: string
+      nit:
+        type: string
+      estado:
+        type: boolean
+      convenio:
+        type: integer

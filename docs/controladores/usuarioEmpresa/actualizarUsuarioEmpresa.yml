@@ -1,0 +1,39 @@
+/api/v1/usuario_empresa/actualizarUsuarioEmpresa/{id}/{usuarioEmpresa}: 
+  patch:
+    tags:
+      - usuarioEmpresa
+    description: Actualizar la información del usuario que pertenece a la empresa
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+        description: El id del usuario que se desea actualizar
+      - name: usuarioEmpresa
+        in: path
+        type: UsuarioEmpresa
+        required: true
+        description: La información del usuario ya actualizada
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Petición exitosa
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                empresas:
+                  type: array
+                  items:
+                    $ref: '#/definitions/Empresa'
+            example:
+              {
+                    "id": "753c1653-e139-4d6a-8d2f-54617f0652eb",
+                    "nombre": "Tigo",
+                    "nit": 9001274376,
+                    "estado": true,
+                    "created_at": "2022-11-09T16:24:06.247-05:00",
+                    "updated_at": "2022-11-10T17:17:19.537-05:00"
+              } 

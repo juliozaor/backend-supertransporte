@@ -1,0 +1,22 @@
+/api/v1/archivo_empresa/cambiarEstado/{id}: 
+  put:
+    tags:
+      - ArchivoEmpresa
+    description: Cambiar el estado del archivo que pertenece a una empresa
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+        description: El id del archivo al cual se le quiere cambiar el estado
+    produces:
+      - application/json
+    responses:
+      200:
+        description: Cambio realizado correctamente
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+            example: "Cambio realizado correctamente"

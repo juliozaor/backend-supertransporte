@@ -1,0 +1,84 @@
+{
+  "typescript": true,
+  "commands": [
+    "./commands",
+    "@adonisjs/core/build/commands/index.js",
+    "@adonisjs/repl/build/commands",
+    "@adonisjs/lucid/build/commands",
+    "adonis5-swagger/build/commands",
+    "@adonisjs/mail/build/commands"
+  ],
+  "exceptionHandlerNamespace": "App/Exceptions/Handler",
+  "aliases": {
+    "App": "app",
+    "Config": "config",
+    "Database": "database",
+    "Contracts": "contracts"
+  },
+  "directories":{
+    "views": "./"
+  },
+  "preloads": [
+    "./start/routes",
+    "./start/kernel",
+    "./start/Rutas/ruta_empresa",
+    "./start/Rutas/ruta_archivo",
+    "./start/Rutas/ruta_carga",
+    "./start/Rutas/ruta_maestra",
+    "./start/Rutas/ruta_usuario_empresa",
+    "./start/Rutas/ruta_usuario_novafianza",
+    "./start/Rutas/ruta_usuario",
+    "./start/Rutas/ruta_archivos_variables",
+    "./start/Rutas/ruta_mascara",
+    "./start/Rutas/ruta_variableEspecifica",
+    "./start/Rutas/ruta_variableTransversal",
+    "./start/Rutas/ruta_formatoArchivo",
+    "./start/Rutas/ruta_archivo_empresa",
+    "./start/Rutas/ruta_archivo_empresa_formato",
+    "./start/Rutas/ruta_log_exito",
+    "./start/Rutas/ruta_log_errores",
+    "./start/Rutas/ruta_log_advertencia",
+    "./start/Rutas/ruta_autenticacion",
+    "./start/Rutas/ruta_enviar_email",
+    "./start/Rutas/ruta_pagos",
+    "./start/Rutas/ruta_rol"
+  ],
+  "providers": [
+    "./providers/AppProvider",
+    "@adonisjs/core",
+    "@adonisjs/lucid",
+    "adonis5-swagger",
+    "@adonisjs/mail",
+    "@adonisjs/view"
+  ],
+  "aceProviders": [
+    "@adonisjs/repl"
+  ],
+  "tests": {
+    "suites": [
+      {
+        "name": "functional",
+        "files": [
+          "tests/functional/**/*.spec(.ts|.js)"
+        ],
+        "timeout": 60000
+      },
+      {
+        "name": "integration",
+        "files": [
+          "tests/integracion/**/*.test(.ts|.js)"
+        ],
+        "timeout": 60000
+      }
+    ]
+  },
+  "testProviders": [
+    "@japa/preset-adonis/TestsProvider"
+  ],
+  "metaFiles": [
+    {
+      "pattern": "/**/*.edge",
+      "reloadServer": false
+    }
+  ]
+}
