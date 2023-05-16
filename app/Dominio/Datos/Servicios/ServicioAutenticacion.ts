@@ -15,6 +15,7 @@ import { RepositorioAutorizacion } from 'App/Dominio/Repositorios/RepositorioAut
 import { RepositorioUsuarioNovafianza } from 'App/Dominio/Repositorios/RepositorioUsuarioNovafianza'
 import { RepositorioUsuarioEmpresa } from 'App/Dominio/Repositorios/RepositorioUsuarioEmpresa'
 import { EnviadorEmail } from 'App/Dominio/Email/EnviadorEmail'
+import { RolDto } from 'App/Presentacion/Autenticacion/Dtos/RolDto'
 
 export class ServicioAutenticacion {
   private servicioUsuarioEmpresa: ServicioUsuarioEmpresa
@@ -101,7 +102,7 @@ export class ServicioAutenticacion {
         idEmpresa: usuarioVerificado instanceof UsuarioEmpresa ? usuarioVerificado.idEmpresa : undefined
       },
       token,
-      rolUsuario,
+      new RolDto(rolUsuario),
       usuarioVerificado.claveTemporal)
   }
 

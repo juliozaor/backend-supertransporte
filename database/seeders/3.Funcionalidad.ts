@@ -1,5 +1,5 @@
 import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
-import TblFuncionalidades from 'App/Infraestructura/Datos/Entidad/Autorizacion/Funcionalidad'
+import TblFuncionalidades from 'App/Infraestructura/Datos/Entidad/Autorizacion/Submodulo'
 import { DateTime } from 'luxon'
 
 export default class extends BaseSeeder {

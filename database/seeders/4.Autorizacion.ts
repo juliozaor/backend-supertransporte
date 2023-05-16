@@ -1,7 +1,7 @@
 import Database from '@ioc:Adonis/Lucid/Database'
 import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'
 import { v4 as uuid } from "uuid"
-import TblFuncionalidades from 'App/Infraestructura/Datos/Entidad/Autorizacion/Funcionalidad'
+import TblFuncionalidades from 'App/Infraestructura/Datos/Entidad/Autorizacion/Submodulo'
 import { DateTime } from 'luxon'
 import { FUNCIONALIDADES, MODULOS, ROLES } from 'App/Dominio/DiccionarioAutorizacion'
 

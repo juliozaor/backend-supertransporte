@@ -1,9 +1,12 @@
 import { DateTime } from "luxon"
 
-export class Funcionalidad {
+export class Submodulo {
     public constructor(
         private _id: string,
         private _nombre: string,
+        private _nombreMostrar: string,
+        private _idModulo: string,
+        private _ruta: string,
         private _estado: boolean = true,
         private _creacion: DateTime = DateTime.now(),
         private _actualizacion: DateTime = DateTime.now()
@@ -15,6 +18,18 @@ export class Funcionalidad {
 
     public get nombre(){
         return this._nombre
+    }
+
+    public get nombreMostrar(){
+        return this._nombreMostrar
+    }
+
+    public get ruta(){
+        return this._ruta
+    }
+
+    public get idModulo(){
+        return this._idModulo
     }
 
     public get estado(){

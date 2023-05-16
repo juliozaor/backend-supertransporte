@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon'
-import { Funcionalidad } from './Funcionalidad'
+import { Submodulo } from './Submodulo'
 
 export class Modulo {
-  private _funcionalidades:Funcionalidad[] = []
+  private _submodulos:Submodulo[] = []
+
   constructor (
     private _id: string,
     private _nombre: string,
@@ -18,8 +19,8 @@ export class Modulo {
     return this._id
   }
 
-  public get funcionalidades (){
-    return this._funcionalidades
+  public get submodulos (){
+    return this._submodulos
   }
 
   public get nombre (){
@@ -50,8 +51,8 @@ export class Modulo {
     return this._actualizacion
   }
 
-  public agregarFuncionalidad (funcionalidad:Funcionalidad):Modulo{
-    this._funcionalidades.push(funcionalidad)
+  public agregarSubmodulo (funcionalidad:Submodulo):Modulo{
+    this._submodulos.push(funcionalidad)
     return this
   }
 }

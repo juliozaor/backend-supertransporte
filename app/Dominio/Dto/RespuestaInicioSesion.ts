@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
+import { RolDto } from 'App/Presentacion/Autenticacion/Dtos/RolDto'
 import { Rol } from '../Datos/Entidades/Autorizacion/Rol'
 
 export class RespuestaInicioSesion {
@@ -14,7 +15,7 @@ export class RespuestaInicioSesion {
       idEmpresa?: string
     },
     public readonly token: string,
-    public readonly rol: Rol,
+    public readonly rol: RolDto,
     public readonly claveTemporal: boolean
   ) { }
 }
