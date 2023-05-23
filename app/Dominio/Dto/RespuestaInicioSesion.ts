@@ -12,7 +12,6 @@ export class RespuestaInicioSesion {
       apellido?: string,
       telefono?: string,
       correo?: string,
-      idEmpresa?: string
     },
     public readonly token: string,
     public readonly rol: RolDto,

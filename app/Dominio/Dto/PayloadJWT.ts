@@ -3,5 +3,4 @@ export interface PayloadJWT {
     exp?: number
     documento: string
     idRol: string
-    idEmpresa?: string
 }

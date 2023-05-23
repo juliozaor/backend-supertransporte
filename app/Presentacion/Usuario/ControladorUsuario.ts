@@ -1,11 +1,10 @@
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext";
 import { ServicioUsuario } from "App/Dominio/Datos/Servicios/ServicioUsuario";
-import { RepositorioUsuarioEmpresaDB } from "App/Infraestructura/Implementacion/Lucid/RepositorioUsuarioEmpresaDB";
-import { RepositorioUsuarioNovafianzaDB } from "App/Infraestructura/Implementacion/Lucid/RepositorioUsuarioNovafianzaDB";
+import { RepositorioUsuariosDB } from "App/Infraestructura/Implementacion/Lucid/RepositorioUsuariosDB";
 import { validarActualizarUsuario } from "./Validadores/ActualizarUsuario";
 
 export default class ControladorUsuario {
-    private servicio = new ServicioUsuario(new RepositorioUsuarioNovafianzaDB(), new RepositorioUsuarioEmpresaDB())
+    private servicio = new ServicioUsuario(new RepositorioUsuariosDB())
 
     constructor() { }
 

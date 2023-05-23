@@ -16,7 +16,6 @@ import Env from '@ioc:Adonis/Core/Env'
 
 export default Env.rules({
   HOST: Env.schema.string({ format: 'host' }),
-  HOSTING: Env.schema.string(),
 
   SMTP_HOST: Env.schema.string({format: 'host'}),
   SMTP_PASSWORD: Env.schema.string(),
@@ -33,12 +32,5 @@ export default Env.rules({
 
   JWT_SECRET_KEY: Env.schema.string(),
 
-  URL_PAGOS_NOVAFIANZA: Env.schema.string({format: 'url'}),
-  URL_SERVICIOS: Env.schema.string({format: 'url'}),
-  URL_WOMPI: Env.schema.string({format: 'url'}),
-  URL_CARGA: Env.schema.string({format: 'url'}),
-  URL_REDIRECCION_PAGO: Env.schema.string({format: 'url'}),
-  KEY_PUBLICA_WOMPI: Env.schema.string(),
-  RUTA_FICHEROS: Env.schema.string(),
-  ENDPOINT_FICHEROS: Env.schema.string()
+  RUTA_FICHEROS: Env.schema.string()
 })

@@ -1,21 +1,17 @@
-/* eslint-disable max-len */
-/* eslint-disable @typescript-eslint/explicit-member-accessibility */
-
 import { Exception } from '@adonisjs/core/build/standalone'
 import { EnviadorEmail } from 'App/Dominio/Email/EnviadorEmail'
 import { GeneradorContrasena } from 'App/Dominio/GenerarContrasena/GenerarContrasena'
-import { UsuarioEmpresa } from '../Entidades/UsuarioEmpresa'
-import { UsuarioNovafianza } from '../Entidades/UsuarioNovafianza'
-import { ServicioUsuarioEmpresa } from './ServicioUsuarioEmpresa'
-import { ServicioUsuarioNovafianza } from './ServicioUsuarioNovafianza'
+import { Usuario } from '../Entidades/Usuario'
+import { ServicioUsuarios } from './ServicioUsuarios'
 import { RepositorioBloqueoUsuario } from 'App/Dominio/Repositorios/RepositorioBloqueoUsuario'
+import Env from '@ioc:Adonis/Core/Env'
+import { EmailRecuperacionContrasena } from 'App/Dominio/Email/Emails/EmailRecuperacionContrasena'
 
 export class ServicioEmail{
   constructor (
     private enviadorEmail: EnviadorEmail, 
-    private servicioUsuarioEmpresa: ServicioUsuarioEmpresa,
     private generarContrasena: GeneradorContrasena, 
-    private servicioUsuarioNovafianza: ServicioUsuarioNovafianza,
+    private servicioUsuarios: ServicioUsuarios,
     private repositorioRegistroBloqueo: RepositorioBloqueoUsuario
     ) { }
 
@@ -29,10 +25,11 @@ export class ServicioEmail{
       throw new Exception('El email ingresado no coincide con el del usuario', 400)
     }
     const clave = await this.generarContrasena.generar()
-    usuarioVerificado.clave = clave,
-    usuarioVerificado.claveTemporal = true
-    if (usuarioVerificado instanceof UsuarioEmpresa) {
-      await this.servicioUsuarioEmpresa.actualizarUsuarioEmpresa(usuarioVerificado.id, usuarioVerificado )
+    usuarioVerificado.clave = clave
+    usuarioVerificado.claveTemporal = true 
+
+    if (usuarioVerificado instanceof Usuario) {
+      await this.servicioUsuarios.actualizarUsuario(usuarioVerificado.id, usuarioVerificado)
       const registroBloqueo = await this.repositorioRegistroBloqueo.obtenerRegistroPorUsuario(usuarioVerificado.identificacion)
       if(registroBloqueo && registroBloqueo.elUsuarioEstaBloqueado()){
         registroBloqueo.desbloquearUsuario()
@@ -40,34 +37,24 @@ export class ServicioEmail{
       } 
     }
 
-    if (usuarioVerificado instanceof UsuarioNovafianza) {
-      await this.servicioUsuarioNovafianza.actualizarUsuarioNovafianza(usuarioVerificado.id, usuarioVerificado)
-      const registroBloqueo = await this.repositorioRegistroBloqueo.obtenerRegistroPorUsuario(usuarioVerificado.identificacion)
-      if(registroBloqueo && registroBloqueo.elUsuarioEstaBloqueado()){
-        registroBloqueo.desbloquearUsuario()
-        await this.repositorioRegistroBloqueo.actualizarRegistro(registroBloqueo)
-      } 
-    }
-
-    this.enviarEmail('Recuperar contraseña novafianza (No responder)', `Hola ${usuarioVerificado.nombre} ${usuarioVerificado.apellido} recibimos su solicitud
-    su nueva contraseña es: ${clave}`, [correo]
-    )
+    await this.enviadorEmail.enviarTemplate({
+      asunto: 'Recuperación de contraseña  S.A.S',
+      destinatarios: usuarioVerificado.correo,
+      de: Env.get('SMTP_USERNAME')
+    }, new EmailRecuperacionContrasena({
+      nombre: usuarioVerificado.nombre,
+      clave: clave,
+      usuario: usuarioVerificado.identificacion
+    }))
   }
 
-  enviarEmail (asunto:string, texto:string, destinatarios:string[], etiquetas?:string[]): void{
-    return this.enviadorEmail.enviarEmail(asunto, texto, destinatarios, etiquetas)
-  }
-
-  public async verificarUsuario (usuario: string): Promise<UsuarioEmpresa | UsuarioNovafianza> {
-    const usuarioEmpresa = await this.servicioUsuarioEmpresa.obtenerUsuarioEmpresaPorUsuario(usuario)
-
-    if (!usuarioEmpresa) {
-      const usuarioNovafianza = await this.servicioUsuarioNovafianza.obtenerUsuarioNovafianzaPorUsuario(usuario)
-      if(!usuarioNovafianza){
+  public async verificarUsuario (usuario: string): Promise< Usuario> {
+   
+      const usuarioDB = await this.servicioUsuarios.obtenerUsuarioPorUsuario(usuario)
+      if(!usuarioDB){
         throw new Exception('No se encuentra usuario registrado', 400)
       }
-      return usuarioNovafianza
-    }
-    return usuarioEmpresa
+      return usuarioDB
+   
   }
 }

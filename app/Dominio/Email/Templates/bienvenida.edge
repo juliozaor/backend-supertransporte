@@ -1,0 +1,97 @@
+<html>
+    <head>
+        <style>
+            .contenedor{
+                display: block;
+                width: 90%;
+                max-width: 700px;
+                margin: 0 auto;
+            }
+            .cabecera{
+                width: 100%;
+                padding: 17px 20px;
+                background-color: #00a3dd
+            }
+            .logo{
+                display: block;
+                width: 200px;
+                margin: 0 auto;
+            }
+            .cuerpo{
+                display: block;
+                width: 100%;
+                padding: 17px 20px;
+                font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            }
+
+            .pie-de-pagina{
+                display: block;
+                width: 100%;
+                padding: 30px 20px;
+            }
+            .pie-de-pagina table td{
+                vertical-align: middle;
+                padding: 10px;
+            }
+
+            /* fuentes */
+            .primario{
+                color: #00a3dd;
+            }
+            .secundario{
+                color: #39316b;
+            }
+            .gris{
+                color: #666465;
+            }
+            .negrita{
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="contenedor">
+            <div class="cabecera">
+                <div class="logo">
+                    <img src="https://novafianza.com/correo/logo-blanco.png" alt="novafianza">
+                </div>
+            </div>
+            <div class="cuerpo">
+                <h2 class="primario">Bienvenido(a)</h2>
+                <h3 class="secundario">Estimado(a): <small>{{ nombre }}</small></h3>
+                <p class="gris">A continuación, encontraras tu usuario y clave con la cual podrás acceder al portal de autogestión</p>
+                <span class="secundario negrita">Portal: <a href="https://novafianza.com">https://novafianza.com</a></span><br>
+                <span class="secundario negrita">Usuario: </span><span class="gris"> {{ usuario }}</span><br>
+                <span class="secundario negrita">Contraseña: </span><span class="gris">{{ clave }}</span><br>
+                <p class="gris">Una vez ingreses, debes realizar el cambio de la contraseña asignada por seguridad</p>
+                <h3 class="primario">Atentamente.</h3>
+                <img src="https://novafianza.com/correo/logo.png" alt="" width="140px">
+            </div>
+            <div class="pie-de-pagina">
+                <hr style="background-color: #39316b;">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td class="gris">
+                                    Edificio Staff <br> Carrera 43 B # 16 41 oficina 1104
+                                </td>
+                                <td>
+                                    <img width="20px" src="https://novafianza.com/correo/3.png" alt="pagina">
+                                    www.novafianza.com
+                                </td>
+                                <td class="gris">
+                                    <img width="20px" src="https://novafianza.com/correo/1.png" alt="pagina">
+                                    <span>3167488167</span>
+                                </td>
+                                <td class="gris">
+                                    <img width="20px" src="https://novafianza.com/correo/2.png" alt="pagina">
+                                    <span>Novafianza</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

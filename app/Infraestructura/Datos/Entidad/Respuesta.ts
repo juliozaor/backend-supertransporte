@@ -1,0 +1,70 @@
+
+import { DateTime } from 'luxon';
+import { BaseModel, HasMany, column, hasMany } from '@ioc:Adonis/Lucid/Orm';
+import { Respuesta } from 'App/Dominio/Datos/Entidades/Respuesta';
+import Preguntas from './Pregunta';
+import Reporte from './Reporte';
+
+export default class Respuestas extends BaseModel {
+  @column({ isPrimary: true, columnName: 'id_respuesta' })
+  public id: number
+  @column({ columnName: 'id_pregunta' }) public idPregunta: number;
+  @column({ columnName: 'valor' }) public valor: string;
+  @column({ columnName: 'documento' }) public documento: string;
+  @column({ columnName: 'usuario_actualizacion' }) public usuarioActualizacion: string;
+  @column({ columnName: 'fecha_actualizacion' }) public fechaActualizacion: DateTime;
+  @column({ columnName: 'id_reporte' }) public idReporte: number;
+  @column({ columnName: 'ruta' }) public ruta: string;
+  @column({ columnName: 'nombredoc_original' }) public nombredoc_original: string;
+
+  public establecerRespuestaDb(respuesta: Respuesta) {
+    this.id = respuesta.id
+    this.idPregunta = respuesta.idPregunta
+    this.valor = respuesta.valor
+    this.documento = respuesta.documento
+    this.usuarioActualizacion = respuesta.usuarioActualizacion
+    this.fechaActualizacion = respuesta.fechaActualizacion
+    this.idReporte = respuesta.idReporte
+    this.ruta = respuesta.ruta
+    this.nombredoc_original = respuesta.nombredoc_original
+  }
+
+  public estableceRespuestaConId(respuesta: Respuesta) {
+    this.idPregunta = respuesta.idPregunta
+    this.valor = respuesta.valor
+    this.documento = respuesta.documento
+    this.usuarioActualizacion = respuesta.usuarioActualizacion
+    this.fechaActualizacion = respuesta.fechaActualizacion
+    this.idReporte = respuesta.idReporte
+    this.ruta = respuesta.ruta
+    this.nombredoc_original = respuesta.nombredoc_original
+  }
+
+  public obtenerRespuesta(): Respuesta {
+    const respuesta = new Respuesta()
+    respuesta.id = this.id
+    respuesta.idPregunta = this.idPregunta
+    respuesta.valor = this.valor
+    respuesta.documento = this.documento
+    respuesta.usuarioActualizacion = this.usuarioActualizacion
+    respuesta.fechaActualizacion = this.fechaActualizacion
+    respuesta.idReporte = this.idReporte
+    respuesta.ruta = this.ruta
+    respuesta.nombredoc_original = this.nombredoc_original
+    return respuesta
+  }
+
+  @hasMany(() => Preguntas, {
+    localKey: 'idPregunta',
+    foreignKey: 'id',
+  })
+  public pregunta: HasMany<typeof Preguntas>
+
+  @hasMany(() => Reporte, {
+    localKey: 'idReporte',
+    foreignKey: 'id',
+  })
+  public reporte: HasMany<typeof Reporte>
+
+
+}

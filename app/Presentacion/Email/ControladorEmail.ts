@@ -2,28 +2,21 @@
 /* eslint-disable @typescript-eslint/naming-convention */
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { ServicioEmail } from 'App/Dominio/Datos/Servicios/ServicioEmail'
-import { ServicioUsuarioEmpresa } from 'App/Dominio/Datos/Servicios/ServicioUsuarioEmpresa'
-import { ServicioUsuarioNovafianza } from 'App/Dominio/Datos/Servicios/ServicioUsuarioNovafianza'
+import { ServicioUsuarios } from 'App/Dominio/Datos/Servicios/ServicioUsuarios'
 import { GeneradorContrasena } from 'App/Dominio/GenerarContrasena/GenerarContrasena'
 import { EnviadorEmailAdonis } from 'App/Infraestructura/Email/EnviadorEmailAdonis'
 import { EncriptadorAdonis } from 'App/Infraestructura/Encriptacion/EncriptadorAdonis'
-import { RepositorioUsuarioEmpresaDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioUsuarioEmpresaDB'
-import { RepositorioUsuarioNovafianzaDB } from '../../Infraestructura/Implementacion/Lucid/RepositorioUsuarioNovafianzaDB'
+import { RepositorioUsuariosDB } from '../../Infraestructura/Implementacion/Lucid/RepositorioUsuariosDB'
 import { RepositorioBloqueoUsuarioDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioBloqueoUsuarioDB'
 
-export default class ControladorEmpresa {
+export default class ControladorEmail {
   private service: ServicioEmail
   constructor () {
     this.service = new ServicioEmail (
       new EnviadorEmailAdonis(), 
-      new ServicioUsuarioEmpresa(
-        new RepositorioUsuarioEmpresaDB(), 
-        new GeneradorContrasena(), 
-        new EncriptadorAdonis(),
-        new EnviadorEmailAdonis()), 
       new GeneradorContrasena(), 
-      new ServicioUsuarioNovafianza(
-        new RepositorioUsuarioNovafianzaDB(),
+      new ServicioUsuarios(
+        new RepositorioUsuariosDB(),
         new GeneradorContrasena(), 
         new EncriptadorAdonis(),
         new EnviadorEmailAdonis()

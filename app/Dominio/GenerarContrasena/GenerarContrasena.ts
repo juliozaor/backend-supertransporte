@@ -16,7 +16,7 @@ export class GeneradorContrasena{
   public async generar (): Promise<string> {
     let base = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const numeros = '123456789';
-    const simbolos = '.?-_!¡¿*%#$/()[]{}|@<>';
+    const simbolos = '.?-_+!¡¿*%#$/()[]{}|@<>';
 
     let clave = await this.generarClave(`${base}${numeros}${simbolos}`, 12);
     return clave

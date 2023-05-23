@@ -5,5 +5,5 @@ coverage
 .DS_STORE
 .env
 tmp
-uploads/logos_empresas/*
-!uploads/logos_empresas/.gitkeep
+uploads/logos/*
+!uploads/logos/.gitkeep

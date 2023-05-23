@@ -9,10 +9,10 @@ export default class ControladorRol {
     this.service = new ServicioRol(new RepositorioRolDB())
   }
 
-  public async listar ({ request }) {
+/*   public async listar ({ request }) {
     const empresa = await this.service.obtenerRols(request.all())
     return empresa
-  }
+  } */
 
  /*  public async obtenerRolPorId ({ params }) {
     const empresa = await this.service.obtenerRolPorId(params.id)

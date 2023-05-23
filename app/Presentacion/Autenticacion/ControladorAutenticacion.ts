@@ -5,8 +5,7 @@ import { EnviadorEmailAdonis } from 'App/Infraestructura/Email/EnviadorEmailAdon
 import { EncriptadorAdonis } from 'App/Infraestructura/Encriptacion/EncriptadorAdonis'
 import { RepositorioAutorizacionDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioAutorizacionDB'
 import { RepositorioBloqueoUsuarioDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioBloqueoUsuarioDB'
-import { RepositorioUsuarioEmpresaDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioUsuarioEmpresaDB'
-import { RepositorioUsuarioNovafianzaDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioUsuarioNovafianzaDB'
+import { RepositorioUsuariosDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioUsuariosDB'
 
 export default class ControladorArchivoVariable {
   private service: ServicioAutenticacion
@@ -16,12 +15,11 @@ export default class ControladorArchivoVariable {
       new EnviadorEmailAdonis(),
       new RepositorioBloqueoUsuarioDB(),
       new RepositorioAutorizacionDB(),
-      new RepositorioUsuarioNovafianzaDB(),
-      new RepositorioUsuarioEmpresaDB()
+      new RepositorioUsuariosDB()
     )
   }
 
-  public async inicioSesionEmpresa ({ request }) {
+  public async inicioSesion ({ request }) {
     const peticion = request.all()
     const usuario = peticion['usuario']
     const contrasena = peticion['contrasena']
@@ -29,7 +27,7 @@ export default class ControladorArchivoVariable {
     return datos
   }
 
-/*   public async inicioSesionNovafianza ({ request, response }:HttpContextContract) {
+/*   public async inicioSesion ({ request, response }:HttpContextContract) {
     const peticion = request.all()
     const usuario = peticion['usuario']
     const contrasena = peticion['contrasena']
