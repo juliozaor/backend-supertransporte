@@ -13,10 +13,18 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
     const reportadas: Reportadas[] = []
 
-    const consulta = TblReporte.query().preload('encuesta').preload('usuario');
+    const consulta = TblReporte.query().preload('usuario');
 
     if (params.idUsuario) {
       consulta.where('login_vigilado', params.idUsuario);
+    }
+
+    if (params.idEncuesta) {
+      consulta.preload('encuesta', sqlE =>{
+        sqlE.where('id_encuesta', params.idEncuesta);
+      })
+    }else{
+      consulta.preload('encuesta')
     }
 
     const reportadasBD = await consulta.paginate(params.pagina, params.limite)
@@ -53,7 +61,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     let clasificacion = '';
 
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
-      sql.preload('clasificacion').preload('tiposPregunta').orderBy('preguntas.id_clasificacion')
+      sql.preload('clasificacion').preload('tiposPregunta').orderBy('preguntas.orden')
     }).where('id_encuesta',idEncuesta).first();
     const encuestaSql = await consulta
 
@@ -62,7 +70,10 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       let preguntasArr: any = [];
       clasificacion = clasificacionSql.nombre;
       
-      encuestaSql?.pregunta.forEach( pregunta=> {        
+      encuestaSql?.pregunta.forEach( pregunta=> { 
+        console.log(pregunta.tiposPregunta);
+        
+        
         if (clasificacionSql.id === pregunta.clasificacion.id) {
             preguntasArr.push({
               idPregunta: pregunta.id,
