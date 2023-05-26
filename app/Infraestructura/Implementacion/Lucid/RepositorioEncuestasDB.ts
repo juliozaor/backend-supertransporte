@@ -43,7 +43,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     return { reportadas, paginacion }
   }
 
-  async visualizar(params: any): Promise<{ encuesta: any }> {
+  async visualizar(params: any): Promise<any> {
 
     const { idEncuesta, idUsuario, idVigilado } = params;
     const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;   
@@ -97,9 +97,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     });
 
     
- 
-
-  //  console.log(clasificacionesArr);
     
 const encuesta = {
   tipoAccion,
