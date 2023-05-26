@@ -1,7 +1,3 @@
-/* eslint-disable max-len */
-/* eslint-disable @typescript-eslint/semi */
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable @typescript-eslint/explicit-member-accessibility */
 import { Paginador } from 'App/Dominio/Paginador';
 import { MapeadorPaginacionDB } from './MapeadorPaginacionDB';
 import { RepositorioUsuario } from 'App/Dominio/Repositorios/RepositorioUsuario';
