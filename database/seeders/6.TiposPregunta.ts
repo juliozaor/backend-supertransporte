@@ -8,7 +8,7 @@ export default class extends BaseSeeder {
   public async run () {
     await TblTiposPregunta.createMany([
       {
-          id: 2,
+          id: 1,
             nombre: 'SELECT',
             opciones: undefined,
           validaciones: undefined,
