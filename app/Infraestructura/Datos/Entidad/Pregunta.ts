@@ -4,6 +4,7 @@ import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:
 import { Pregunta } from 'App/Dominio/Datos/Entidades/Pregunta';
 import Encuestas from './Encuesta';
 import TbClasificacion from './Clasificacion';
+import TblTiposPregunta from './TiposPregunta';
 
 export default class Preguntas extends BaseModel {
   public static table = 'preguntas';
@@ -19,6 +20,12 @@ export default class Preguntas extends BaseModel {
   @column({ columnName: 'id_encuesta' }) public idEncuesta: number;
   @column({ columnName: 'secuencia' }) public secuencia: string;
 
+  @column({ columnName: 'tipo_pregunta_id' }) public tipoPreguntaId: number;
+  @column({ columnName: 'adjuntable' }) public adjuntable: boolean;
+  @column({ columnName: 'adjuntable_obligatorio' }) public adjuntableObligatorio: boolean;
+  @column({ columnName: 'obligatoria' }) public obligatoria: boolean
+  @column({ columnName: 'orden' }) public orden: number;
+
   public establecerPreguntaDb(pregunta: Pregunta) {
     this.id = pregunta.id
     this.pregunta = pregunta.pregunta
@@ -29,6 +36,11 @@ export default class Preguntas extends BaseModel {
     this.tipoEvidencia = pregunta.tipoEvidencia
     this.idEncuesta = pregunta.idEncuesta
     this.secuencia = pregunta.secuencia
+    this.tipoPreguntaId = pregunta.tipoPreguntaId
+    this.adjuntable = pregunta.adjuntable
+    this.adjuntableObligatorio = pregunta.adjuntableObligatorio
+    this.obligatoria = pregunta.obligatoria
+    this.orden = pregunta.orden
   }
 
   public establecePreguntaConId(pregunta: Pregunta) {
@@ -40,6 +52,11 @@ export default class Preguntas extends BaseModel {
     this.tipoEvidencia = pregunta.tipoEvidencia
     this.idEncuesta = pregunta.idEncuesta
     this.secuencia = pregunta.secuencia
+    this.tipoPreguntaId = pregunta.tipoPreguntaId
+    this.adjuntable = pregunta.adjuntable
+    this.adjuntableObligatorio = pregunta.adjuntableObligatorio
+    this.obligatoria = pregunta.obligatoria
+    this.orden = pregunta.orden
   }
 
   public obtenerPregunta(): Pregunta {
@@ -53,6 +70,11 @@ export default class Preguntas extends BaseModel {
     pregunta.tipoEvidencia = this.tipoEvidencia
     pregunta.idEncuesta = this.idEncuesta
     pregunta.secuencia = this.secuencia
+    pregunta.tipoPreguntaId = this.tipoPreguntaId 
+    pregunta.adjuntable = this.adjuntable 
+    pregunta.adjuntableObligatorio = this.adjuntableObligatorio 
+    pregunta.obligatoria = this.obligatoria 
+    pregunta.orden = this.orden 
     return pregunta
   }
 
@@ -70,6 +92,11 @@ export default class Preguntas extends BaseModel {
   })
   public clasificacion: BelongsTo<typeof TbClasificacion>
 
+  @belongsTo(() => TblTiposPregunta, {
+    localKey: 'id',
+    foreignKey: 'tipoPreguntaId',
+  })
+  public tiposPregunta: BelongsTo<typeof TblTiposPregunta>
 
 
 }

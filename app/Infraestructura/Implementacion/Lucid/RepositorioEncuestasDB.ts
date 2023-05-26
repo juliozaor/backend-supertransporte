@@ -7,6 +7,7 @@ import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
 import { Usuario } from '../../../Dominio/Datos/Entidades/Usuario';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
+import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
@@ -42,16 +43,70 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     return { reportadas, paginacion }
   }
 
-  async visualizar(params: any): Promise<{ encuesta: any}> {
+  async visualizar(params: any): Promise<{ encuesta: any }> {
 
-const consulta = TblEncuestas.query().preload('pregunta', sql =>{
-  sql.preload('clasificacion')
-});
-
-    const encuesta = await consulta
-    console.log(encuesta);
+    const { idEncuesta, idUsuario, idVigilado } = params;
+    const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;   
+    let clasificacionesArr: any = [];
     
-   return encuesta
+
+    let clasificacion = '';
+
+    const consulta = TblEncuestas.query().preload('pregunta', sql => {
+      sql.preload('clasificacion').preload('tiposPregunta').orderBy('preguntas.id_clasificacion')
+    }).where('id_encuesta',idEncuesta).first();
+    const encuestaSql = await consulta
+
+    const claficiacionesSql = await TbClasificacion.query();    
+    claficiacionesSql.forEach(clasificacionSql => {
+      let preguntasArr: any = [];
+      clasificacion = clasificacionSql.nombre;
+      
+      encuestaSql?.pregunta.forEach( pregunta=> {        
+        if (clasificacionSql.id === pregunta.clasificacion.id) {
+            preguntasArr.push({
+              idPregunta: pregunta.id,
+            numeroPregunta: pregunta.orden,
+            pregunta: pregunta.pregunta,
+            obligatoria : pregunta.obligatoria,
+            respuesta : '',
+            tipoDeEvidencia : pregunta.tipoEvidencia,
+            documento : '',
+            adjuntable : pregunta.adjuntable,
+            adjuntableObligatorio : pregunta.adjuntableObligatorio,
+            tipoPregunta: pregunta.tiposPregunta.nombre,
+            valoresPregunta: pregunta.tiposPregunta.opciones,
+            validaciones: pregunta.tiposPregunta.validaciones
+            });
+            
+          }
+          
+        });
+       if (preguntasArr.length >= 1) {        
+         clasificacionesArr.push(
+           {
+             clasificacion,
+             preguntas: preguntasArr
+           }
+           
+           );
+       }
+       
+
+      
+    });
+
+    
+ 
+
+  //  console.log(clasificacionesArr);
+    
+const encuesta = {
+  tipoAccion,
+  clasificaciones: clasificacionesArr
+}
+
+    return encuesta
   }
 
 
