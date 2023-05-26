@@ -1,11 +1,12 @@
 
 import { DateTime } from 'luxon';
-import { BaseModel, HasMany, column, hasMany } from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm';
 import { Pregunta } from 'App/Dominio/Datos/Entidades/Pregunta';
 import Encuestas from './Encuesta';
 import TbClasificacion from './Clasificacion';
 
 export default class Preguntas extends BaseModel {
+  public static table = 'preguntas';
   @column({ isPrimary: true, columnName: 'id_pregunta' })
   public id: number
 
@@ -13,7 +14,7 @@ export default class Preguntas extends BaseModel {
   @column({ columnName: 'estado' }) public estado: number;
   @column({ columnName: 'usuario_creacion' }) public usuarioCreacion: string;
   @column({ columnName: 'fecha_creacion' }) public fechaCreacion: DateTime;
-  @column({ columnName: 'idClasificacion' }) public idClasificacion: number;
+  @column({ columnName: 'id_clasificacion' }) public idClasificacion: number;
   @column({ columnName: 'tipo_evidencia' }) public tipoEvidencia: string;
   @column({ columnName: 'id_encuesta' }) public idEncuesta: number;
   @column({ columnName: 'secuencia' }) public secuencia: string;
@@ -55,17 +56,20 @@ export default class Preguntas extends BaseModel {
     return pregunta
   }
 
-  @hasMany(() => Encuestas, {
-    localKey: 'idEncuesta',
-    foreignKey: 'id',
-  })
-  public encuesta: HasMany<typeof Encuestas>
 
-  @hasMany(() => TbClasificacion, {
-    localKey: 'idClasificacion',
-    foreignKey: 'id',
+
+  @belongsTo(() => Encuestas, {
+    localKey: 'id',
+    foreignKey: 'idEncuesta',
   })
-  public clasificacion: HasMany<typeof TbClasificacion>
+  public encuesta: BelongsTo<typeof Encuestas>
+
+  @belongsTo(() => TbClasificacion, {
+    localKey: 'id',
+    foreignKey: 'idClasificacion',
+  })
+  public clasificacion: BelongsTo<typeof TbClasificacion>
+
 
 
 }

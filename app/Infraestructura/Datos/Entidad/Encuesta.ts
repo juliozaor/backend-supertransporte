@@ -3,8 +3,11 @@ import { DateTime } from 'luxon';
 import { BaseModel, HasMany, column, hasMany} from '@ioc:Adonis/Lucid/Orm';
 import { Encuesta } from 'App/Dominio/Datos/Entidades/Encuesta';
 import Reporte from './Reporte';
+import Preguntas from './Pregunta';
 
 export default class Encuestas extends BaseModel {
+  public static table = 'encuestas';
+  
   @column({ isPrimary: true, columnName: 'id_encuesta' })
   public id: number
 
@@ -45,7 +48,17 @@ export default class Encuestas extends BaseModel {
     return encuesta
   }
 
-  @hasMany(() => Reporte)
+  @hasMany(() => Reporte, {
+    localKey: 'id',
+    foreignKey: 'idEncuesta',
+  })
   public reportes: HasMany<typeof Reporte>
+
+  @hasMany(() => Preguntas, {
+    localKey: 'id',
+    foreignKey: 'idEncuesta',
+  })
+  public pregunta: HasMany<typeof Preguntas>
+
 
 }

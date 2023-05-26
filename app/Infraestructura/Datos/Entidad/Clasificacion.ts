@@ -1,9 +1,11 @@
 
 import { DateTime } from 'luxon';
-import { BaseModel, column} from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, HasMany, column, hasMany} from '@ioc:Adonis/Lucid/Orm';
 import { Clasificacion } from 'App/Dominio/Datos/Entidades/Clasificacion';
+import Preguntas from './Pregunta';
 
 export default class TbClasificacion extends BaseModel {
+  public static table = 'tb_clasificacion';
   @column({ isPrimary: true, columnName: 'id_clasificacion' })
   public id: number
 
@@ -35,5 +37,11 @@ export default class TbClasificacion extends BaseModel {
     clasificacion.fechaCreacion = this.fechaCreacion
     return clasificacion
   }
+
+  @hasMany(() => Preguntas, {
+    localKey: 'id',
+    foreignKey: 'idClasificacion',
+  })
+  public pregunta: HasMany<typeof Preguntas>
 
 }
