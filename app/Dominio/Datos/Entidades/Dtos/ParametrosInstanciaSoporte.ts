@@ -17,4 +17,5 @@ export interface ParametrosInstanciaSoporte {
     idEstado: number // 1 abierto, 2 en revisión, 3 cerrado
     fechaCreacion: DateTime
     fechaRespuesta?: DateTime
+    respuesta?: string
 }

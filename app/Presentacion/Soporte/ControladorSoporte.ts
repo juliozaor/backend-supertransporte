@@ -6,6 +6,8 @@ import { RepositorioSoporteDB } from "App/Infraestructura/Implementacion/Lucid/R
 import { RepositorioUsuariosDB } from "App/Infraestructura/Implementacion/Lucid/RepositorioUsuariosDB";
 import { crearSoporteSchema } from "./Validadores/CrearSoporte";
 import { MapeadorFicheroAdonis } from "../Mapeadores/MapeadorFicheroAdonis";
+import { FiltrosSoporte } from "App/Dominio/Dto/Soporte/FiltrosSoporte";
+import { crearRespuesta } from "./Validadores/CrearRespuesta";
 
 export default class ControladorSoporte{
     private servicio: ServicioSoporte
@@ -17,6 +19,19 @@ export default class ControladorSoporte{
         )
     }
 
+    async responder({ request, response }: HttpContextContract ){
+        const payload = await request.obtenerPayloadJWT()
+        const idSoporte = request.param('idSoporte')
+        const { adjunto, respuesta } = await request.validate({ schema: crearRespuesta })
+        const soporte = await this.servicio.responder({
+            respuesta: respuesta,
+            identificacionUsuarioAdmin: payload.documento,
+            soporteId: idSoporte,
+            adjunto: adjunto ? await MapeadorFicheroAdonis.obtenerFichero(adjunto) : undefined
+        })
+        response.status(200).send(soporte)
+    }
+
     async guardar({ request, response }: HttpContextContract ){
         const payload = await request.obtenerPayloadJWT()
         const { adjunto, descripcion } = await request.validate({ schema: crearSoporteSchema })
@@ -26,5 +41,14 @@ export default class ControladorSoporte{
             documentoUsuario: payload.documento
         })
         response.status(201).send(soporte)
+    }
+
+    async listar({ request, response }: HttpContextContract ){
+        const querys = request.qs()
+        const pagina = querys.pagina ?? 1
+        const limite = querys.limite ?? 5
+        const filtros = querys as FiltrosSoporte
+        const paginable = await this.servicio.listar(pagina, limite, filtros)
+        response.status(200).send(paginable)
     }
 }

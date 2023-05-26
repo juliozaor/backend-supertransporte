@@ -18,6 +18,7 @@ export class Soportes extends BaseModel {
     @column({ columnName: 'identificador_doc_respuesta' }) identificadorDocumentoRespuesta?: string //nombre en sistema de ficheros
     @column({ columnName: 'ruta' }) ruta: string
     @column({ columnName: 'usuario_respuesta' }) usuarioRespuesta?: string
+    @column({ columnName: 'respuesta' }) respuesta?: string
     @column({ columnName: 'id_estado' }) idEstado: number 
     @column.dateTime({ columnName: 'fecha_creacion', autoCreate: true }) fechaCreacion: DateTime
     @column({ columnName: 'fecha_respuesta' }) fechaRespuesta?: DateTime
@@ -40,7 +41,8 @@ export class Soportes extends BaseModel {
             identificadorDocumentoRespuesta: this.identificadorDocumentoRespuesta,
             radicado: this.radicado,
             telefono: this.telefono,
-            usuarioRespuesta: this.usuarioRespuesta
+            usuarioRespuesta: this.usuarioRespuesta,
+            respuesta: this.respuesta
         })
     }
 
@@ -63,5 +65,6 @@ export class Soportes extends BaseModel {
         this.radicado = soporte.radicado
         this.telefono = soporte.telefono
         this.usuarioRespuesta = soporte.usuarioRespuesta
+        this.respuesta = soporte.respuesta
     }
 }

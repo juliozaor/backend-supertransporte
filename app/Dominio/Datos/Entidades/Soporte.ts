@@ -23,6 +23,7 @@ export class Soporte{
     idEstado: number 
     fechaCreacion: DateTime
     fechaRespuesta?: DateTime
+    respuesta?: string
 
     constructor(parametros: ParametrosInstanciaSoporte){
         this.id = parametros.id

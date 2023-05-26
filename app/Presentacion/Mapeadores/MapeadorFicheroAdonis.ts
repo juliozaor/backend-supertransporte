@@ -6,7 +6,7 @@ export class MapeadorFicheroAdonis {
     static async obtenerFichero(ficheroAdonis: MultipartFileContract):Promise<Fichero>{
         return {
             contenido: await readFile(`${ficheroAdonis.tmpPath}`),
-            nombre: ficheroAdonis.fileName!,
+            nombre: ficheroAdonis.clientName,
             tamano: ficheroAdonis.size,
             extension: ficheroAdonis.extname 
         }
