@@ -1,11 +1,13 @@
 
 import { DateTime } from 'luxon';
-import { BaseModel, HasMany, column, hasMany } from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm';
 import { Pregunta } from 'App/Dominio/Datos/Entidades/Pregunta';
 import Encuestas from './Encuesta';
 import TbClasificacion from './Clasificacion';
+import TblTiposPregunta from './TiposPregunta';
 
 export default class Preguntas extends BaseModel {
+  public static table = 'preguntas';
   @column({ isPrimary: true, columnName: 'id_pregunta' })
   public id: number
 
@@ -13,10 +15,16 @@ export default class Preguntas extends BaseModel {
   @column({ columnName: 'estado' }) public estado: number;
   @column({ columnName: 'usuario_creacion' }) public usuarioCreacion: string;
   @column({ columnName: 'fecha_creacion' }) public fechaCreacion: DateTime;
-  @column({ columnName: 'idClasificacion' }) public idClasificacion: number;
+  @column({ columnName: 'id_clasificacion' }) public idClasificacion: number;
   @column({ columnName: 'tipo_evidencia' }) public tipoEvidencia: string;
   @column({ columnName: 'id_encuesta' }) public idEncuesta: number;
   @column({ columnName: 'secuencia' }) public secuencia: string;
+
+  @column({ columnName: 'tipo_pregunta_id' }) public tipoPreguntaId: number;
+  @column({ columnName: 'adjuntable' }) public adjuntable: boolean;
+  @column({ columnName: 'adjuntable_obligatorio' }) public adjuntableObligatorio: boolean;
+  @column({ columnName: 'obligatoria' }) public obligatoria: boolean
+  @column({ columnName: 'orden' }) public orden: number;
 
   public establecerPreguntaDb(pregunta: Pregunta) {
     this.id = pregunta.id
@@ -28,6 +36,11 @@ export default class Preguntas extends BaseModel {
     this.tipoEvidencia = pregunta.tipoEvidencia
     this.idEncuesta = pregunta.idEncuesta
     this.secuencia = pregunta.secuencia
+    this.tipoPreguntaId = pregunta.tipoPreguntaId
+    this.adjuntable = pregunta.adjuntable
+    this.adjuntableObligatorio = pregunta.adjuntableObligatorio
+    this.obligatoria = pregunta.obligatoria
+    this.orden = pregunta.orden
   }
 
   public establecePreguntaConId(pregunta: Pregunta) {
@@ -39,6 +52,11 @@ export default class Preguntas extends BaseModel {
     this.tipoEvidencia = pregunta.tipoEvidencia
     this.idEncuesta = pregunta.idEncuesta
     this.secuencia = pregunta.secuencia
+    this.tipoPreguntaId = pregunta.tipoPreguntaId
+    this.adjuntable = pregunta.adjuntable
+    this.adjuntableObligatorio = pregunta.adjuntableObligatorio
+    this.obligatoria = pregunta.obligatoria
+    this.orden = pregunta.orden
   }
 
   public obtenerPregunta(): Pregunta {
@@ -52,20 +70,33 @@ export default class Preguntas extends BaseModel {
     pregunta.tipoEvidencia = this.tipoEvidencia
     pregunta.idEncuesta = this.idEncuesta
     pregunta.secuencia = this.secuencia
+    pregunta.tipoPreguntaId = this.tipoPreguntaId 
+    pregunta.adjuntable = this.adjuntable 
+    pregunta.adjuntableObligatorio = this.adjuntableObligatorio 
+    pregunta.obligatoria = this.obligatoria 
+    pregunta.orden = this.orden 
     return pregunta
   }
 
-  @hasMany(() => Encuestas, {
-    localKey: 'idEncuesta',
-    foreignKey: 'id',
-  })
-  public encuesta: HasMany<typeof Encuestas>
 
-  @hasMany(() => TbClasificacion, {
-    localKey: 'idClasificacion',
-    foreignKey: 'id',
+
+  @belongsTo(() => Encuestas, {
+    localKey: 'id',
+    foreignKey: 'idEncuesta',
   })
-  public clasificacion: HasMany<typeof TbClasificacion>
+  public encuesta: BelongsTo<typeof Encuestas>
+
+  @belongsTo(() => TbClasificacion, {
+    localKey: 'id',
+    foreignKey: 'idClasificacion',
+  })
+  public clasificacion: BelongsTo<typeof TbClasificacion>
+
+  @belongsTo(() => TblTiposPregunta, {
+    localKey: 'id',
+    foreignKey: 'tipoPreguntaId',
+  })
+  public tiposPregunta: BelongsTo<typeof TblTiposPregunta>
 
 
 }

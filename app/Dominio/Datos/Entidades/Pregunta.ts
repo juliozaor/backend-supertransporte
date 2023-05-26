@@ -9,4 +9,9 @@ export class Pregunta {
   tipoEvidencia: string;
   idEncuesta: number;
   secuencia: string;
+  tipoPreguntaId: number;
+  adjuntable: boolean;
+  adjuntableObligatorio: boolean;
+  obligatoria: boolean;
+  orden: number;
 }

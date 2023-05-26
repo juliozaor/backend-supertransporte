@@ -3,8 +3,11 @@ import { DateTime } from 'luxon';
 import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm';
 import { ReporteI } from 'App/Dominio/Datos/Entidades/Reporte';
 import Encuestas from './Encuesta';
+import TblUsuarios from './Usuario';
 
 export default class Reporte extends BaseModel {
+  public static table = 'reporte';
+
   @column({ isPrimary: true, columnName: 'id_reporte' })
   public id: number
 
@@ -55,9 +58,15 @@ export default class Reporte extends BaseModel {
   }
 
   @belongsTo(() => Encuestas, {
-    localKey: 'idEncuesta',
-    foreignKey: 'id',
+    localKey: 'id',
+    foreignKey: 'idEncuesta',
   })
   public encuesta: BelongsTo<typeof Encuestas>
+
+  @belongsTo(() => TblUsuarios, {
+    localKey: 'usuario',
+    foreignKey: 'loginVigilado',
+  })
+  public usuario: BelongsTo<typeof TblUsuarios>
 
 }

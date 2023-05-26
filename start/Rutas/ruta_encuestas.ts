@@ -1,7 +1,7 @@
 import Route from '@ioc:Adonis/Core/Route'
-const controlador = '../../../app/Presentacion/Encuestas/ControladorEncuestas'
+const controlador = '../../../app/Presentacion/Encuestas/ControladorEncuesta'
 
 Route.group(() => {
-  Route.post('/', `${controlador}.inicioSesion`)
-  Route.get('/reportadas', `${controlador}.listarReportadas`)
-}).prefix('/api/v1/encuesta')
+  Route.get('/visualizar', `${controlador}.visualizar`)
+  Route.get('/listar', `${controlador}.listarReportadas`)
+}).prefix('/api/v1/encuestas')
