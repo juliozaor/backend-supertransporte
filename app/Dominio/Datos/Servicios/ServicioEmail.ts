@@ -25,6 +25,9 @@ export class ServicioEmail{
       throw new Exception('El email ingresado no coincide con el del usuario', 400)
     }
     const clave = await this.generarContrasena.generar()
+
+    console.log({clave});
+    
     usuarioVerificado.clave = clave
     usuarioVerificado.claveTemporal = true 
 
