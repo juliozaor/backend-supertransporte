@@ -17,7 +17,7 @@ export class ServicioEncuestas {
     return this.repositorio.obtenerReportadas(params);
   }
 
-  async visualizar(params: any): Promise<{ encuesta:any }> {
+  async visualizar(params: any): Promise<any> {
     return this.repositorio.visualizar(params);
   }
 
