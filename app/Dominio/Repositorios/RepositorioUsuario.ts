@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/semi */
 import { Usuario } from '../Datos/Entidades/Usuario';
 import { Paginador } from '../Paginador';
 

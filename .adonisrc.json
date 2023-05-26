@@ -26,7 +26,8 @@
     "./start/Rutas/ruta_autenticacion",
     "./start/Rutas/ruta_enviar_email",
     "./start/Rutas/ruta_rol",
-    "./start/Rutas/ruta_encuestas"
+    "./start/Rutas/ruta_encuestas",
+    "./start/Rutas/ruta_soportes"
   ],
   "providers": [
     "./providers/AppProvider",
