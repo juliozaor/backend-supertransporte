@@ -1,7 +1,9 @@
 import { DateTime } from 'luxon';
-import { BaseModel, BelongsTo, belongsTo, column} from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, BelongsTo, ManyToMany, belongsTo, column, manyToMany} from '@ioc:Adonis/Lucid/Orm';
 import { Usuario } from 'App/Dominio/Datos/Entidades/Usuario';
 import TblRoles from './Autorizacion/Rol';
+import TblDetallesClasificaciones from './detalleClasificacion';
+import TblFilasColumnas from './FilasColumnas';
 
 export default class TblUsuarios extends BaseModel {
   @column({ isPrimary: true, columnName: 'usn_id' })
@@ -90,4 +92,15 @@ export default class TblUsuarios extends BaseModel {
     foreignKey: 'idRol',
   })
   public rol: BelongsTo<typeof TblRoles>
+
+ /*  @manyToMany(() => TblFilasColumnas, {
+    localKey: 'id',
+    pivotForeignKey: 'tdc_usuario_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'tdc_clasificacion_columna_id', 
+    pivotColumns: ['tdc_valor'],
+    pivotTable: 'tbl_detalle_clasificaciones'
+  })
+  public filasColumna: ManyToMany<typeof TblFilasColumnas> */
+
 }
