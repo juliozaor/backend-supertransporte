@@ -13,6 +13,12 @@ export default class extends BaseSeeder {
             opciones: undefined,
           validaciones: undefined,
           estado:true
+        },{
+          id: 2,
+            nombre: 'NUMERICO',
+            opciones: undefined,
+          validaciones: undefined,
+          estado:true
         }
     ])
   }
