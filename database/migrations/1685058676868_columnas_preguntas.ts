@@ -11,5 +11,16 @@ export default class extends BaseSchema {
     })
   }
 
+  public async down () {
+    this.schema.alterTable('preguntas', (table) => {
+      table.dropColumn('tipo_pregunta_id')
+      table.dropColumn('adjuntable')
+      table.dropColumn('adjuntable_obligatorio')
+      table.dropColumn('obligatoria')
+      table.dropColumn('orden')
+  
+  })
+  }
+
 
 }

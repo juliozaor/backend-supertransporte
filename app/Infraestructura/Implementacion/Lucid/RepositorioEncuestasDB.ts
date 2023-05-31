@@ -5,46 +5,72 @@ import { RepositorioEncuesta } from 'App/Dominio/Repositorios/RepositorioEncuest
 import { Reportadas } from 'App/Dominio/Dto/Encuestas/Reportadas';
 import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
-import { Usuario } from '../../../Dominio/Datos/Entidades/Usuario';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
+    const {idUsuario, idEncuesta, pagina, limite} = params;
+//let validado: boolean = false;
+     //TODO: Validar categorizado
+   /*   if(idEncuesta && idEncuesta == 1){
+        validado = await this.validarCategorizado(idUsuario);
+     }
+ */
+    
+    
     const reportadas: Reportadas[] = []
-
     const consulta = TblReporte.query().preload('usuario');
-
-    if (params.idUsuario) {
-      consulta.where('login_vigilado', params.idUsuario);
-    }
-
-    if (params.idEncuesta) {
+    
+    if (idEncuesta) {     
+      
       consulta.preload('encuesta', sqlE =>{
-        sqlE.where('id_encuesta', params.idEncuesta);
+        sqlE.where('id_encuesta', idEncuesta);
       })
     }else{
       consulta.preload('encuesta')
     }
+    
+    if (idUsuario) {
+      consulta.where('login_vigilado', idUsuario);
+    }
 
-    const reportadasBD = await consulta.paginate(params.pagina, params.limite)
+    let reportadasBD = await consulta.paginate(pagina, limite)
+
+    if(reportadasBD.length <= 0 && idUsuario) {
+      const usuario = await TblUsuarios.query().where('identificacion', idUsuario).first()    
+      
+      const reporte = new TblReporte()
+      reporte.estableceReporteConId({
+        idEncuesta: idEncuesta,
+        envioSt: '0',
+        loginVigilado : usuario?.identificacion!,
+        razonSocialRues: usuario?.nombre!,
+        nitRues: usuario?.identificacion!        
+      })   
+
+     await reporte.save(); 
+     reportadasBD = await consulta.paginate(pagina, limite)
+    }
 
     reportadasBD.map(reportada => {
       reportadas.push({
         idEncuestaDiligenciada: reportada.encuesta.id,
         idVigilado: reportada.loginVigilado,
-        numeroReporte: reportada.id,
+        numeroReporte: reportada.id!,
         encuesta: reportada.encuesta.nombre,
         descripcion: reportada.encuesta.descripcion,
         fechaInicio: reportada.encuesta.fechaInicio,
         fechaFinal: reportada.encuesta.fechaFin,
-        fechaEnvioST: reportada.fechaEnviost,
+        fechaEnvioST: reportada.fechaEnviost!,
         razonSocial: reportada.razonSocialRues,
         nit: reportada.nitRues,
         email: reportada.usuario.correo,
         estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
       });
     })
+
+    
 
 
     const paginacion = MapeadorPaginacionDB.obtenerPaginacion(reportadasBD)
@@ -116,6 +142,12 @@ const encuesta = {
 
     return encuesta
   }
+
+/*   const validarCategorizado = async (idUsuario: string):Promise< boolean >=>{
+    const validado = await TblDetallesClasificaciones.query().where('usuarioId', idUsuario).first();
+    console.log(validado);    
+    return (validado)?true:false;
+  } */
 
 
 }

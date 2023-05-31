@@ -3,5 +3,5 @@ const controlador = '../../../app/Presentacion/Encuestas/ControladorEncuesta'
 
 Route.group(() => {
   Route.get('/visualizar', `${controlador}.visualizar`)
-  Route.get('/listar', `${controlador}.listarReportadas`)
+  Route.get('/listar', `${controlador}.listarReportadas`)  
 }).prefix('/api/v1/encuestas')

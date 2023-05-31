@@ -21,7 +21,6 @@
   "preloads": [
     "./start/routes",
     "./start/kernel",
-    "./start/Rutas/ruta_usuarios",
     "./start/Rutas/ruta_usuario",
     "./start/Rutas/ruta_autenticacion",
     "./start/Rutas/ruta_enviar_email",

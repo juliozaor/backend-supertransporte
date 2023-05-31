@@ -7,4 +7,5 @@ export class Encuesta{
   fechaFin:DateTime;
   usuarioCreacion:string;
   fechaCreacion:DateTime;
+  categorizable?:boolean;
 }
