@@ -9,16 +9,17 @@ export default class Reporte extends BaseModel {
   public static table = 'reporte';
 
   @column({ isPrimary: true, columnName: 'id_reporte' })
-  public id: number
+  public id?: number
 
   @column({ columnName: 'id_encuesta' }) public idEncuesta: number;
   @column({ columnName: 'envio_st' }) public envioSt: string;
-  @column({ columnName: 'fecha_enviost' }) public fechaEnviost: DateTime;
-  @column({ columnName: 'usuario_creacion' }) public usuarioCreacion: string;
-  @column({ columnName: 'fecha_creacion' }) public fechaCreacion: DateTime;
+  @column({ columnName: 'fecha_enviost' }) public fechaEnviost?: DateTime;
+  @column({ columnName: 'usuario_creacion' }) public usuarioCreacion?: string;
   @column({ columnName: 'razon_social_rues' }) public razonSocialRues: string;
   @column({ columnName: 'nit_rues' }) public nitRues: string;
   @column({ columnName: 'login_vigilado' }) public loginVigilado: string;
+
+  @column.dateTime({ autoCreate: true , columnName: 'fecha_creacion'}) public fechaCreacion: DateTime
 
   public establecerReporteDb(reporte: ReporteI) {
     this.id = reporte.id
@@ -26,7 +27,6 @@ export default class Reporte extends BaseModel {
     this.envioSt = reporte.envioSt
     this.fechaEnviost = reporte.fechaEnviost
     this.usuarioCreacion = reporte.usuarioCreacion
-    this.fechaCreacion = reporte.fechaCreacion
     this.razonSocialRues = reporte.razonSocialRues
     this.nitRues = reporte.nitRues
     this.loginVigilado = reporte.loginVigilado
@@ -37,12 +37,12 @@ export default class Reporte extends BaseModel {
     this.envioSt = reporte.envioSt
     this.fechaEnviost = reporte.fechaEnviost
     this.usuarioCreacion = reporte.usuarioCreacion
-    this.fechaCreacion = reporte.fechaCreacion
     this.razonSocialRues = reporte.razonSocialRues
     this.nitRues = reporte.nitRues
     this.loginVigilado = reporte.loginVigilado
   }
 
+ 
   public obtenerReporte(): ReporteI {
     const reporte = new ReporteI()
     reporte.id = this.id 
@@ -50,7 +50,6 @@ export default class Reporte extends BaseModel {
     reporte.envioSt = this.envioSt 
     reporte.fechaEnviost = this.fechaEnviost 
     reporte.usuarioCreacion = this.usuarioCreacion 
-    reporte.fechaCreacion = this.fechaCreacion 
     reporte.razonSocialRues = this.razonSocialRues 
     reporte.nitRues = this.nitRues 
     reporte.loginVigilado = this.loginVigilado 

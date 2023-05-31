@@ -14,4 +14,13 @@ export default class ControladorUsuario {
         const usuario = await this.servicio.actualizarInformacionUsuario(payload, identificacion)
         response.status(200).send(usuario)
     }
+
+    async categorizar({request, response}: HttpContextContract){
+        const {idEncuesta} = request.all()
+        const payload = await request.obtenerPayloadJWT()        
+         const categorizado = await this.servicio.caracterizacion(payload.documento, idEncuesta)
+        response.status(200).send(categorizado) 
+        
+
+    }
 }

@@ -4,6 +4,9 @@ import { Paginador } from '../../../Dominio/Paginador';
 import { Modalidad } from 'App/Dominio/Datos/Entidades/Modalidad';
 import TblModalidades from 'App/Infraestructura/Datos/Entidad/modalidad';
 import TblTiposCategorias from 'App/Infraestructura/Datos/Entidad/TipoCategoria';
+import { ModalidadRadio } from 'App/Dominio/Datos/Entidades/ModalidadRadio';
+import Database from '@ioc:Adonis/Lucid/Database';
+import TblModalidadesRadios from 'App/Infraestructura/Datos/Entidad/ModalidadRadio';
 
 export class RepositorioModalidadDB implements RepositorioModalidad {
 
@@ -17,7 +20,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
   }
 
   async filtros(idUsuario: string): Promise<{}> {
-
+    if(!idUsuario) return {mensaje: 'Usuario requerido'}
 
     const cabecerasModalidades = ["Modalidad", "Radio de acción u operación"];
     const filasModalidades: any[] = [];
@@ -135,5 +138,40 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     
     return { modalidadRadio, tipoCategoria }
   }
+
+  async crearActualizar(idUsuario: string, datosIn:string): Promise<{}> {
+    const {modalidadesRadio, datos} = JSON.parse(datosIn);
+    
+    if(modalidadesRadio.length >= 1){
+      const datosMR: ModalidadRadio[] = [];
+      modalidadesRadio.forEach(mr => {
+        /*  datosMR.push({
+          modalidadId : mr.idModalidad,
+          radioId : mr.idRadio,
+          usuarioId : idUsuario
+        }) */
+        
+        // buscar si existe y guardar sino
+        const modalidadesRadiosBd = new TblModalidadesRadios();
+
+      modalidadesRadiosBd.establecerModalidadRadioDb({
+        modalidadId : mr.idModalidad,
+        radioId : mr.idRadio,
+        usuarioId : idUsuario
+      })
+
+      modalidadesRadiosBd.save();
+
+    });
+    //const modalidadesRadiosBd = await TblModalidadesRadios.updateOrCreateMany('id',datosMR)
+  //  await Database.table('tbl_modalidades_radios').multiInsert(datosMR)
+    
+    }
+    
+
+    return idUsuario
+
+  }
+
 
 }

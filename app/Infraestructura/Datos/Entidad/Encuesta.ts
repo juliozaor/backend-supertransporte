@@ -17,6 +17,8 @@ export default class Encuestas extends BaseModel {
 @column({ columnName: 'fecha_fin' }) public fechaFin:DateTime;
 @column({ columnName: 'usuario_creacion' }) public usuarioCreacion:string;
 @column({ columnName: 'fecha_creacion' }) public fechaCreacion:DateTime;
+@column({ columnName: 'categorizable' }) public categorizable:boolean;
+
   
   public establecerEncuestaDb (encuesta: Encuesta) {
     this.id = encuesta.id

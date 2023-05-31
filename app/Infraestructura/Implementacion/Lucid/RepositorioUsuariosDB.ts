@@ -4,6 +4,8 @@ import { MapeadorPaginacionDB } from './MapeadorPaginacionDB';
 import { RepositorioUsuario } from 'App/Dominio/Repositorios/RepositorioUsuario';
 import { Usuario } from 'App/Dominio/Datos/Entidades/Usuario';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
+import TblDetallesClasificaciones from 'App/Infraestructura/Datos/Entidad/detalleClasificacion';
+import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 export class RepositorioUsuariosDB implements RepositorioUsuario {
   async obtenerUsuarios (params: any): Promise<{usuarios: Usuario[], paginacion: Paginador}> {
     const usuarios: Usuario[] = []
@@ -41,4 +43,23 @@ export class RepositorioUsuariosDB implements RepositorioUsuario {
     await usuarioRetorno.save()
     return usuarioRetorno
   }
+
+  public async caracterizacion(idUsuario: string, idEncuesta?: number): Promise<any> {
+
+
+    const categorizadoBd = await TblDetallesClasificaciones.query().where('usuarioId', idUsuario).first();
+    const categorizado = (categorizadoBd) ? true : false;
+
+    let encuestaCategorizable: boolean = false;
+    if (idEncuesta) {
+        const encuestaBd = await TblEncuestas.query().where('id', idEncuesta).first();
+        if (encuestaBd && encuestaBd.categorizable === true) {
+            encuestaCategorizable = true;
+
+        }
+    }
+
+
+    return { categorizado, encuestaCategorizable }
+}
 }
