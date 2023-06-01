@@ -17,15 +17,17 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         validado = await this.validarCategorizado(idUsuario);
      }
  */
+    console.log(idEncuesta);
     
     
     const reportadas: Reportadas[] = []
     const consulta = TblReporte.query().preload('usuario');
     
-    if (idEncuesta) {     
-      
+    if (idEncuesta) {           
       consulta.preload('encuesta', sqlE =>{
-        sqlE.where('id_encuesta', idEncuesta);
+        sqlE.where('id', idEncuesta);
+      }).whereHas('encuesta', sqlE =>{
+        sqlE.where('id', idEncuesta);
       })
     }else{
       consulta.preload('encuesta')
@@ -36,6 +38,9 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     }
 
     let reportadasBD = await consulta.paginate(pagina, limite)
+
+    //console.log(reportadasBD.length <= 0 && idUsuario);
+    
 
     if(reportadasBD.length <= 0 && idUsuario) {
       const usuario = await TblUsuarios.query().where('identificacion', idUsuario).first()    

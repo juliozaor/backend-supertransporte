@@ -1,6 +1,6 @@
 export class DetalleClasificacion {
-  id: number;
+  id?: number;
   valor: string;
-  clafificacionColumnaId:number;
+  filaColumnaId:number;
   usuarioId:string;  
 }
