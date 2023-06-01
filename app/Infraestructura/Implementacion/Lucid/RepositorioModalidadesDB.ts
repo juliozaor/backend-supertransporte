@@ -79,14 +79,12 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
         catClasificacion.filaClasificacion.forEach(filClasificacion => {
           const datos: any[] = [];
           filClasificacion.filasColumas.forEach(filColumas => {
-            console.log(filColumas);
-            
             if (filColumas.detalles.length >= 1) {
               datos.push({
                 idFila: filClasificacion.id,     
                 idColumna: filColumas.id,        
                 //idDetalle: (filColumas.detalles[0].id)??'',
-                valor: (filColumas.detalles[0].valor)??0
+                valor: parseInt((filColumas.detalles[0].valor)??0)
               })
             }else{
               datos.push({
@@ -157,7 +155,8 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
       modalidadesRadiosBd.establecerModalidadRadioDb({
         modalidadId : mr.idModalidad,
         radioId : mr.idRadio,
-        usuarioId : idUsuario
+        usuarioId : idUsuario, 
+        estado: true
       })
 
       modalidadesRadiosBd.save();
