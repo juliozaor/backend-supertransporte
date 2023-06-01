@@ -86,14 +86,16 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
                 idFila: filClasificacion.id,
                 idColumna: filColumas.id,
                 //idDetalle: (filColumas.detalles[0].id)??'',
-                valor: parseInt((filColumas.detalles[0].valor) ?? 0)
+                valor: parseInt((filColumas.detalles[0].valor) ?? 0),
+                estado:filColumas.estado
               })
             } else {
               datos.push({
                 idFila: filClasificacion.id,
                 idColumna: filColumas.id,
                 //  idDetalle:null,
-                valor: null
+                valor: null,
+                estado:filColumas.estado
               })
             }
           });
@@ -173,7 +175,6 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
           const detalle = await TblDetallesClasificaciones.query().where({ 'tdc_fila_columna_id': filaColumna.id, 'tdc_usuario_id': idUsuario }).first()
           //  const detalleClasificacion = new TblDetallesClasificaciones();
           if (detalle) {
-            console.log("Esiste");
 
             detalle.estableceDetalleDetalleClasificacionConId({
               valor: dato.valor,
@@ -183,12 +184,13 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
 
             detalle.save();
 
-          } else {
+          } else {            
+            
             const detalleClasificacion = new TblDetallesClasificaciones();
             detalleClasificacion.estableceDetalleDetalleClasificacionConId({
               valor: dato.valor,
-              filaColumnaId: dato.filaColumnaId,
-              usuarioId: dato.usuarioId
+              filaColumnaId: filaColumna.id,
+              usuarioId: idUsuario
             })
             detalleClasificacion.save();
           }
