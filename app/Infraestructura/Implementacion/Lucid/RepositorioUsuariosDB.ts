@@ -6,6 +6,7 @@ import { Usuario } from 'App/Dominio/Datos/Entidades/Usuario';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TblDetallesClasificaciones from 'App/Infraestructura/Datos/Entidad/detalleClasificacion';
 import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
+import TblClasificacionesUsuario from 'App/Infraestructura/Datos/Entidad/ClasificacionesUsuario';
 export class RepositorioUsuariosDB implements RepositorioUsuario {
   async obtenerUsuarios (params: any): Promise<{usuarios: Usuario[], paginacion: Paginador}> {
     const usuarios: Usuario[] = []
@@ -47,7 +48,11 @@ export class RepositorioUsuariosDB implements RepositorioUsuario {
   public async caracterizacion(idUsuario: string, idEncuesta?: number): Promise<any> {
 
 
-    const categorizadoBd = await TblDetallesClasificaciones.query().where('usuarioId', idUsuario).first();
+    //const categorizadoBd = await TblDetallesClasificaciones.query().where('usuarioId', idUsuario).first();
+    const categorizadoBd = await TblClasificacionesUsuario.query().where('usuarioId', idUsuario).first();
+
+
+
     const categorizado = (categorizadoBd) ? true : false;
 
     let encuestaCategorizable: boolean = false;

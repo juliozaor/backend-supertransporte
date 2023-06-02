@@ -9,6 +9,7 @@ import Database from '@ioc:Adonis/Lucid/Database';
 import TblModalidadesRadios from 'App/Infraestructura/Datos/Entidad/ModalidadRadio';
 import TblFilasColumnas from 'App/Infraestructura/Datos/Entidad/FilasColumnas';
 import TblDetallesClasificaciones from 'App/Infraestructura/Datos/Entidad/detalleClasificacion';
+import TblClasificacionesUsuario from 'App/Infraestructura/Datos/Entidad/ClasificacionesUsuario';
 
 export class RepositorioModalidadDB implements RepositorioModalidad {
 
@@ -31,22 +32,13 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
       sql.where('tmr_usuario_id', idUsuario)
     }).has('radios')
 
-
+    //Modalidades Radios
     modalidades.forEach(modalidad => {
       modalidad.radios.forEach(radio => {
         filasModalidades.push({
           id: radio.$extras.pivot_tmr_id,
           modalidad: modalidad.nombre,
           radio: radio.nombre
-          /*  modalidad: {
-             idModalidad: modalidad.id,
-             nombre: modalidad.nombre
-           },
-           radio: {
-             idRadio: radio.id,
-             nombre: radio.nombre
-           } */
-
         })
       });
 
@@ -57,9 +49,8 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
       filas: filasModalidades
     };
 
-
+    //Tipos Categoria
     const tipoCategoria: any[] = [];
-
     const tiposCategoria = await TblTiposCategorias.query().preload('categoriaClasificacion', (sqlCat) => {
       sqlCat.preload('filaClasificacion', (sqlFila) => {
         sqlFila.preload('filasColumas', (sqlFilaCol) => {
@@ -87,7 +78,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
                 idColumna: filColumas.id,
                 //idDetalle: (filColumas.detalles[0].id)??'',
                 valor: parseInt((filColumas.detalles[0].valor) ?? 0),
-                estado:filColumas.estado
+                estado: filColumas.estado
               })
             } else {
               datos.push({
@@ -95,7 +86,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
                 idColumna: filColumas.id,
                 //  idDetalle:null,
                 valor: null,
-                estado:filColumas.estado
+                estado: filColumas.estado
               })
             }
           });
@@ -142,8 +133,11 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
   }
 
   async crearActualizar(idUsuario: string, datosIn: string): Promise<{}> {
-    const { modalidadesRadio, datos } = JSON.parse(datosIn);
+    const { modalidadesRadio, datos, modalidadesRadioEliminar, totales } = JSON.parse(datosIn);
+    const totalConductores = totales.conductores;
+    const totalVehiculos = totales.vehiculos;
 
+    //Guardar Modalidades Radios
     if (modalidadesRadio.length >= 1) {
       //const datosMR: ModalidadRadio[] = [];
       modalidadesRadio.forEach(async mr => {
@@ -166,8 +160,18 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
 
     }
 
-    if (datos.length >= 1) {
+    //Eliminar Modalidades
+    if (modalidadesRadioEliminar.length >= 1) {
+      try {
+        await Database.from('tbl_modalidades_radios').whereIn('tmr_id', modalidadesRadioEliminar).delete();
+      } catch (error) {
+        console.log(error);
+      }
 
+    }
+
+
+    if (datos.length >= 1) {
       datos.forEach(async dato => {
 
         const filaColumna = await TblFilasColumnas.query().where({ 'cls_fila_clasificacion_id': dato.idFila, 'cls_columna_clasificacion_id': dato.idColumna }).first()
@@ -184,8 +188,8 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
 
             detalle.save();
 
-          } else {            
-            
+          } else {
+
             const detalleClasificacion = new TblDetallesClasificaciones();
             detalleClasificacion.estableceDetalleDetalleClasificacionConId({
               valor: dato.valor,
@@ -204,8 +208,64 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     }
 
 
-    return idUsuario
+    //Clasificar
+    const { nombre, clasificado } = await this.clasificar(totalConductores, totalVehiculos, idUsuario);
+    
+    return { nombre, clasificado }
 
+  }
+
+  clasificar = async (totalConductores: number, totalVehiculos: number, idUsuario: string) => {
+
+    let idClasificado: number = 4;
+    let clasificado: boolean = true;
+    let nombre = 'Sin clasificar';
+    if ((totalVehiculos >= 11 && totalVehiculos <= 19) || (totalConductores >= 2 && totalConductores <= 19)) {
+      console.log("entro 1");
+
+      idClasificado = 1;
+      nombre = 'Básico';
+    } else
+
+      if ((totalVehiculos >= 20 && totalVehiculos <= 50) || (totalConductores >= 20 && totalConductores <= 50)) {
+        console.log("entro 2");
+        idClasificado = 2;
+        nombre = 'Estándar';
+      } else
+
+        if (totalVehiculos > 50 || totalConductores > 50) {
+          console.log("entro 3");
+          idClasificado = 3;
+          nombre = 'Avanzado';
+        } else
+
+          if (totalVehiculos <= 10 || totalConductores <= 1) {
+            console.log("entro 4");
+            clasificado = false;
+          }
+
+    const estaClasificado = await TblClasificacionesUsuario.query().where('clu_usuario_id', idUsuario).first();
+    if (!estaClasificado) {
+      const clasificacionUsuario = new TblClasificacionesUsuario()
+      clasificacionUsuario.estableceClasificacionesUsuarioConId({
+        usuarioId: idUsuario,
+        clasificacionId: idClasificado,
+        estado: clasificado
+      })
+      clasificacionUsuario.save()
+    }
+
+    if(estaClasificado){
+      estaClasificado.estableceClasificacionesUsuarioConId({
+        usuarioId: idUsuario,
+        clasificacionId: idClasificado,
+        estado: clasificado
+      })
+      estaClasificado.save()
+    }
+
+
+    return { nombre, clasificado }
   }
 
 

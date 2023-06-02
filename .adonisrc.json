@@ -28,6 +28,8 @@
     "./start/Rutas/ruta_encuestas",
     "./start/Rutas/ruta_modalidad",
     "./start/Rutas/ruta_radio_accion",
+    "./start/Rutas/ruta_respuesta",
+    "./start/Rutas/ruta_archivo",
     "./start/Rutas/ruta_soportes"
   ],
   "providers": [
