@@ -210,11 +210,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
 
     //Clasificar
     const { nombre, clasificado } = await this.clasificar(totalConductores, totalVehiculos, idUsuario);
-    console.log({ nombre, clasificado });
-
-
-
-
+    
     return { nombre, clasificado }
 
   }
