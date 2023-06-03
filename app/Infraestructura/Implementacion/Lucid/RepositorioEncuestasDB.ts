@@ -10,15 +10,14 @@ import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
-    const {idUsuario, idEncuesta, pagina, limite} = params;
+    const {idUsuario, idEncuesta, pagina, limite, idVigilado} = params;
 //let validado: boolean = false;
      //TODO: Validar categorizado
    /*   if(idEncuesta && idEncuesta == 1){
         validado = await this.validarCategorizado(idUsuario);
      }
  */
-    console.log(idEncuesta);
-    
+let usuarioCreacion:string = "";
     
     const reportadas: Reportadas[] = []
     const consulta = TblReporte.query().preload('usuario');
@@ -33,8 +32,13 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       consulta.preload('encuesta')
     }
     
-    if (idUsuario) {
-      consulta.where('login_vigilado', idUsuario);
+    if (idVigilado && idVigilado === idUsuario ) {
+      console.log("Entro iguales");
+      
+      consulta.where('login_vigilado', idVigilado);
+    }else{
+      console.log("Entro diferentes");
+      consulta.where('usuario_creacion', idUsuario);
     }
 
     let reportadasBD = await consulta.paginate(pagina, limite)
@@ -42,21 +46,24 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     //console.log(reportadasBD.length <= 0 && idUsuario);
     
 
-    if(reportadasBD.length <= 0 && idUsuario) {
+    if(reportadasBD.length <= 0) {
       const usuario = await TblUsuarios.query().where('identificacion', idUsuario).first()    
+     
       
       const reporte = new TblReporte()
       reporte.estableceReporteConId({
         idEncuesta: idEncuesta,
         envioSt: '0',
-        loginVigilado : usuario?.identificacion!,
+        loginVigilado : idVigilado,
         razonSocialRues: usuario?.nombre!,
-        nitRues: usuario?.identificacion!        
+        nitRues: idVigilado,
+        usuarioCreacion: idUsuario        
       })   
 
      await reporte.save(); 
      reportadasBD = await consulta.paginate(pagina, limite)
     }
+
 
     reportadasBD.map(reportada => {
       reportadas.push({
@@ -71,6 +78,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         razonSocial: reportada.razonSocialRues,
         nit: reportada.nitRues,
         email: reportada.usuario.correo,
+        usuarioCreacion: reportada.usuarioCreacion,
         estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
       });
     })
@@ -87,13 +95,17 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     const { idEncuesta, idUsuario, idVigilado } = params;
     const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;   
     let clasificacionesArr: any = [];
+
+
     
 
     let clasificacion = '';
 
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
       sql.preload('clasificacion').preload('tiposPregunta').orderBy('preguntas.orden')
-    }).where('id_encuesta',idEncuesta).first();
+    }).preload('reportes', (repo) =>{
+      repo.where('id_reporte', ide)
+    }).where({'id_encuesta':idEncuesta}).first();
     const encuestaSql = await consulta
 
     const claficiacionesSql = await TbClasificacion.query();    

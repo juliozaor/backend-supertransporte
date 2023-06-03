@@ -8,5 +8,5 @@ export class Respuesta {
   fechaActualizacion: DateTime;
   idReporte: number;
   ruta: string;
-  nombredoc_original: string;
+  nombredocOriginal: string;
 }

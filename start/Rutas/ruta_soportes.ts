@@ -5,4 +5,4 @@ Route.group(() => {
   Route.get('/', `${controlador}.listar`)
   Route.post('/', `${controlador}.guardar`)
   Route.post('/responder/:idSoporte', `${controlador}.responder`)
-}).prefix('/api/v1/soportes')
+}).prefix('/api/v1/soportes').middleware('autenticacionJwt')

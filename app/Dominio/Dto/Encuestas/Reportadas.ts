@@ -12,5 +12,6 @@ export interface Reportadas {
     razonSocial : string,
     nit : string ,
     email :string,
+    usuarioCreacion?: string,
     estado : string
 }
