@@ -95,16 +95,12 @@ let usuarioCreacion:string = "";
     const { idEncuesta, idUsuario, idVigilado } = params;
     const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;   
     let clasificacionesArr: any = [];
-
-
     
 
     let clasificacion = '';
 
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
       sql.preload('clasificacion').preload('tiposPregunta').orderBy('preguntas.orden')
-    }).preload('reportes', (repo) =>{
-      repo.where('id_reporte', ide)
     }).where({'id_encuesta':idEncuesta}).first();
     const encuestaSql = await consulta
 
