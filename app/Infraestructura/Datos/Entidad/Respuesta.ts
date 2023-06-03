@@ -15,7 +15,7 @@ export default class Respuestas extends BaseModel {
   @column({ columnName: 'fecha_actualizacion' }) public fechaActualizacion: DateTime;
   @column({ columnName: 'id_reporte' }) public idReporte: number;
   @column({ columnName: 'ruta' }) public ruta: string;
-  @column({ columnName: 'nombredoc_original' }) public nombredoc_original: string;
+  @column({ columnName: 'nombredoc_original' }) public nombredocOriginal: string;
 
   public establecerRespuestaDb(respuesta: Respuesta) {
     this.id = respuesta.id
@@ -26,7 +26,7 @@ export default class Respuestas extends BaseModel {
     this.fechaActualizacion = respuesta.fechaActualizacion
     this.idReporte = respuesta.idReporte
     this.ruta = respuesta.ruta
-    this.nombredoc_original = respuesta.nombredoc_original
+    this.nombredocOriginal = respuesta.nombredocOriginal
   }
 
   public estableceRespuestaConId(respuesta: Respuesta) {
@@ -37,7 +37,7 @@ export default class Respuestas extends BaseModel {
     this.fechaActualizacion = respuesta.fechaActualizacion
     this.idReporte = respuesta.idReporte
     this.ruta = respuesta.ruta
-    this.nombredoc_original = respuesta.nombredoc_original
+    this.nombredocOriginal = respuesta.nombredocOriginal
   }
 
   public obtenerRespuesta(): Respuesta {
@@ -50,7 +50,7 @@ export default class Respuestas extends BaseModel {
     respuesta.fechaActualizacion = this.fechaActualizacion
     respuesta.idReporte = this.idReporte
     respuesta.ruta = this.ruta
-    respuesta.nombredoc_original = this.nombredoc_original
+    respuesta.nombredocOriginal = this.nombredocOriginal
     return respuesta
   }
 
