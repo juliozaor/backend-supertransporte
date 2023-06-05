@@ -39,7 +39,26 @@ export default class ControladorSoporte{
             adjunto: adjunto ? await MapeadorFicheroAdonis.obtenerFichero(adjunto) : undefined,
             descripcion: descripcion,
             documentoUsuario: payload.documento
-        })
+        }, false)
+        response.status(201).send(soporte)
+    }
+
+    async guardarSinAcceso({ request, response }: HttpContextContract){
+        const peticion = await request.validate({ schema: crearSoporteSchema })
+        if(!peticion.nit){
+            response.status(400).send({
+                mensaje: 'El nit es obligatorio para soportes de problemas de acceso.'
+            })
+            return;
+        }
+        const soporte = await this.servicio.guardar({
+            adjunto: peticion.adjunto ? await MapeadorFicheroAdonis.obtenerFichero(peticion.adjunto) : undefined,
+            descripcion: peticion.descripcion,
+            documentoUsuario: peticion.nit,
+            correo: peticion.correo,
+            telefono: peticion.telefono,
+            razonSocial: peticion.razonSocial
+        }, true)
         response.status(201).send(soporte)
     }
 

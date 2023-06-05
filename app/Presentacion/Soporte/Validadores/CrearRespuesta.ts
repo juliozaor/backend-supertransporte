@@ -1,4 +1,4 @@
-import { schema, rules } from "@ioc:Adonis/Core/Validator"
+import { schema } from "@ioc:Adonis/Core/Validator"
 
 export const crearRespuesta = schema.create({
     respuesta: schema.string(),

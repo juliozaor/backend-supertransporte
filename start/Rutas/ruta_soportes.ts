@@ -6,3 +6,7 @@ Route.group(() => {
   Route.post('/', `${controlador}.guardar`)
   Route.post('/responder/:idSoporte', `${controlador}.responder`)
 }).prefix('/api/v1/soportes').middleware('autenticacionJwt')
+// sin autenticación ↓ ↓ ↓
+Route.group(() => {
+  Route.post('/acceso', `${controlador}.guardarSinAcceso`)
+}).prefix('/api/v1/soportes')

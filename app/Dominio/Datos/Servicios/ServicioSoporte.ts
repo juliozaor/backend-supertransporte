@@ -41,7 +41,32 @@ export class ServicioSoporte{
         return this.repositorio.obtenerSoportes(pagina, limite, filtros)
     }
     
-    async guardar(peticion: PeticionCrearSoporte){
+    async guardar(peticion: PeticionCrearSoporte, problemaAcceso: boolean){
+       if(problemaAcceso){
+        return await this.guardarSoporteProblemasAcceso(peticion)
+       }else{
+        return await this.guardarSoporteGenerico(peticion)
+       }
+    }
+
+    private async obtenerUsuario(documento: string): Promise<Usuario>{
+        try{
+            return this.servicioUsuarios.obtenerUsuario(documento)
+        }catch{
+            throw new Exception(`Error al buscar el usuario con identificación: ${documento}`, 500)
+        }
+    }
+
+    private guardarAdjunto(adjunto: Fichero, idSoporte: number, esRespuesta: boolean = false){
+        this.repositorioFicheros.guardarFichero(
+            adjunto, 
+            esRespuesta ? RUTAS_ARCHIVOS.ADJUNTOS_RESPUESTAS_SOPORTES : RUTAS_ARCHIVOS.ADJUNTOS_SOPORTES, 
+            `${idSoporte}`, 
+            adjunto.extension
+        )
+    }
+
+    private async guardarSoporteGenerico(peticion: PeticionCrearSoporte){
         const usuario = await this.obtenerUsuario(peticion.documentoUsuario)
         
         let soporte = Soporte.crear({
@@ -62,20 +87,28 @@ export class ServicioSoporte{
         return await this.repositorio.actualizarSoporte(soporte)
     }
 
-    private async obtenerUsuario(documento: string): Promise<Usuario>{
-        try{
-            return this.servicioUsuarios.obtenerUsuario(documento)
-        }catch{
-            throw new Exception(`Error al buscar el usuario con identificación: ${documento}`, 500)
+    private async guardarSoporteProblemasAcceso(peticion: PeticionCrearSoporte){
+        if(!peticion.correo){
+            throw new Exception('El correo es necesario para los soportes de problemas de acceso.', 400)
         }
-    }
-
-    private guardarAdjunto(adjunto: Fichero, idSoporte: number, esRespuesta: boolean = false){
-        this.repositorioFicheros.guardarFichero(
-            adjunto, 
-            esRespuesta ? RUTAS_ARCHIVOS.ADJUNTOS_RESPUESTAS_SOPORTES : RUTAS_ARCHIVOS.ADJUNTOS_SOPORTES, 
-            `${idSoporte}`, 
-            adjunto.extension
-        )
+        if(!peticion.razonSocial){
+            throw new Exception('La razón social es necesaria para los soportes de problemas de acceso.', 400) 
+        }
+        let soporte = Soporte.crear({
+            descripcion: peticion.descripcion,
+            email: peticion.correo,
+            nit: peticion.documentoUsuario,
+            razonSocial: peticion.razonSocial,
+            ruta: 'RUTA PENDIENTE',
+            documento: peticion.adjunto ? peticion.adjunto.nombre : undefined,
+            telefono: peticion.telefono ?? ''
+        })
+        soporte = await this.repositorio.guardar(soporte)
+        if(peticion.adjunto){
+            soporte.identificadorDocumento = `${soporte.id!}.${peticion.adjunto.extension}`
+            this.guardarAdjunto(peticion.adjunto, soporte.id!)
+        }
+        soporte.generarRadicado()
+        return await this.repositorio.actualizarSoporte(soporte)
     }
 }
