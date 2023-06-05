@@ -37,6 +37,7 @@ let usuarioCreacion:string = "";
       
       consulta.where('login_vigilado', idVigilado);
     }else{
+      //Sale error en cuando son diferentes
       console.log("Entro diferentes");
       consulta.where('usuario_creacion', idUsuario);
     }
@@ -92,7 +93,7 @@ let usuarioCreacion:string = "";
 
   async visualizar(params: any): Promise<any> {
 
-    const { idEncuesta, idUsuario, idVigilado } = params;
+    const { idEncuesta, idUsuario, idVigilado, idReporte  } = params;
     const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;   
     let clasificacionesArr: any = [];
     
@@ -100,9 +101,16 @@ let usuarioCreacion:string = "";
     let clasificacion = '';
 
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
-      sql.preload('clasificacion').preload('tiposPregunta').orderBy('preguntas.orden')
+      sql.preload('clasificacion')
+      sql.preload('tiposPregunta')
+      sql.preload('respuesta')
+      sql.orderBy('preguntas.orden')
     }).where({'id_encuesta':idEncuesta}).first();
     const encuestaSql = await consulta
+
+    
+    
+    
 
     const claficiacionesSql = await TbClasificacion.query();    
     claficiacionesSql.forEach(clasificacionSql => {
@@ -110,8 +118,7 @@ let usuarioCreacion:string = "";
       clasificacion = clasificacionSql.nombre;
       
       encuestaSql?.pregunta.forEach( pregunta=> { 
-        console.log(pregunta.tiposPregunta);
-        
+        console.log(pregunta.respuesta[0]);
         
         if (clasificacionSql.id === pregunta.clasificacion.id) {
             preguntasArr.push({
@@ -119,9 +126,9 @@ let usuarioCreacion:string = "";
             numeroPregunta: pregunta.orden,
             pregunta: pregunta.pregunta,
             obligatoria : pregunta.obligatoria,
-            respuesta : '',
+            respuesta : (pregunta.respuesta[0].valor)??'',
             tipoDeEvidencia : pregunta.tipoEvidencia,
-            documento : '',
+            documento : (pregunta.respuesta[0].documento)??'',
             adjuntable : pregunta.adjuntable,
             adjuntableObligatorio : pregunta.adjuntableObligatorio,
             tipoPregunta: pregunta.tiposPregunta.nombre,

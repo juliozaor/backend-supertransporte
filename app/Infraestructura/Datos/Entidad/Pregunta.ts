@@ -5,6 +5,7 @@ import { Pregunta } from 'App/Dominio/Datos/Entidades/Pregunta';
 import Encuestas from './Encuesta';
 import TbClasificacion from './Clasificacion';
 import TblTiposPregunta from './TiposPregunta';
+import Respuestas from './Respuesta';
 
 export default class Preguntas extends BaseModel {
   public static table = 'preguntas';
@@ -97,6 +98,14 @@ export default class Preguntas extends BaseModel {
     foreignKey: 'tipoPreguntaId',
   })
   public tiposPregunta: BelongsTo<typeof TblTiposPregunta>
+
+  
+  @hasMany(() => Respuestas, {
+    localKey: 'id',
+    foreignKey: 'idPregunta',
+  })
+  public respuesta: HasMany<typeof Respuestas>
+
 
 
 }
