@@ -103,7 +103,9 @@ let usuarioCreacion:string = "";
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
       sql.preload('clasificacion')
       sql.preload('tiposPregunta')
-      sql.preload('respuesta')
+      sql.preload('respuesta', sqlResp =>{
+        sqlResp.where('id_reporte', idReporte)
+      })
       sql.orderBy('preguntas.orden')
     }).where({'id_encuesta':idEncuesta}).first();
     const encuestaSql = await consulta
@@ -117,8 +119,7 @@ let usuarioCreacion:string = "";
       let preguntasArr: any = [];
       clasificacion = clasificacionSql.nombre;
       
-      encuestaSql?.pregunta.forEach( pregunta=> { 
-        console.log(pregunta.respuesta[0]);
+      encuestaSql?.pregunta.forEach( pregunta=> {
         
         if (clasificacionSql.id === pregunta.clasificacion.id) {
             preguntasArr.push({
@@ -126,9 +127,9 @@ let usuarioCreacion:string = "";
             numeroPregunta: pregunta.orden,
             pregunta: pregunta.pregunta,
             obligatoria : pregunta.obligatoria,
-            respuesta : (pregunta.respuesta[0].valor)??'',
+            respuesta : (pregunta.respuesta[0] && pregunta.respuesta[0].valor)??'',
             tipoDeEvidencia : pregunta.tipoEvidencia,
-            documento : (pregunta.respuesta[0].documento)??'',
+            documento : (pregunta.respuesta[0] && pregunta.respuesta[0].documento)??'',
             adjuntable : pregunta.adjuntable,
             adjuntableObligatorio : pregunta.adjuntableObligatorio,
             tipoPregunta: pregunta.tiposPregunta.nombre,
