@@ -76,7 +76,8 @@ export class ServicioSoporte{
             razonSocial: usuario.nombre,
             ruta: 'RUTA PENDIENTE',
             documento: peticion.adjunto ? peticion.adjunto.nombre : undefined,
-            telefono: usuario.telefono ?? ''
+            telefono: usuario.telefono ?? '',
+            problemaAcceso: false
         })
         soporte = await this.repositorio.guardar(soporte)
         if(peticion.adjunto){
@@ -101,7 +102,8 @@ export class ServicioSoporte{
             razonSocial: peticion.razonSocial,
             ruta: 'RUTA PENDIENTE',
             documento: peticion.adjunto ? peticion.adjunto.nombre : undefined,
-            telefono: peticion.telefono ?? ''
+            telefono: peticion.telefono ?? '',
+            problemaAcceso: true
         })
         soporte = await this.repositorio.guardar(soporte)
         if(peticion.adjunto){

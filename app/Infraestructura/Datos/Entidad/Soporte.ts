@@ -19,7 +19,8 @@ export class Soportes extends BaseModel {
     @column({ columnName: 'ruta' }) ruta: string
     @column({ columnName: 'usuario_respuesta' }) usuarioRespuesta?: string
     @column({ columnName: 'respuesta' }) respuesta?: string
-    @column({ columnName: 'id_estado' }) idEstado: number 
+    @column({ columnName: 'id_estado' }) idEstado: number
+    @column({ columnName: 'problema_acceso' }) problemaAcceso: boolean
     @column.dateTime({ columnName: 'fecha_creacion', autoCreate: true }) fechaCreacion: DateTime
     @column({ columnName: 'fecha_respuesta' }) fechaRespuesta?: DateTime
 
@@ -42,7 +43,8 @@ export class Soportes extends BaseModel {
             radicado: this.radicado,
             telefono: this.telefono,
             usuarioRespuesta: this.usuarioRespuesta,
-            respuesta: this.respuesta
+            respuesta: this.respuesta,
+            problemaAcceso: this.problemaAcceso
         })
     }
 
@@ -66,5 +68,6 @@ export class Soportes extends BaseModel {
         this.telefono = soporte.telefono
         this.usuarioRespuesta = soporte.usuarioRespuesta
         this.respuesta = soporte.respuesta
+        this.problemaAcceso = soporte.problemaAcceso
     }
 }

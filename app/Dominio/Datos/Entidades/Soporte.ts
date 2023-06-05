@@ -24,6 +24,7 @@ export class Soporte{
     fechaCreacion: DateTime
     fechaRespuesta?: DateTime
     respuesta?: string
+    problemaAcceso: boolean
 
     constructor(parametros: ParametrosInstanciaSoporte){
         this.id = parametros.id
@@ -42,6 +43,7 @@ export class Soporte{
         this.idEstado = parametros.idEstado
         this.fechaCreacion = parametros.fechaCreacion
         this.fechaRespuesta = parametros.fechaRespuesta
+        this.problemaAcceso = parametros.problemaAcceso
     }
 
     public static crear(parametros: ParametrosCrearSoporte){
@@ -54,7 +56,8 @@ export class Soporte{
             nit: parametros.nit,
             razonSocial: parametros.razonSocial,
             ruta: parametros.ruta,
-            telefono: parametros.telefono
+            telefono: parametros.telefono,
+            problemaAcceso: parametros.problemaAcceso
         })
     }
 
