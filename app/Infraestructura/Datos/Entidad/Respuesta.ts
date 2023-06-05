@@ -54,11 +54,6 @@ export default class Respuestas extends BaseModel {
     return respuesta
   }
 
-  @hasMany(() => Preguntas, {
-    localKey: 'idPregunta',
-    foreignKey: 'id',
-  })
-  public pregunta: HasMany<typeof Preguntas>
 
   @hasMany(() => Reporte, {
     localKey: 'idReporte',
