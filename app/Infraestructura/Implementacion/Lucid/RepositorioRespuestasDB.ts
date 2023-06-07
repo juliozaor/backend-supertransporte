@@ -1,11 +1,5 @@
-
-import { MapeadorPaginacionDB } from './MapeadorPaginacionDB';
 import { RepositorioRespuesta } from 'App/Dominio/Repositorios/RepositorioRespuesta';
 import TblRespuestas from 'App/Infraestructura/Datos/Entidad/Respuesta';
-import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
-import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
-import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
-
 export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
   async guardar(datos: string, idReporte: number, documento: string): Promise<any> {
