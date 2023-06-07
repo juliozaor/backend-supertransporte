@@ -45,17 +45,16 @@ export class RepositorioUsuariosDB implements RepositorioUsuario {
     return usuarioRetorno
   }
 
-  public async caracterizacion(idUsuario: string, idEncuesta?: number): Promise<any> {
-
-
-    //const categorizadoBd = await TblDetallesClasificaciones.query().where('usuarioId', idUsuario).first();
-    const categorizadoBd = await TblClasificacionesUsuario.query().where('usuarioId', idUsuario).first();
-
-
-
-    const categorizado = (categorizadoBd) ? true : false;
-
+  public async caracterizacion(idUsuario: string, idRol:string, idEncuesta?: number): Promise<any> {
     let encuestaCategorizable: boolean = false;
+    let categorizado: boolean = true;
+    //administrador - revisor y vigilado
+    if(idRol !== '003') return { categorizado, encuestaCategorizable }
+
+    const categorizadoBd = await TblClasificacionesUsuario.query().where('usuarioId', idUsuario).first();
+    categorizado = categorizadoBd?.estado ?? false;
+
+    
     if (idEncuesta) {
         const encuestaBd = await TblEncuestas.query().where('id', idEncuesta).first();
         if (encuestaBd && encuestaBd.categorizable === true) {
@@ -67,4 +66,5 @@ export class RepositorioUsuariosDB implements RepositorioUsuario {
 
     return { categorizado, encuestaCategorizable }
 }
+
 }

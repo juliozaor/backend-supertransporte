@@ -75,7 +75,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
             if (filColumas.detalles.length >= 1) {
               datos.push({
                 idFila: filClasificacion.id,
-                idColumna: filColumas.id,
+                idColumna: filColumas.columnaClasificacionId,
                 //idDetalle: (filColumas.detalles[0].id)??'',
                 valor: parseInt((filColumas.detalles[0].valor) ?? 0),
                 estado: filColumas.estado
@@ -83,7 +83,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
             } else {
               datos.push({
                 idFila: filClasificacion.id,
-                idColumna: filColumas.id,
+                idColumna: filColumas.columnaClasificacionId,
                 //  idDetalle:null,
                 valor: null,
                 estado: filColumas.estado
@@ -220,12 +220,12 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     let idClasificado: number = 4;
     let clasificado: boolean = true;
     let nombre = 'Sin clasificar';
-    if ((totalVehiculos >= 11 && totalVehiculos <= 19) || (totalConductores >= 2 && totalConductores <= 19)) {
+   /*  if ((totalVehiculos >= 11 && totalVehiculos <= 19) || (totalConductores >= 2 && totalConductores <= 19)) {
       console.log("entro 1");
 
       idClasificado = 1;
       nombre = 'Básico';
-    } else
+    } else */
 
       if ((totalVehiculos >= 20 && totalVehiculos <= 50) || (totalConductores >= 20 && totalConductores <= 50)) {
         console.log("entro 2");
@@ -237,12 +237,15 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
           console.log("entro 3");
           idClasificado = 3;
           nombre = 'Avanzado';
-        } else
+        } else {
+          idClasificado = 1;
+      nombre = 'Básico';
+        }
 
-          if (totalVehiculos <= 10 || totalConductores <= 1) {
+      /*     if (totalVehiculos <= 10 || totalConductores <= 1) {
             console.log("entro 4");
             clasificado = false;
-          }
+          } */
 
     const estaClasificado = await TblClasificacionesUsuario.query().where('clu_usuario_id', idUsuario).first();
     if (!estaClasificado) {

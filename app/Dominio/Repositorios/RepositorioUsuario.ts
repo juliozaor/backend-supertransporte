@@ -7,5 +7,5 @@ export interface RepositorioUsuario {
   guardarUsuario(usuario: Usuario): Promise<Usuario>
   actualizarUsuario(id: string, usuario: Usuario): Promise<Usuario>
   obtenerUsuarioPorUsuario(nombreUsuario: string): Promise<Usuario | null>
-  caracterizacion(idUsuario:string, idEncuesta?:number): Promise<any>
+  caracterizacion(idUsuario:string,idRol:string, idEncuesta?:number): Promise<any>
 }

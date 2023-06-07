@@ -34,10 +34,10 @@ export class ServicioUsuario {
         return usuario
     }
 
-    public async caracterizacion(idUsuario: string, idEncuesta?: number): Promise<any> {
+    public async caracterizacion(idUsuario: string, idEncuesta?: number, ): Promise<any> {
         const usuario = await this.obtenerUsuario(idUsuario)
 
-        return this.repositorioUsuarios.caracterizacion(usuario.id, idEncuesta)
+        return this.repositorioUsuarios.caracterizacion(usuario.id, usuario.idRol, idEncuesta)
     }
 
    
