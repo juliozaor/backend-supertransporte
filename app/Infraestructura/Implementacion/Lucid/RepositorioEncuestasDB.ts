@@ -11,12 +11,7 @@ import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
     const {idUsuario, idEncuesta, pagina, limite, idVigilado} = params;
-//let validado: boolean = false;
-     //TODO: Validar categorizado
-   /*   if(idEncuesta && idEncuesta == 1){
-        validado = await this.validarCategorizado(idUsuario);
-     }
- */
+
 let usuarioCreacion:string = "";
     
     const reportadas: Reportadas[] = []
@@ -36,11 +31,10 @@ let usuarioCreacion:string = "";
       console.log("Entro iguales");
       
       consulta.where('login_vigilado', idVigilado);
-    }else{
-      //Sale error en cuando son diferentes
+    }/* else{
       console.log("Entro diferentes");
       consulta.where('usuario_creacion', idUsuario);
-    }
+    } */
 
     let reportadasBD = await consulta.paginate(pagina, limite)
 
@@ -127,9 +121,9 @@ let usuarioCreacion:string = "";
             numeroPregunta: pregunta.orden,
             pregunta: pregunta.pregunta,
             obligatoria : pregunta.obligatoria,
-            respuesta : (pregunta.respuesta[0] && pregunta.respuesta[0].valor)??'',
+            respuesta : pregunta.respuesta[0]?.valor??'',
             tipoDeEvidencia : pregunta.tipoEvidencia,
-            documento : (pregunta.respuesta[0] && pregunta.respuesta[0].documento)??'',
+            documento : pregunta.respuesta[0]?.documento??'',
             adjuntable : pregunta.adjuntable,
             adjuntableObligatorio : pregunta.adjuntableObligatorio,
             tipoPregunta: pregunta.tiposPregunta.nombre,
