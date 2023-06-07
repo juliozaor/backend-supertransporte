@@ -24,7 +24,7 @@ export class RepositorioSoporteDB implements RepositorioSoporte{
         if(filtros.estado){
             query.andWhere('id_estado', filtros.estado)
         }
-        if(filtros.problemaAcceso){
+        if(filtros.problemaAcceso != undefined){
             query.andWhere('problema_acceso', filtros.problemaAcceso)
         }
         if(filtros.termino){
