@@ -24,8 +24,9 @@ export class RepositorioSoporteDB implements RepositorioSoporte{
         if(filtros.estado){
             query.andWhere('id_estado', filtros.estado)
         }
-        /* if(filtros.fechaCreacion){
-        } */
+        if(filtros.problemaAcceso){
+            query.andWhere('problema_acceso', filtros.problemaAcceso)
+        }
         if(filtros.termino){
             query.andWhere( subquery => {
                 subquery.where('radicado', 'ilike', `%${filtros.termino}%`)
@@ -34,12 +35,7 @@ export class RepositorioSoporteDB implements RepositorioSoporte{
                 subquery.orWhere('usuario_respuesta', 'ilike', `%${filtros.termino}%`)
             })
         }
-        if(filtros.fechaCreacion){
-            query.orderBy('fecha_creacion', filtros.fechaCreacion)
-            
-        }else{
-            query.orderBy('fecha_creacion', 'asc') //por defecto los mas antiguos primero
-        }
+        query.orderBy('fecha_creacion',  filtros.fechaCreacion ?? 'asc') //por defecto los mas antiguos primero
         const paginableDb = await query.paginate(pagina, limite) 
         const paginacion = MapeadorPaginacionDB.obtenerPaginacion(paginableDb)
         const datos = paginableDb.all().map( soporteDb => soporteDb.obtenerSoporte())
