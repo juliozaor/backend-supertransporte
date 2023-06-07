@@ -4,7 +4,7 @@ import { extname } from 'path'
 import Drive from '@ioc:Adonis/Core/Drive'
 
 Route.get('/', async ({ response }: HttpContextContract) => {
-  response.status(200).send('¡Bienvenido al API de SuperApp!')
+  response.status(200).send('¡Bienvenido!')
 })
 
 Route.get('/recursos/*', async ({request, response}:HttpContextContract) => {
