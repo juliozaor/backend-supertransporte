@@ -111,14 +111,15 @@ let usuarioCreacion:string = "";
     const claficiacionesSql = await TbClasificacion.query();    
     claficiacionesSql.forEach(clasificacionSql => {
       let preguntasArr: any = [];
+      let consecutivo: number = 1;
       clasificacion = clasificacionSql.nombre;
       
       encuestaSql?.pregunta.forEach( pregunta=> {
         
         if (clasificacionSql.id === pregunta.clasificacion.id) {
             preguntasArr.push({
-              idPregunta: pregunta.id,
-            numeroPregunta: pregunta.orden,
+            idPregunta: pregunta.id,
+            numeroPregunta: consecutivo,
             pregunta: pregunta.pregunta,
             obligatoria : pregunta.obligatoria,
             respuesta : pregunta.respuesta[0]?.valor??'',
@@ -130,7 +131,7 @@ let usuarioCreacion:string = "";
             valoresPregunta: pregunta.tiposPregunta.opciones,
             validaciones: pregunta.tiposPregunta.validaciones
             });
-            
+            consecutivo++;
           }
           
         });
