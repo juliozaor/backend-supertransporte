@@ -1,15 +1,14 @@
 
-import { Paginador } from 'App/Dominio/Paginador';
-import { MapeadorPaginacionDB } from './MapeadorPaginacionDB';
-import { RepositorioUser } from 'App/Dominio/Repositorios/RepositorioUser';
-import { User } from 'App/Dominio/Datos/Entidades/User';
-import TblUsers from 'App/Infraestructura/Datos/Entidad/User';
-export class RepositorioUsersDB implements RepositorioUser {
+/* import { RepositorioUsuario } from 'App/Dominio/Repositorios/RepositorioUsuario';
+import TblUsers from 'App/Infraestructura/Datos/Entidad/Usuario';
+import Usuario from 'Database/seeders/5.Usuario';
+export class RepositorioUsersDB implements RepositorioUsuario {
   
 
-  async obtenerUserPorId (id: string): Promise<User> {
+  async obtenerUserPorId (id: string): Promise<Usuario> {
     const user = await TblUsers.findOrFail(id)
-    return user.obtenerUser()
+    return user.obtenerUsuario()
   }
 
 }
+ */

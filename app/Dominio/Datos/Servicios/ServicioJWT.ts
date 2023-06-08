@@ -39,7 +39,6 @@ export class ServicioAutenticacionJWT {
 
   public static obtenerPayload (token: string):PayloadJWT {
     const payload = jwt.verify(token, Env.get("JWT_SECRET_KEY"), {complete: true}).payload as PayloadJWT
-    console.log(payload)
-    return payload
+     return payload
   }
 }
