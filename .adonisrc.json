@@ -69,5 +69,13 @@
       "pattern": "/**/*.edge",
       "reloadServer": true
     }
-  ]
+  ], 
+  "build": {
+    "copy": [
+      {
+        "from": "./app/Dominio/Email/Templates",
+        "to": "./build/app/Dominio/Email/Templates"
+      }
+    ]
+  }
 }
