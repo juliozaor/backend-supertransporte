@@ -44,6 +44,7 @@
     "glob-parent": "^6.0.2",
     "jsonwebtoken": "^8.5.1",
     "luxon": "^3.1.0",
+    "moment": "^2.29.4",
     "pg": "^8.8.0",
     "phc-bcrypt": "^1.0.8",
     "prettier": "^2.7.1",

@@ -7,7 +7,7 @@ import Reporte from './Reporte';
 
 export default class Respuestas extends BaseModel {
   @column({ isPrimary: true, columnName: 'id_respuesta' })
-  public id: number
+  public id?: number
   @column({ columnName: 'id_pregunta' }) public idPregunta: number;
   @column({ columnName: 'valor' }) public valor: string;
   @column({ columnName: 'documento' }) public documento: string;

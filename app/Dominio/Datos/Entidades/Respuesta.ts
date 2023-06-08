@@ -1,6 +1,6 @@
 import { DateTime } from 'luxon'
 export class Respuesta {
-  id: number;
+  id?: number;
   idPregunta: number;
   valor: string;
   documento: string;
