@@ -8,4 +8,6 @@ export class ReporteI {
   razonSocialRues: string;
   nitRues: string;
   loginVigilado: string;
+  asignado?: boolean;
+  ultimoUsuarioAsignado?: string
 }

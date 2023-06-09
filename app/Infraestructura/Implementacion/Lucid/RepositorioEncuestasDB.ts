@@ -74,6 +74,8 @@ let usuarioCreacion:string = "";
         nit: reportada.nitRues,
         email: reportada.usuario.correo,
         usuarioCreacion: reportada.usuarioCreacion,
+        asignado: reportada.asignado,
+        ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
         estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
       });
     })

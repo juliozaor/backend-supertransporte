@@ -4,7 +4,7 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 /* import { ServicioRespuestas } from 'App/Dominio/Datos/Servicios/ServicioRespuestas'
 import { RepositorioRespuestasDB } from '../../Infraestructura/Implementacion/Lucid/RepositorioRespuestasDB' */
 
-export default class ControladorArchivo {
+export default class ControladorReporte {
 /*   private service: ServicioRespuestas
   constructor () {
     this.service = new ServicioRespuestas(

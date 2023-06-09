@@ -18,6 +18,8 @@ export default class Reporte extends BaseModel {
   @column({ columnName: 'razon_social_rues' }) public razonSocialRues: string;
   @column({ columnName: 'nit_rues' }) public nitRues: string;
   @column({ columnName: 'login_vigilado' }) public loginVigilado: string;
+  @column({ columnName: 'asignado' }) public asignado?: boolean;
+  @column({ columnName: 'ultimo_usuario_asignado' }) public ultimoUsuarioAsignado?: string;
 
   @column.dateTime({ autoCreate: true , columnName: 'fecha_creacion'}) public fechaCreacion: DateTime
 
@@ -30,6 +32,8 @@ export default class Reporte extends BaseModel {
     this.razonSocialRues = reporte.razonSocialRues
     this.nitRues = reporte.nitRues
     this.loginVigilado = reporte.loginVigilado
+    this.asignado = reporte.asignado
+    this.ultimoUsuarioAsignado = reporte.ultimoUsuarioAsignado
   }
 
   public estableceReporteConId(reporte: ReporteI) {
@@ -40,6 +44,8 @@ export default class Reporte extends BaseModel {
     this.razonSocialRues = reporte.razonSocialRues
     this.nitRues = reporte.nitRues
     this.loginVigilado = reporte.loginVigilado
+    this.asignado = reporte.asignado
+    this.ultimoUsuarioAsignado = reporte.ultimoUsuarioAsignado
   }
 
  
@@ -53,6 +59,8 @@ export default class Reporte extends BaseModel {
     reporte.razonSocialRues = this.razonSocialRues 
     reporte.nitRues = this.nitRues 
     reporte.loginVigilado = this.loginVigilado 
+    reporte.asignado = this.asignado 
+    reporte.ultimoUsuarioAsignado = this.ultimoUsuarioAsignado 
     return reporte
   }
 

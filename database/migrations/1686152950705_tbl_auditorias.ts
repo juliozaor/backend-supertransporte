@@ -13,6 +13,8 @@ export default class extends BaseSchema {
       table.string('aud_usuario')
       table.string('aud_vigilado')
       table.string('aud_descripcion')
+      table.string('aud_encuesta_id')
+      table.string('aud_tipo_log')
       table.timestamp('aud_fecha_creacion', { useTz: true })
     })
   }
