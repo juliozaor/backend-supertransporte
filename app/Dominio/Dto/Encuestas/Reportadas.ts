@@ -13,5 +13,7 @@ export interface Reportadas {
     nit : string ,
     email :string,
     usuarioCreacion?: string,
-    estado : string
+    estado : string,
+    asignado?: boolean,
+    ultimoUsuarioAsignado?: string,
 }

@@ -4,4 +4,5 @@ const controlador = '../../../app/Presentacion/Encuesta/ControladorEncuesta'
 Route.group(() => {
   Route.get('/visualizar', `${controlador}.visualizar`)
   Route.get('/listar', `${controlador}.listarReportadas`)  
+  Route.post('/enviar', `${controlador}.enviarSt`)
 }).prefix('/api/v1/encuestas').middleware('autenticacionJwt')

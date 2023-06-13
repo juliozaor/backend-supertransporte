@@ -13,9 +13,11 @@ import { RepositorioAutorizacion } from 'App/Dominio/Repositorios/RepositorioAut
 import { RepositorioUsuario } from 'App/Dominio/Repositorios/RepositorioUsuario'
 import { EnviadorEmail } from 'App/Dominio/Email/EnviadorEmail'
 import { RolDto } from 'App/Presentacion/Autenticacion/Dtos/RolDto'
+import { ServicioAuditoria } from './ServicioAuditoria'
 
 export class ServicioAutenticacion {
   private servicioUsuario: ServicioUsuarios
+  private servicioAuditoria = new ServicioAuditoria();
 
   constructor(
     private encriptador: Encriptador,
@@ -70,6 +72,13 @@ export class ServicioAutenticacion {
       documento: usuarioVerificado.identificacion,
       idRol: usuarioVerificado.idRol
     })
+
+    this.servicioAuditoria.Auditar({ 
+      accion : "Inicio de sesión",
+        modulo : "Autenticación",
+        usuario : usuarioVerificado.identificacion,
+        descripcion : 'Inicio de sesión'
+      })
 
     return new RespuestaInicioSesion(
       {
