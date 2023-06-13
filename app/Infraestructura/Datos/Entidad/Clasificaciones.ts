@@ -1,7 +1,8 @@
 
 import { DateTime } from 'luxon';
-import { BaseModel, HasMany, column, hasMany} from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, HasMany, ManyToMany, column, hasMany, manyToMany} from '@ioc:Adonis/Lucid/Orm';
 import { Clasificaciones } from 'App/Dominio/Datos/Entidades/Clasificaciones';
+import TbClasificacion from './Clasificacion';
 
 export default class TblClasificaciones extends BaseModel {
   public static table = 'tbl_clasificaciones';
@@ -38,6 +39,16 @@ export default class TblClasificaciones extends BaseModel {
      clasificaciones.clasificado = this.clasificado 
     return clasificaciones
   }
+
+  @manyToMany(() => TbClasificacion, {
+    localKey: 'id',
+    pivotForeignKey: 'tcc_clasificaciones_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'tcc_clasificacion_id', 
+    pivotColumns: ['tcc_estado'],
+    pivotTable: 'tbl_clasificacion_clasificaciones'
+  })
+  public clasificacion: ManyToMany<typeof TbClasificacion>
 
 
 }

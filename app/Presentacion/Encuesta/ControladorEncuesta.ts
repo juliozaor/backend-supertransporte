@@ -15,15 +15,20 @@ export default class ControladorEncuesta {
 
   public async listarReportadas ({ request }:HttpContextContract) {
     const payload = await request.obtenerPayloadJWT()
-    const Encuestas = await this.service.obtenerReportadas(request.all(), payload)
-    return Encuestas
+    const encuestas = await this.service.obtenerReportadas(request.all(), payload)
+    return encuestas
   }
 
   public async visualizar ({ request }:HttpContextContract) {
     const payload = await request.obtenerPayloadJWT()
-    const Encuestas = await this.service.visualizar(request.all(), payload)
-    return Encuestas
+    const encuestas = await this.service.visualizar(request.all(), payload)
+    return encuestas
   }
 
+  public async enviarSt ({ request }:HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    const enviado = await this.service.enviarSt(request.all(), payload)
+    return enviado
+  }
 
 }
