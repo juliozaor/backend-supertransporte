@@ -8,13 +8,15 @@ import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 import TblRespuestas from 'App/Infraestructura/Datos/Entidad/Respuesta';
-import NoAprobado from 'App/Exceptions/NoAprobado';
+//import NoAprobado from 'App/Exceptions/NoAprobado';
 import { Respuesta } from 'App/Dominio/Datos/Entidades/Respuesta';
 import { Pregunta } from 'App/Dominio/Datos/Entidades/Pregunta';
 import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria';
+import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
+  private servicioEstado = new ServicioEstados();
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
     const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol } = params;
 
@@ -41,18 +43,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
 
 
-    /* if (idVigilado && idVigilado === idUsuario) {
-      console.log("Entro iguales");
-
-      consulta.where('login_vigilado', idVigilado);
-    } *//* else{
-      console.log("Entro diferentes");
-      consulta.where('usuario_creacion', idUsuario);
-    } */
-
     let reportadasBD = await consulta.paginate(pagina, limite)
 
-    //console.log(reportadasBD.length <= 0 && idUsuario);
 
 
     if (reportadasBD.length <= 0 && idEncuesta == 1 && idRol === '003') {
@@ -72,13 +64,15 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       await reporte.save();
       reportadasBD = await consulta.paginate(pagina, limite)
 
+      this.servicioEstado.Log(idUsuario, 2, idEncuesta)
+
       this.servicioAuditoria.Auditar({
         accion: "Listar Encuestas",
         modulo: "Encuesta",
         usuario: idUsuario,
         vigilado: idVigilado,
         descripcion: 'Entra por primera vez a la encuesta',
-        encuestaId:idEncuesta,
+        encuestaId: idEncuesta,
         tipoLog: 3
       })
     }
@@ -126,7 +120,10 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       sql.preload('respuesta', sqlResp => {
         sqlResp.where('id_reporte', idReporte)
       })
-      sql.orderBy('preguntas.orden')
+     
+     // sql.orderBy('preguntas.orden', 'desc')
+    
+    
     }).where({ 'id_encuesta': idEncuesta }).first();
     const encuestaSql = await consulta
 
@@ -134,10 +131,10 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
 
 
-    const claficiacionesSql = await TbClasificacion.query();
+    const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
+    let consecutivo: number = 1;
     claficiacionesSql.forEach(clasificacionSql => {
       let preguntasArr: any = [];
-      let consecutivo: number = 1;
       clasificacion = clasificacionSql.nombre;
 
       encuestaSql?.pregunta.forEach(pregunta => {
@@ -198,36 +195,53 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     }).where('identificacion', idUsuario).first()
 
     let aprobado = true;
+    const faltantes = new Array();
     const pasos = usuario?.clasificacionUsuario[0].clasificacion
-    const repuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
+    const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
     pasos?.forEach(paso => {
       paso.pregunta.forEach(preguntaPaso => {
-        const respuesta = repuestas.find(r => r.idPregunta === preguntaPaso.id)
+        let repuestaExiste = true
+        let archivoExiste = true
+        const respuesta = respuestas.find(r => r.idPregunta === preguntaPaso.id)
         if (preguntaPaso.obligatoria) {
-          if (!respuesta) {
-            throw new NoAprobado('Faltan preguntas por responder')
+          if (!respuesta) {            
+            //throw new NoAprobado('Faltan preguntas por responder')     
+            repuestaExiste = false       
           }
-        //  if (repuestas) {
-            this.validarRespuesta(respuesta, preguntaPaso);
-            
-        //  }
+          if (respuesta && preguntaPaso.adjuntableObligatorio) {
+            archivoExiste = this.validarDocumento(respuesta, preguntaPaso);            
+          }
 
         }
+
+
+        if(!repuestaExiste || !archivoExiste){
+          aprobado = false
+          faltantes.push({
+            preguntaId: preguntaPaso.id,
+            archivoObligatorio: preguntaPaso.adjuntableObligatorio
+          })
+
+        }
+
 
       });
 
     });
 
-    return aprobado
+    if(aprobado) {
+      this.servicioEstado.Log(idUsuario, 4, idEncuesta)
+    }
+
+    return {aprobado, faltantes}
 
   }
 
-  validarRespuesta = (r: Respuesta, p: Pregunta): boolean => {
-    if (p.adjuntable && p.adjuntableObligatorio) {
-      if (r.documento.length <= 0) {
-        throw new NoAprobado('Faltan archivos adjuntar')
+  validarDocumento = (r: Respuesta, p: Pregunta): boolean => {
+      if (!r.documento || r.documento.length <= 0) {
+        //throw new NoAprobado('Faltan archivos adjuntar')
+        return false
       }
-    }
     return true
   }
 

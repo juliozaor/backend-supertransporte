@@ -20,7 +20,8 @@ export default class Reporte extends BaseModel {
   @column({ columnName: 'login_vigilado' }) public loginVigilado: string;
   @column({ columnName: 'asignado' }) public asignado?: boolean;
   @column({ columnName: 'ultimo_usuario_asignado' }) public ultimoUsuarioAsignado?: string;
-
+  @column({ columnName: 'estado_verificacion_id' }) public estadoVerificacionId?: number;
+  @column({ columnName: 'asignador' }) public asignador?: string;
   @column.dateTime({ autoCreate: true , columnName: 'fecha_creacion'}) public fechaCreacion: DateTime
 
   public establecerReporteDb(reporte: ReporteI) {
@@ -46,6 +47,12 @@ export default class Reporte extends BaseModel {
     this.loginVigilado = reporte.loginVigilado
     this.asignado = reporte.asignado
     this.ultimoUsuarioAsignado = reporte.ultimoUsuarioAsignado
+  }
+
+  public establecerVerificador(asignado: boolean = true, usuarioAsignado: string = '', asignador: string = '') {
+    this.asignado = asignado
+    this.ultimoUsuarioAsignado = usuarioAsignado
+    this.asignador = asignador
   }
 
  

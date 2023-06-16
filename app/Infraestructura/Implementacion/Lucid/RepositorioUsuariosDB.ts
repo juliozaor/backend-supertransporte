@@ -23,6 +23,21 @@ export class RepositorioUsuariosDB implements RepositorioUsuario {
     return usuario.obtenerUsuario()
   }
 
+  async obtenerUsuarioPorRol (rol: string): Promise<Usuario[]> {
+    const usuarios: any[] = []
+    const usuariosDB = await TblUsuarios.query().where('usn_rol_id', rol).orderBy('id', 'desc')
+    usuariosDB.forEach(usuarioDB => {
+
+      /* usuarios.push(usuariosDB.obtenerUsuario()) */
+      usuarios.push({
+      //  id: usuarioDB.id,
+        nombre: usuarioDB.nombre,
+        identificacion: usuarioDB.identificacion
+      })
+    })
+    return usuarios
+  }
+
   async obtenerUsuarioPorUsuario (nombreUsuario: string): Promise<Usuario | null>{
     const usuario = await TblUsuarios.query().where('usuario', '=', nombreUsuario).first()
     if(usuario){

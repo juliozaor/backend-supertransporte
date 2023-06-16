@@ -14,10 +14,12 @@ import { RepositorioUsuario } from 'App/Dominio/Repositorios/RepositorioUsuario'
 import { EnviadorEmail } from 'App/Dominio/Email/EnviadorEmail'
 import { RolDto } from 'App/Presentacion/Autenticacion/Dtos/RolDto'
 import { ServicioAuditoria } from './ServicioAuditoria'
+import { ServicioEstados } from './ServicioEstados'
 
 export class ServicioAutenticacion {
   private servicioUsuario: ServicioUsuarios
   private servicioAuditoria = new ServicioAuditoria();
+  private servicioEstado = new ServicioEstados();
 
   constructor(
     private encriptador: Encriptador,
@@ -27,7 +29,7 @@ export class ServicioAutenticacion {
     private repositorioUsuario: RepositorioUsuario,
   ) {
     this.servicioUsuario = new ServicioUsuarios(
-      this.repositorioUsuario, 
+      this.repositorioUsuario,
       new GeneradorContrasena(),
       this.encriptador,
       this.enviadorEmail
@@ -73,12 +75,18 @@ export class ServicioAutenticacion {
       idRol: usuarioVerificado.idRol
     })
 
-    this.servicioAuditoria.Auditar({ 
-      accion : "Inicio de sesión",
-        modulo : "Autenticación",
-        usuario : usuarioVerificado.identificacion,
-        descripcion : 'Inicio de sesión'
-      })
+    if (usuarioVerificado.idRol === '003') {
+      this.servicioEstado.Log(usuarioVerificado.identificacion, 1)
+    }
+
+
+
+    this.servicioAuditoria.Auditar({
+      accion: "Inicio de sesión",
+      modulo: "Autenticación",
+      usuario: usuarioVerificado.identificacion,
+      descripcion: 'Inicio de sesión'
+    })
 
     return new RespuestaInicioSesion(
       {
@@ -96,9 +104,9 @@ export class ServicioAutenticacion {
 
   public async verificarUsuario(usuario: string): Promise<Usuario> {
     const usuarioDB = await this.servicioUsuario.obtenerUsuarioPorUsuario(usuario)
-      if (!usuarioDB) {
-        throw new Exception('Credenciales incorrectas', 400)
-      }
+    if (!usuarioDB) {
+      throw new Exception('Credenciales incorrectas', 400)
+    }
     return usuarioDB
   }
 
@@ -111,4 +119,6 @@ export class ServicioAutenticacion {
     registro.agregarIntentoFallido()
     return await this.repositorioBloqueo.actualizarRegistro(registro)
   }
+
+
 }
