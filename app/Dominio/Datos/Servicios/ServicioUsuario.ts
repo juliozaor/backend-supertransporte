@@ -23,6 +23,10 @@ export class ServicioUsuario {
         return usuario
     }
 
+    async obtenerUsuarioPorRol(rol: string): Promise<Usuario[]> {
+        return this.repositorioUsuarios.obtenerUsuarioPorRol(rol);
+      }
+
     private actualizarInformacion(
         usuario: | Usuario,
         informacion: PeticionActualizarUsuario): Usuario {

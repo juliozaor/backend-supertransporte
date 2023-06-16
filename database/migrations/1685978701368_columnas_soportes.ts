@@ -8,6 +8,8 @@ export default class extends BaseSchema {
       table.string('identificador_documento').comment('Nombre que tendra en el sistema de ficheros');
       table.string('identificador_doc_respuesta').comment('Nombre que tendra el documento de respuesta en el sistema de ficheros');
       table.boolean('problema_acceso').defaultTo(false).comment('Define si el soporte es por problemas de acceso');
+      table.integer('ultimo_usuario_asignado').comment('Documento del verificador');
+      table.integer('estado_verificado_id');
   })
 }
 

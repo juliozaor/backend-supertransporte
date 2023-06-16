@@ -5,13 +5,16 @@ import { DateTime } from 'luxon';
 import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
 import { TblArchivosTemporales } from 'App/Infraestructura/Datos/Entidad/Archivo';
 import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria';
+import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 export class RepositorioRespuestasDB implements RepositorioRespuesta {
   private servicioAuditoria = new ServicioAuditoria();
+  private servicioEstado = new ServicioEstados();
 
   async guardar(datos: string, idReporte: number, documento: string): Promise<any> {
     const { respuestas } = JSON.parse(datos);    
     const { usuarioCreacion, loginVigilado, idEncuesta } = await TblReporte.findByOrFail('id', idReporte)
    
+    this.servicioEstado.Log(loginVigilado, 3, idEncuesta)
     this.servicioAuditoria.Auditar({
       accion: "Guardar Respuesta",
       modulo: "Encuesta",

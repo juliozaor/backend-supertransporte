@@ -1,39 +1,38 @@
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/naming-convention */
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-/* import { ServicioRespuestas } from 'App/Dominio/Datos/Servicios/ServicioRespuestas'
-import { RepositorioRespuestasDB } from '../../Infraestructura/Implementacion/Lucid/RepositorioRespuestasDB' */
+import { ServicioReportes } from 'App/Dominio/Datos/Servicios/ServicioReportes'
+import { ServicioUsuario } from 'App/Dominio/Datos/Servicios/ServicioUsuario'
+import { RepositorioReporteDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioReporteDB'
+import { RepositorioUsuariosDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioUsuariosDB'
 
 export default class ControladorArchivo {
-/*   private service: ServicioRespuestas
-  constructor () {
-    this.service = new ServicioRespuestas(
-      new RepositorioRespuestasDB()
+  private service: ServicioReportes
+  constructor() {
+    this.service = new ServicioReportes(
+      new RepositorioReporteDB(),
+      new ServicioUsuario(new RepositorioUsuariosDB())
     )
-  } */
-
-  public async asignacion ({ request, response }:HttpContextContract) {
-    response.status(200).send({
-      mensaje:'Reportes asignados correctamente'
-    })
   }
 
-  public async eliminarAsignacion ({ request, response }:HttpContextContract) {
-    response.status(200).send({
-      mensaje:'Se elimino correctamente'
-    })
+  public async asignacion({ request }: HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    return await this.service.asignar(JSON.stringify(request.all()), payload)
+     
   }
 
-  public async verificadores ({ request, response }:HttpContextContract) {
-    response.status(200).send([
-      {
-        "nombre": "Jesid Polo",
-        "documento": "1002999476"
-      },{
-        "nombre": "Julio Jimenez",
-        "documento": "92555553"
-      }
-    ])
+  public async eliminarAsignacion({ request, params }: HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    return await this.service.eliminar(params.idReporte, payload)
+  }
+
+  public async verificadores() {
+    return this.service.obtenerVerificadores();
+  }
+
+  public async asignados({ params }: HttpContextContract) {
+    const encuestas = await this.service.obtenerAsignadas(params)
+    return encuestas
   }
 
 
