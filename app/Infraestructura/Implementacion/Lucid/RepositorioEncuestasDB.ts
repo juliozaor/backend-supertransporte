@@ -195,6 +195,7 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
     const encuesta = {
       tipoAccion,
       clasificaion: nombreClasificaion,
+      observacion:encuestaSql?.observacion,
       clasificaciones: clasificacionesArr
     }
 

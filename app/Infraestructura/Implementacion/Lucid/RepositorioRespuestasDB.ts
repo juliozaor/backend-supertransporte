@@ -38,7 +38,8 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
         documento: (respuesta.documento) ?? '',
         nombredocOriginal: (respuesta.nombreArchivo) ?? '',
         ruta: (respuesta.ruta) ?? '',
-        fechaActualizacion: DateTime.fromJSDate(new Date)
+        fechaActualizacion: DateTime.fromJSDate(new Date),
+        observacion: (respuesta.observacion) ?? ''
       }
 
       if (existeRespuesta) {

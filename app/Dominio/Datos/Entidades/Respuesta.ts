@@ -9,4 +9,5 @@ export class Respuesta {
   idReporte: number;
   ruta: string;
   nombredocOriginal: string;
+  observacion?: string;
 }
