@@ -16,6 +16,7 @@ export default class Respuestas extends BaseModel {
   @column({ columnName: 'id_reporte' }) public idReporte: number;
   @column({ columnName: 'ruta' }) public ruta: string;
   @column({ columnName: 'nombredoc_original' }) public nombredocOriginal: string;
+  @column({ columnName: 'observacion' }) public observacion?: string;
 
   public establecerRespuestaDb(respuesta: Respuesta) {
     this.id = respuesta.id
@@ -27,6 +28,7 @@ export default class Respuestas extends BaseModel {
     this.idReporte = respuesta.idReporte
     this.ruta = respuesta.ruta
     this.nombredocOriginal = respuesta.nombredocOriginal
+    this.observacion= respuesta.observacion
   }
 
   public estableceRespuestaConId(respuesta: Respuesta) {
@@ -38,6 +40,7 @@ export default class Respuestas extends BaseModel {
     this.idReporte = respuesta.idReporte
     this.ruta = respuesta.ruta
     this.nombredocOriginal = respuesta.nombredocOriginal
+    this.observacion= respuesta.observacion
   }
 
   public obtenerRespuesta(): Respuesta {
@@ -51,6 +54,7 @@ export default class Respuestas extends BaseModel {
     respuesta.idReporte = this.idReporte
     respuesta.ruta = this.ruta
     respuesta.nombredocOriginal = this.nombredocOriginal
+    respuesta.observacion = this.observacion
     return respuesta
   }
 

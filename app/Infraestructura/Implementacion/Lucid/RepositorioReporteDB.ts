@@ -53,7 +53,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       const reporteDb = await TblReporte.findBy('id_reporte', reporte)
 
       reporteDb?.establecerVerificador(true, verificador, asignador)
-reporteDb?.save()
+      reporteDb?.save()
     }
     return { mensaje: 'Reportes asignados' }
 
@@ -63,7 +63,7 @@ reporteDb?.save()
     const reporteDb = await TblReporte.findBy('id_reporte', reporte)
 
     reporteDb?.establecerVerificador(false, '', '')
-   reporteDb?.save()
+    reporteDb?.save()
     return { mensaje: 'Asignación eliminada' }
   }
 }

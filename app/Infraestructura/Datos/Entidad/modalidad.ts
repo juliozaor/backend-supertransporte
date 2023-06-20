@@ -26,7 +26,7 @@ export default class TblModalidades extends BaseModel {
   public obtenerModalidad(): Modalidad {
     const modalidad = new Modalidad()
     modalidad.id = this.id
-    modalidad.nombre = this.nombre
+    modalidad.nombre = `${this.nombre} (${this.abreviatura})`
     modalidad.abreviatura = this.abreviatura
     modalidad.estado = this.estado
     return modalidad

@@ -8,4 +8,6 @@ export class Encuesta{
   usuarioCreacion:string;
   fechaCreacion:DateTime;
   categorizable?:boolean;
+  observacion?:boolean;
+  logueo?:boolean;
 }

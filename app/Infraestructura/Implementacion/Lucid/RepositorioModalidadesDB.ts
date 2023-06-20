@@ -15,7 +15,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
 
   async obtenerModalidades(): Promise<{ modalidades: Modalidad[] }> {
     const modalidades: Modalidad[] = []
-    const modalidadDB = await TblModalidades.query()
+    const modalidadDB = await TblModalidades.query().orderBy('nombre', 'asc')
     modalidadDB.forEach(modalidadDB => {
       modalidades.push(modalidadDB.obtenerModalidad())
     })

@@ -7,7 +7,7 @@ export class RepositorioRadioAccionDB implements RepositorioRadioAccion {
 
   async obtenerRadiosAccion (): Promise<{radios: RadioAccion[]}> {
     const radios: RadioAccion[] = []    
-    const radiosDB = await TblRadioAcciones.query()
+    const radiosDB = await TblRadioAcciones.query().orderBy('nombre', 'asc')
     radiosDB.forEach(radiosDB => {
       radios.push(radiosDB.obtenerRadioAccion())
     })
