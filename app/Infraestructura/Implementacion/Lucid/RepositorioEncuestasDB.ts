@@ -105,6 +105,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     return { reportadas, paginacion }
   }
 
+
+
   async visualizar(params: any): Promise<any> {
 
     const { idEncuesta, idUsuario, idVigilado, idReporte } = params;
@@ -128,6 +130,13 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     const encuestaSql = await consulta
 
 
+//BUscar la clasificacion del usuario
+const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
+  sqlClasC.preload('clasificacion')
+  sqlClasC.has('clasificacion')}).where('identificacion', idUsuario).first()
+
+  const nombreClasificaion = usuario?.clasificacionUsuario[0].nombre;
+  const pasos = usuario?.clasificacionUsuario[0].clasificacion
 
 
 
@@ -137,19 +146,28 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       let preguntasArr: any = [];
       clasificacion = clasificacionSql.nombre;
 
+      //validar si el paso es obligatorio
+      
+      const obligatorio = pasos?.find(paso => paso.id === clasificacionSql.id)?true:false;
+
+
       encuestaSql?.pregunta.forEach(pregunta => {
 
         if (clasificacionSql.id === pregunta.clasificacion.id) {
+
+          
+
+
           preguntasArr.push({
             idPregunta: pregunta.id,
             numeroPregunta: consecutivo,
             pregunta: pregunta.pregunta,
-            obligatoria: pregunta.obligatoria,
+            obligatoria: obligatorio,// pregunta.obligatoria,
             respuesta: pregunta.respuesta[0]?.valor ?? '',
             tipoDeEvidencia: pregunta.tipoEvidencia,
             documento: pregunta.respuesta[0]?.documento ?? '',
             adjuntable: pregunta.adjuntable,
-            adjuntableObligatorio: pregunta.adjuntableObligatorio,
+            adjuntableObligatorio: obligatorio,// pregunta.adjuntableObligatorio,
             tipoPregunta: pregunta.tiposPregunta.nombre,
             valoresPregunta: pregunta.tiposPregunta.opciones,
             validaciones: pregunta.tiposPregunta.validaciones
@@ -176,6 +194,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     const encuesta = {
       tipoAccion,
+      clasificaion: nombreClasificaion,
       clasificaciones: clasificacionesArr
     }
 
