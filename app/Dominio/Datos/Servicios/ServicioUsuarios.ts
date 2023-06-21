@@ -10,6 +10,7 @@ import { Usuario } from "../Entidades/Usuario";
 import { GeneradorContrasena } from "App/Dominio/GenerarContrasena/GenerarContrasena";
 import { Encriptador } from "App/Dominio/Encriptacion/Encriptador";
 import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
+import { PayloadJWT } from "App/Dominio/Dto/PayloadJWT";
 
 export class ServicioUsuarios {
   constructor(
@@ -30,7 +31,10 @@ export class ServicioUsuarios {
     return this.repositorio.obtenerUsuarioPorUsuario(nombreUsuario);
   }
 
-  async guardarUsuario(usuario: Usuario): Promise<Usuario> {
+  async guardarUsuario(usuario: Usuario, payload:PayloadJWT): Promise<Usuario> {
+    if(payload.idRol !== '006'){
+      throw new Error("Usted no tiene autorización para crear usuarios");      
+    }
     const clave = await this.generarContraseña.generar()
     usuario.id = uuidv4();
     usuario.clave = await this.encriptador.encriptar(clave)

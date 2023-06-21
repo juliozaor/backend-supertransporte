@@ -10,7 +10,14 @@ import TblClasificacionesUsuario from 'App/Infraestructura/Datos/Entidad/Clasifi
 export class RepositorioUsuariosDB implements RepositorioUsuario {
   async obtenerUsuarios (params: any): Promise<{usuarios: Usuario[], paginacion: Paginador}> {
     const usuarios: Usuario[] = []
-    const usuariosDB = await TblUsuarios.query().orderBy('id', 'desc').paginate(params.pagina, params.limite)
+
+    const consulta = TblUsuarios.query()
+    if (params.rol) {
+      consulta.where('usn_rol_id', params.rol)
+    }
+
+    const usuariosDB = await consulta.orderBy('id', 'desc').paginate(params.pagina, params.limite)
+
     usuariosDB.forEach(usuariosDB => {
       usuarios.push(usuariosDB.obtenerUsuario())
     })

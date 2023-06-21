@@ -7,6 +7,7 @@ import { ServicioUsuario } from './ServicioUsuario';
 import { Reportadas } from 'App/Dominio/Dto/Encuestas/Reportadas';
 import { Paginador } from 'App/Dominio/Paginador';
 import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
+import { EstadosVerificado } from '../Entidades/EstadosVerificado';
 
 export class ServicioReportes {
   constructor (private repositorio: RepositorioReporte,
@@ -33,6 +34,17 @@ export class ServicioReportes {
   async eliminar(reporte: string, payload:PayloadJWT): Promise<AsyncGeneratorFunction> {
     const asignador = payload.documento;
     return this.repositorio.eliminar(reporte, asignador);
+  }
+
+  async obtenerEstadosVerificado(): Promise<EstadosVerificado[]> {    
+    return await this.repositorio.obtenerEstadosVerificado()
+  }
+
+  async verificar(datos: string, payload:PayloadJWT): Promise<any> {
+    if(payload.idRol !== '002'){
+      throw new Error("Usted no tiene autorización para hacer una verificación");      
+    }
+    return this.repositorio.verificar(datos, payload);
   }
 
 

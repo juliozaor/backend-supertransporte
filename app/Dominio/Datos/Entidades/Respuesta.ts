@@ -10,4 +10,8 @@ export class Respuesta {
   ruta: string;
   nombredocOriginal: string;
   observacion?: string;
+  cumple?: number;
+  observacionCumple?: string;
+  corresponde?: number;
+  observacionCorresponde?: string;
 }

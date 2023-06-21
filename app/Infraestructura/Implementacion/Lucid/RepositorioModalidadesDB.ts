@@ -25,7 +25,15 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
   async filtros(idUsuario: string): Promise<{}> {
     if (!idUsuario) return { mensaje: 'Usuario requerido' }
 
-    const cabecerasModalidades = ["Modalidad", "Radio de acción u operación"];
+    const cabecerasModalidades = [
+      {
+        nombre: "Modalidad",
+        leyenda: ''
+      },
+      {
+        nombre: "Radio de acción u operación",
+        leyenda: 'Para la identificación de el radio de acción en el formulario orientar al Capitulo II de la Resolución MT Nro. 20223040040595'
+      }];
     const filasModalidades: any[] = [];
 
     const modalidades = await TblModalidades.query().preload('radios', (sql) => {
@@ -210,7 +218,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
 
     //Clasificar
     const { nombre, clasificado } = await this.clasificar(totalConductores, totalVehiculos, idUsuario);
-    
+
     return { nombre, clasificado }
 
   }
@@ -220,32 +228,32 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     let idClasificado: number = 4;
     let clasificado: boolean = true;
     let nombre = 'Sin clasificar';
-   /*  if ((totalVehiculos >= 11 && totalVehiculos <= 19) || (totalConductores >= 2 && totalConductores <= 19)) {
-      console.log("entro 1");
+    /*  if ((totalVehiculos >= 11 && totalVehiculos <= 19) || (totalConductores >= 2 && totalConductores <= 19)) {
+       console.log("entro 1");
+ 
+       idClasificado = 1;
+       nombre = 'Básico';
+     } else */
 
-      idClasificado = 1;
-      nombre = 'Básico';
-    } else */
+    if ((totalVehiculos >= 20 && totalVehiculos <= 50) || (totalConductores >= 20 && totalConductores <= 50)) {
+      console.log("entro 2");
+      idClasificado = 2;
+      nombre = 'Estándar';
+    } else
 
-      if ((totalVehiculos >= 20 && totalVehiculos <= 50) || (totalConductores >= 20 && totalConductores <= 50)) {
-        console.log("entro 2");
-        idClasificado = 2;
-        nombre = 'Estándar';
-      } else
+      if (totalVehiculos > 50 || totalConductores > 50) {
+        console.log("entro 3");
+        idClasificado = 3;
+        nombre = 'Avanzado';
+      } else {
+        idClasificado = 1;
+        nombre = 'Básico';
+      }
 
-        if (totalVehiculos > 50 || totalConductores > 50) {
-          console.log("entro 3");
-          idClasificado = 3;
-          nombre = 'Avanzado';
-        } else {
-          idClasificado = 1;
-      nombre = 'Básico';
-        }
-
-      /*     if (totalVehiculos <= 10 || totalConductores <= 1) {
-            console.log("entro 4");
-            clasificado = false;
-          } */
+    /*     if (totalVehiculos <= 10 || totalConductores <= 1) {
+          console.log("entro 4");
+          clasificado = false;
+        } */
 
     const estaClasificado = await TblClasificacionesUsuario.query().where('clu_usuario_id', idUsuario).first();
     if (!estaClasificado) {
@@ -258,7 +266,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
       clasificacionUsuario.save()
     }
 
-    if(estaClasificado){
+    if (estaClasificado) {
       estaClasificado.estableceClasificacionesUsuarioConId({
         usuarioId: idUsuario,
         clasificacionId: idClasificado,

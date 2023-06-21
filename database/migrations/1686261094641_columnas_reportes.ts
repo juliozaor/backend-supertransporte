@@ -9,6 +9,7 @@ export default class extends BaseSchema {
       table.string('ultimo_usuario_asignado')
       table.integer('estado_verificacion_id')
       table.string('asignador')
+      table.timestamp('fecha_asignacion')
   })
 }
 
@@ -18,6 +19,7 @@ public async down () {
     table.dropColumn('ultimo_usuario_asignado')
     table.dropColumn('estado_verificacion_id')
     table.dropColumn('asignador')
+    table.dropColumn('fecha_asignacion')
 })
 }
 }

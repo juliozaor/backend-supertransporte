@@ -10,4 +10,5 @@ export class ReporteI {
   loginVigilado: string;
   asignado?: boolean;
   ultimoUsuarioAsignado?: string
+  fechaAsignacion?: DateTime;
 }

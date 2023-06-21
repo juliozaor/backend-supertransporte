@@ -30,12 +30,21 @@ export default class ControladorArchivo {
     return this.service.obtenerVerificadores();
   }
 
+  public async estadosVerificado() {
+    return this.service.obtenerEstadosVerificado();
+  }
+
   public async asignados({ params }: HttpContextContract) {
     const encuestas = await this.service.obtenerAsignadas(params)
     return encuestas
   }
 
 
+
+  public async verificar({ request }:HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    return this.service.verificar(JSON.stringify(request.all()), payload);
+  }
 
 
 

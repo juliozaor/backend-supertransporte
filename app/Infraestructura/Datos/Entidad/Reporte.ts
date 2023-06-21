@@ -55,6 +55,10 @@ export default class Reporte extends BaseModel {
     this.asignador = asignador
   }
 
+  public establecerEstadoVerificado(estado: number) {
+    this.estadoVerificacionId = estado
+  }
+
  
   public obtenerReporte(): ReporteI {
     const reporte = new ReporteI()
