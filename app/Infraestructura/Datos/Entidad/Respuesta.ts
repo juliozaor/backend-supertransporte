@@ -17,6 +17,10 @@ export default class Respuestas extends BaseModel {
   @column({ columnName: 'ruta' }) public ruta: string;
   @column({ columnName: 'nombredoc_original' }) public nombredocOriginal: string;
   @column({ columnName: 'observacion' }) public observacion?: string;
+  @column({ columnName: 'cumple' }) public cumple?: number;
+  @column({ columnName: 'observacion_cumple' }) public observacionCumple?: string;
+  @column({ columnName: 'corresponde' }) public corresponde?: number;
+  @column({ columnName: 'observacion_corresponde' }) public observacionCorresponde?: string;
 
   public establecerRespuestaDb(respuesta: Respuesta) {
     this.id = respuesta.id
@@ -29,6 +33,10 @@ export default class Respuestas extends BaseModel {
     this.ruta = respuesta.ruta
     this.nombredocOriginal = respuesta.nombredocOriginal
     this.observacion= respuesta.observacion
+    this.cumple= respuesta.cumple
+    this.observacionCumple= respuesta.observacionCumple
+    this.corresponde= respuesta.corresponde
+    this.observacionCorresponde= respuesta.observacionCorresponde
   }
 
   public estableceRespuestaConId(respuesta: Respuesta) {
@@ -41,6 +49,10 @@ export default class Respuestas extends BaseModel {
     this.ruta = respuesta.ruta
     this.nombredocOriginal = respuesta.nombredocOriginal
     this.observacion= respuesta.observacion
+    this.cumple= respuesta.cumple
+    this.observacionCumple= respuesta.observacionCumple
+    this.corresponde= respuesta.corresponde
+    this.observacionCorresponde= respuesta.observacionCorresponde
   }
 
   public obtenerRespuesta(): Respuesta {
@@ -55,6 +67,10 @@ export default class Respuestas extends BaseModel {
     respuesta.ruta = this.ruta
     respuesta.nombredocOriginal = this.nombredocOriginal
     respuesta.observacion = this.observacion
+    respuesta.cumple = this.cumple
+    respuesta.observacionCumple = this.observacionCumple
+    respuesta.corresponde = this.corresponde
+    respuesta.observacionCorresponde = this.observacionCorresponde
     return respuesta
   }
 

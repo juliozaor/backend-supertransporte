@@ -4,6 +4,9 @@ import { Paginador } from '../../../Dominio/Paginador';
 import { MapeadorPaginacionDB } from './MapeadorPaginacionDB';
 import { RepositorioReporte } from 'App/Dominio/Repositorios/RepositorioReporte'
 import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
+import { EstadosVerificado } from 'App/Dominio/Datos/Entidades/EstadosVerificado';
+import TblEstadosVerificado from 'App/Infraestructura/Datos/Entidad/EstadoVerificado';
+import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
 
 export class RepositorioReporteDB implements RepositorioReporte {
   async obtenerAsignadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
@@ -66,4 +69,23 @@ export class RepositorioReporteDB implements RepositorioReporte {
     reporteDb?.save()
     return { mensaje: 'Asignación eliminada' }
   }
+
+  async obtenerEstadosVerificado(): Promise<EstadosVerificado[]> {
+    return await TblEstadosVerificado.query()
+
+  }
+
+  async verificar(datos: string, payload:PayloadJWT): Promise<any> {
+
+    const {idReporte, estado} = JSON.parse(datos)
+    const reporteDb = await TblReporte.findBy('id_reporte', idReporte)  
+    if(payload.documento !== reporteDb?.ultimoUsuarioAsignado){
+      throw new Error("Usted no tiene autorización para hacer esta verificación");  
+    }
+
+    reporteDb?.establecerEstadoVerificado(estado)
+    reporteDb?.save()
+    return { mensaje: 'Se establecio el estado verificado' }
+  }
+
 }

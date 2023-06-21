@@ -155,7 +155,6 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
 
         if (clasificacionSql.id === pregunta.clasificacion.id) {
 
-          
 
 
           preguntasArr.push({
@@ -170,7 +169,13 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
             adjuntableObligatorio: obligatorio,// pregunta.adjuntableObligatorio,
             tipoPregunta: pregunta.tiposPregunta.nombre,
             valoresPregunta: pregunta.tiposPregunta.opciones,
-            validaciones: pregunta.tiposPregunta.validaciones
+            validaciones: pregunta.tiposPregunta.validaciones,
+
+            observacion: pregunta.respuesta[0]?.observacion ?? '',
+            cumple: pregunta.respuesta[0]?.cumple ?? '',
+            observacionCumple: pregunta.respuesta[0]?.observacionCumple ?? '',
+            corresponde: pregunta.respuesta[0]?.corresponde ?? '',
+            observacionCorresponde: pregunta.respuesta[0]?.observacionCorresponde ?? '',
           });
           consecutivo++;
         }
@@ -194,6 +199,7 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
 
     const encuesta = {
       tipoAccion,
+      nombreEncuesta:encuestaSql?.nombre,
       clasificaion: nombreClasificaion,
       observacion:encuestaSql?.observacion,
       clasificaciones: clasificacionesArr

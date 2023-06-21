@@ -18,8 +18,8 @@ export default class ControladorUsuario {
     )
   }
 
-  public async listar ({ params }) {
-    const usuarios = await this.service.obtenerUsuarios(params)
+  public async listar ({ request }:HttpContextContract) {
+    const usuarios = await this.service.obtenerUsuarios(request.all())
     return usuarios
   }
 
@@ -41,7 +41,8 @@ export default class ControladorUsuario {
 
   public async guardarUsuario ({ request }) {
     const dataUsuario = request.all()
-    const usuario = await this.service.guardarUsuario(dataUsuario)
+    const payload = await request.obtenerPayloadJWT()
+    const usuario = await this.service.guardarUsuario(dataUsuario, payload)
     return usuario
   }
 

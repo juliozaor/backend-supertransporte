@@ -9,7 +9,7 @@ export default class extends BaseSchema {
       table.string('use_nitVigilado',200)
       table.float('use_idEncuesta')
       table.integer('use_estado_vigilado_id')      
-      table.timestamp('use_creacion', { useTz: true })
+      table.timestamp('use_creacion', { useTz: true }).defaultTo(this.now())
     })
   }
 

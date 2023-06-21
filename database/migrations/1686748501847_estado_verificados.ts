@@ -5,9 +5,9 @@ export default class extends BaseSchema {
 
   public async up () {
     this.schema.createTable(this.tableName, (table) => {
-      table.increments('esv_id')
-      table.string('esv_nombre', 200)
-       table.boolean('esv_estado').defaultTo(true)
+      table.increments('esd_id')
+      table.string('esd_nombre', 200)
+       table.boolean('esd_estado').defaultTo(true)
     })
   }
 
