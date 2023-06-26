@@ -32,6 +32,7 @@
     "./start/Rutas/ruta_archivo",
     "./start/Rutas/ruta_reporte",
     "./start/Rutas/ruta_validador",
+    "./start/Rutas/ruta_exportacion",
     "./start/Rutas/ruta_soportes"
   ],
   "providers": [

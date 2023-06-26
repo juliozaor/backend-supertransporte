@@ -1,9 +1,11 @@
 
 import { DateTime } from 'luxon';
-import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, BelongsTo, HasMany, ManyToMany, belongsTo, column, hasMany, manyToMany } from '@ioc:Adonis/Lucid/Orm';
 import { ReporteI } from 'App/Dominio/Datos/Entidades/Reporte';
 import Encuestas from './Encuesta';
 import TblUsuarios from './Usuario';
+import TblEstadosVerificado from './EstadoVerificado';
+const { format } = require('date-fns');
 
 export default class Reporte extends BaseModel {
   public static table = 'reporte';
@@ -22,6 +24,7 @@ export default class Reporte extends BaseModel {
   @column({ columnName: 'ultimo_usuario_asignado' }) public ultimoUsuarioAsignado?: string;
   @column({ columnName: 'estado_verificacion_id' }) public estadoVerificacionId?: number;
   @column({ columnName: 'asignador' }) public asignador?: string;
+  @column({ columnName: 'fecha_asignacion' }) public fechaAsignacion?: DateTime;
   @column.dateTime({ autoCreate: true , columnName: 'fecha_creacion'}) public fechaCreacion: DateTime
 
   public establecerReporteDb(reporte: ReporteI) {
@@ -53,6 +56,7 @@ export default class Reporte extends BaseModel {
     this.asignado = asignado
     this.ultimoUsuarioAsignado = usuarioAsignado
     this.asignador = asignador
+    this.fechaAsignacion = (!asignado)?null: format(new Date(), 'yyyy-MM-dd HH:mm:ss');
   }
 
   public establecerEstadoVerificado(estado: number) {
@@ -86,5 +90,15 @@ export default class Reporte extends BaseModel {
     foreignKey: 'loginVigilado',
   })
   public usuario: BelongsTo<typeof TblUsuarios>
+
+  @manyToMany(() => TblEstadosVerificado, {
+    localKey: 'id',
+    pivotForeignKey: 'rev_reporte_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'rev_estado_verificado_id', 
+   // pivotColumns: ['tdc_valor'],
+    pivotTable: 'tbl_reporte_estado_verificados'
+  })
+  public reporteEstadoVerificado: ManyToMany<typeof TblEstadosVerificado>
 
 }

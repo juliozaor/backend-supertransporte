@@ -16,8 +16,8 @@ export default class TblUsuarioEncuesta extends BaseModel {
   public establecerUsuarioEncuestaDb(usuarioEncuesta: UsuarioEncuesta) {
     this.id = usuarioEncuesta.id
     this.nitVigilado = usuarioEncuesta.nitVigilado
-this.encuestaId = usuarioEncuesta.encuestaId
-this.estadoVigiladoId = usuarioEncuesta.estadoVigiladoId
+    this.encuestaId = usuarioEncuesta.encuestaId
+    this.estadoVigiladoId = usuarioEncuesta.estadoVigiladoId
   }
 
   public estableceUsuarioEncuestaConId(usuarioEncuesta: UsuarioEncuesta) {

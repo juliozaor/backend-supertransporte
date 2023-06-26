@@ -1,8 +1,10 @@
 import { DateTime } from 'luxon';
-import { BaseModel, BelongsTo, HasOne, ManyToMany, belongsTo, column, hasOne, manyToMany} from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, BelongsTo, HasMany, HasOne, ManyToMany, belongsTo, column, hasMany, hasOne, manyToMany} from '@ioc:Adonis/Lucid/Orm';
 import { Usuario } from 'App/Dominio/Datos/Entidades/Usuario';
 import TblRoles from './Autorizacion/Rol';
 import TblClasificaciones from './Clasificaciones';
+import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
+import TblEstadoVigilado from './EstadoVigilado';
 
 export default class TblUsuarios extends BaseModel {
   @column({ isPrimary: true, columnName: 'usn_id' })
@@ -98,9 +100,35 @@ export default class TblUsuarios extends BaseModel {
     pivotForeignKey: 'clu_usuario_id',
     relatedKey: 'id',
     pivotRelatedForeignKey: 'clu_clasificacion_id', 
-   // pivotColumns: ['tdc_valor'],
+    pivotColumns: ['clu_vehiculos','clu_conductores'],
     pivotTable: 'tbl_clasificacion_usuarios'
   })
   public clasificacionUsuario: ManyToMany<typeof TblClasificaciones>
+
+  /* @hasMany(()=> TblUsuarioEncuesta, {
+    localKey: 'identificacion',
+    foreignKey:'nitVigilado'
+  })
+  public usuarioEncuesta: HasMany<typeof TblUsuarioEncuesta> */
+
+  @manyToMany(()=> TblEncuestas, {
+    localKey: 'identificacion',
+    pivotForeignKey:'use_nitVigilado',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'use_idEncuesta', 
+    //pivotColumns: ['use_estado_vigilado_id'],
+    pivotTable: 'tbl_usuarios_encuestas'
+  })
+  public usuarioEncuesta: ManyToMany<typeof TblEncuestas>
+
+  @manyToMany(()=> TblEstadoVigilado, {
+    localKey: 'identificacion',
+    pivotForeignKey:'use_nitVigilado',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'use_estado_vigilado_id', 
+    //pivotColumns: ['use_estado_vigilado_id'],
+    pivotTable: 'tbl_usuarios_encuestas'
+  })
+  public usuarioEstadoVigilado: ManyToMany<typeof TblEstadoVigilado>
 
 }

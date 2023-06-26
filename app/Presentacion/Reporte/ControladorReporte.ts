@@ -41,10 +41,15 @@ export default class ControladorArchivo {
 
 
 
-  public async verificar({ request }:HttpContextContract) {
+  public async enviadas({ request, response }:HttpContextContract) {
     const payload = await request.obtenerPayloadJWT()
-    return this.service.verificar(JSON.stringify(request.all()), payload);
+    if (payload.idRol !== '001') {
+      
+      return response.status(401).send('No tiene perminos para acceder a esta consulta')
+    }
+    return this.service.obtenerEnviadas(request.all());
   }
+
 
 
 

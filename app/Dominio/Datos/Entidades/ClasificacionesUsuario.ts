@@ -4,5 +4,6 @@ export class ClasificacionesUsuario {
 usuarioId:string;
 clasificacionId:number;
 estado:boolean;
-
+vehiculos: number;
+conductores: number;
 }
