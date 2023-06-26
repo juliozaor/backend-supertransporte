@@ -261,7 +261,9 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
       clasificacionUsuario.estableceClasificacionesUsuarioConId({
         usuarioId: idUsuario,
         clasificacionId: idClasificado,
-        estado: clasificado
+        estado: clasificado, 
+        vehiculos: totalVehiculos,
+        conductores: totalConductores
       })
       clasificacionUsuario.save()
     }
@@ -270,7 +272,9 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
       estaClasificado.estableceClasificacionesUsuarioConId({
         usuarioId: idUsuario,
         clasificacionId: idClasificado,
-        estado: clasificado
+        estado: clasificado, 
+        vehiculos: totalVehiculos,
+        conductores: totalConductores
       })
       estaClasificado.save()
     }

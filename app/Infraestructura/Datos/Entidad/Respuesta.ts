@@ -55,6 +55,13 @@ export default class Respuestas extends BaseModel {
     this.observacionCorresponde= respuesta.observacionCorresponde
   }
 
+  public estableceVerificacion(respuesta: Respuesta) {
+    this.cumple= respuesta.cumple
+    this.observacionCumple= respuesta.observacionCumple
+    this.corresponde= respuesta.corresponde
+    this.observacionCorresponde= respuesta.observacionCorresponde
+  }
+
   public obtenerRespuesta(): Respuesta {
     const respuesta = new Respuesta()
     respuesta.id = this.id

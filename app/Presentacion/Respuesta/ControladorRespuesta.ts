@@ -25,6 +25,15 @@ export default class ControladorRespuesta {
     response.status(200).send(respuesta) 
   }
 
+  public async verificar({ request }:HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    return this.service.verificar(JSON.stringify(request.all()), payload);
+  }
 
+  public async finalizar ({ request }:HttpContextContract) {   
+    const payload = await request.obtenerPayloadJWT()
+    const enviado = await this.service.finalizar(request.all(), payload)
+    return enviado
+  }
 
 }

@@ -20,7 +20,7 @@ export class ServicioReportes {
     return await this.servicioUsuarios.obtenerUsuarioPorRol('002')
   }
 
-  async obtenerAsignadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
+  async obtenerAsignadas(params: any): Promise<{ asignadas: Reportadas[], paginacion: Paginador }> {
     params.pagina = params.pagina??1;
     params.limite = params.limite??100;
     return this.repositorio.obtenerAsignadas(params);
@@ -28,6 +28,10 @@ export class ServicioReportes {
 
   async asignar(datos: string, payload:PayloadJWT): Promise<AsyncGeneratorFunction> {
     const asignador = payload.documento;
+    if (payload.idRol !== '001') {
+      throw new Error("Usted no tiene permisos para asignar");
+      
+    }
     return this.repositorio.asignar(datos, asignador);
   }
 
@@ -40,11 +44,11 @@ export class ServicioReportes {
     return await this.repositorio.obtenerEstadosVerificado()
   }
 
-  async verificar(datos: string, payload:PayloadJWT): Promise<any> {
-    if(payload.idRol !== '002'){
-      throw new Error("Usted no tiene autorización para hacer una verificación");      
-    }
-    return this.repositorio.verificar(datos, payload);
+
+  async obtenerEnviadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
+    params.pagina = params.pagina??1;
+    params.limite = params.limite??100;    
+    return await this.repositorio.obtenerEnviadas(params)
   }
 
 

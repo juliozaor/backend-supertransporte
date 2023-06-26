@@ -73,5 +73,7 @@ export default class Encuestas extends BaseModel {
   })
   public pregunta: HasMany<typeof Preguntas>
 
+  
+
 
 }
