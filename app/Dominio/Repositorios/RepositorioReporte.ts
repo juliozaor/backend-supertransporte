@@ -8,6 +8,5 @@ export interface RepositorioReporte {
   eliminar(reporte: string, asignador: string): Promise<any>
   obtenerEstadosVerificado(): Promise<EstadosVerificado[]>
   obtenerEnviadas(param: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }>
-
-  
+  visualizar(param: any): Promise<any>  
 }
