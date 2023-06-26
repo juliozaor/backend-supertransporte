@@ -133,7 +133,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 //BUscar la clasificacion del usuario
 const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
   sqlClasC.preload('clasificacion')
-  sqlClasC.has('clasificacion')}).where('identificacion', idUsuario).first()
+  sqlClasC.has('clasificacion')}).where('identificacion', idVigilado).first()
 
   const nombreClasificaion = usuario?.clasificacionUsuario[0].nombre;
   const pasos = usuario?.clasificacionUsuario[0].clasificacion

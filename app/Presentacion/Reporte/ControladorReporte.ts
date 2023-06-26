@@ -50,8 +50,10 @@ export default class ControladorArchivo {
     return this.service.obtenerEnviadas(request.all());
   }
 
-
-
-
+  public async visualizar ({ request }:HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    const encuestas = await this.service.visualizar(request.all(), payload)
+    return encuestas
+  }
 
 }

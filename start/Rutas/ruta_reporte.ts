@@ -8,4 +8,5 @@ Route.group(() => {
   Route.get('/estados', accion_path + '.estadosVerificado')  
   Route.get('/asignados/:idVerificador', accion_path + '.asignados')
   Route.get('/enviadas', accion_path + '.enviadas')
+  Route.get('/visualizar', `${accion_path}.visualizar`)
 }).prefix('api/v1/reportes').middleware('autenticacionJwt')

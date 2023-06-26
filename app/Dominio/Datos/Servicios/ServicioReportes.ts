@@ -51,5 +51,9 @@ export class ServicioReportes {
     return await this.repositorio.obtenerEnviadas(params)
   }
 
+  async visualizar(params: any, payload:PayloadJWT): Promise<any> {
+    params.idUsuario = payload.documento;
+    return this.repositorio.visualizar(params);
+  }
 
 }

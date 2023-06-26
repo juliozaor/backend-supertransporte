@@ -9,6 +9,9 @@ import TblEstadosVerificado from 'App/Infraestructura/Datos/Entidad/EstadoVerifi
 import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
 import TblReporteEstadoVerificado from 'App/Infraestructura/Datos/Entidad/ReporteEstadoVerificado';
 import { ServicioEstadosVerificado } from 'App/Dominio/Datos/Servicios/ServicioEstadosVerificado';
+import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
+import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
+import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 
 export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado()
@@ -26,14 +29,13 @@ export class RepositorioReporteDB implements RepositorioReporte {
     consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador });
 
     let reportadasBD = await consulta.paginate(pagina, limite)
-
-    console.log(reportadasBD[0].reporteEstadoVerificado);
     
 
     reportadasBD.map(reportada => {
       asignadas.push({
-        numeroReporte: reportada.id!,
+        idReporte: reportada.id!,
         nit: reportada.nitRues,
+        idEncuesta:reportada.idEncuesta,
         razonSocial: reportada.razonSocialRues,
         asignador: reportada.asignador,
         fechaAsignacion: reportada.fechaAsignacion,
@@ -113,6 +115,107 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     const paginacion = MapeadorPaginacionDB.obtenerPaginacion(reportadasBD)
     return { reportadas, paginacion }
+  }
+
+  async visualizar(params: any): Promise<any> {
+
+    const { idEncuesta, idUsuario, idVigilado, idReporte } = params;
+    const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
+    let clasificacionesArr: any = [];
+
+
+    let clasificacion = '';
+
+    const consulta = TblEncuestas.query().preload('pregunta', sql => {
+      sql.preload('clasificacion')
+      sql.preload('tiposPregunta')
+      sql.preload('respuesta', sqlResp => {
+        sqlResp.where('id_reporte', idReporte)
+      })
+     
+     // sql.orderBy('preguntas.orden', 'desc')
+    
+    
+    }).where({ 'id_encuesta': idEncuesta }).first();
+    const encuestaSql = await consulta
+
+
+//BUscar la clasificacion del usuario
+const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
+  sqlClasC.preload('clasificacion')
+  sqlClasC.has('clasificacion')}).where('identificacion', idVigilado).first()
+
+  const nombreClasificaion = usuario?.clasificacionUsuario[0].nombre;
+  const pasos = usuario?.clasificacionUsuario[0].clasificacion
+
+
+
+    const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
+    let consecutivo: number = 1;
+    claficiacionesSql.forEach(clasificacionSql => {
+      let preguntasArr: any = [];
+      clasificacion = clasificacionSql.nombre;
+
+      //validar si el paso es obligatorio
+      
+      const obligatorio = pasos?.find(paso => paso.id === clasificacionSql.id)?true:false;
+
+
+      encuestaSql?.pregunta.forEach(pregunta => {
+
+        if (clasificacionSql.id === pregunta.clasificacion.id) {
+
+
+
+          preguntasArr.push({
+            idPregunta: pregunta.id,
+            numeroPregunta: consecutivo,
+            pregunta: pregunta.pregunta,
+            obligatoria: obligatorio,// pregunta.obligatoria,
+            respuesta: pregunta.respuesta[0]?.valor ?? '',
+            tipoDeEvidencia: pregunta.tipoEvidencia,
+            documento: pregunta.respuesta[0]?.documento ?? '',
+            adjuntable: pregunta.adjuntable,
+            adjuntableObligatorio: obligatorio,// pregunta.adjuntableObligatorio,
+            tipoPregunta: pregunta.tiposPregunta.nombre,
+            valoresPregunta: pregunta.tiposPregunta.opciones,
+            validaciones: pregunta.tiposPregunta.validaciones,
+
+            observacion: pregunta.respuesta[0]?.observacion ?? '',
+            cumple: pregunta.respuesta[0]?.cumple ?? '',
+            observacionCumple: pregunta.respuesta[0]?.observacionCumple ?? '',
+            corresponde: pregunta.respuesta[0]?.corresponde ?? '',
+            observacionCorresponde: pregunta.respuesta[0]?.observacionCorresponde ?? '',
+          });
+          consecutivo++;
+        }
+
+      });
+      if (preguntasArr.length >= 1) {
+        clasificacionesArr.push(
+          {
+            clasificacion,
+            preguntas: preguntasArr
+          }
+
+        );
+      }
+
+
+
+    });
+
+
+
+    const encuesta = {
+      tipoAccion,
+      nombreEncuesta:encuestaSql?.nombre,
+      clasificaion: nombreClasificaion,
+      observacion:encuestaSql?.observacion,
+      clasificaciones: clasificacionesArr
+    }
+
+    return encuesta
   }
 
 }
