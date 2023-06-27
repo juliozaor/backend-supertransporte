@@ -32,7 +32,7 @@ export class ServicioUsuarios {
   }
 
   async guardarUsuario(usuario: Usuario, payload:PayloadJWT): Promise<Usuario> {
-    if(payload.idRol !== '006'){
+    if(payload.idRol !== '006' && payload.idRol !== '001'){
       throw new Error("Usted no tiene autorización para crear usuarios");      
     }
     const clave = await this.generarContraseña.generar()
