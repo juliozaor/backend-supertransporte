@@ -16,7 +16,7 @@ import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado()
   async obtenerAsignadas(params: any): Promise<{ asignadas: Reportadas[], paginacion: Paginador }> {
-    const { idVerificador, pagina, limite } = params;
+    const { idVerificador, pagina, limite, rol} = params;
 
     const asignadas: any[] = []
     const consulta = TblReporte.query().preload('usuario');
@@ -25,8 +25,16 @@ export class RepositorioReporteDB implements RepositorioReporte {
       sqlEstado.orderBy('rev_creacion', 'desc').first()
     })
 
-
-    consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador });
+    if(rol === '006'){
+      consulta.where('asignado', true);
+      if(idVerificador){
+        consulta.andWhere('ultimo_usuario_asignado', idVerificador)
+      }
+    }
+    
+    if(rol === '002'){      
+      consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador });
+    }
 
     let reportadasBD = await consulta.paginate(pagina, limite)
     
@@ -117,10 +125,14 @@ export class RepositorioReporteDB implements RepositorioReporte {
     return { reportadas, paginacion }
   }
 
+  //Visualizar respuestas validadas
   async visualizar(params: any): Promise<any> {
 
-    const { idEncuesta, idUsuario, idVigilado, idReporte } = params;
-    const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
+    const { idEncuesta, idUsuario, idVigilado, idReporte, rol } = params;
+ //   const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
+
+ const tipoAccion = (rol === '006') ? 2 : 1;
+
     let clasificacionesArr: any = [];
 
 
@@ -132,12 +144,15 @@ export class RepositorioReporteDB implements RepositorioReporte {
       sql.preload('respuesta', sqlResp => {
         sqlResp.where('id_reporte', idReporte)
       })
-     
-     // sql.orderBy('preguntas.orden', 'desc')
     
-    
-    }).where({ 'id_encuesta': idEncuesta }).first();
-    const encuestaSql = await consulta
+    })
+    consulta.preload('reportes', sqlReporte =>{
+      sqlReporte.preload('reporteEstadoVerificado')
+      sqlReporte.where('id_reporte', idReporte)
+    })
+
+    consulta.where({ 'id_encuesta': idEncuesta })
+    const encuestaSql = await consulta.first();
 
 
 //BUscar la clasificacion del usuario
@@ -147,7 +162,6 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
 
   const nombreClasificaion = usuario?.clasificacionUsuario[0].nombre;
   const pasos = usuario?.clasificacionUsuario[0].clasificacion
-
 
 
     const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
@@ -160,12 +174,13 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
       
       const obligatorio = pasos?.find(paso => paso.id === clasificacionSql.id)?true:false;
 
+     
+      
+
 
       encuestaSql?.pregunta.forEach(pregunta => {
 
         if (clasificacionSql.id === pregunta.clasificacion.id) {
-
-
 
           preguntasArr.push({
             idPregunta: pregunta.id,
@@ -205,10 +220,14 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
 
     });
 
-
+    const estadoActual = encuestaSql?.reportes[0].reporteEstadoVerificado[0].nombre??''
 
     const encuesta = {
       tipoAccion,
+      razonSocila: usuario?.nombre,
+      idVigilado,
+      idEncuesta,
+      estadoActual,
       nombreEncuesta:encuestaSql?.nombre,
       clasificaion: nombreClasificaion,
       observacion:encuestaSql?.observacion,

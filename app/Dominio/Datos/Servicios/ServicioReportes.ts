@@ -53,6 +53,7 @@ export class ServicioReportes {
 
   async visualizar(params: any, payload:PayloadJWT): Promise<any> {
     params.idUsuario = payload.documento;
+    params.rol = payload.idRol
     return this.repositorio.visualizar(params);
   }
 
