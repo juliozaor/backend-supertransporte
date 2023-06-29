@@ -25,6 +25,8 @@ export default class ControladorExportacion {
     response.send(buffer); */
   }
 
+  
+
   public async encuestaToXLSX({ request, response }: HttpContextContract) {
 const {idReporte} = request.all()
 const data = await this.reporteTrazabilidad.Encuesta(idReporte)

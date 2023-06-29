@@ -136,6 +136,7 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
   sqlClasC.has('clasificacion')}).where('identificacion', idVigilado).first()
 
   const nombreClasificaion = usuario?.clasificacionUsuario[0].nombre;
+  const descripcionClasificacion = usuario?.clasificacionUsuario[0].descripcion;
   const pasos = usuario?.clasificacionUsuario[0].clasificacion
 
 
@@ -201,6 +202,7 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
       tipoAccion,
       nombreEncuesta:encuestaSql?.nombre,
       clasificaion: nombreClasificaion,
+      descripcionClasificacion,
       observacion:encuestaSql?.observacion,
       clasificaciones: clasificacionesArr
     }
