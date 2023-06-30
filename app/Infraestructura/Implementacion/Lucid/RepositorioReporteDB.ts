@@ -48,7 +48,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
         asignador: reportada.asignador,
         fechaAsignacion: reportada.fechaAsignacion,
         asignado: reportada.asignado,
-        estadoValidacion: reportada.reporteEstadoVerificado[0].nombre  
+        estadoValidacion: reportada.reporteEstadoVerificado[0]?.nombre  
       });
     })
 
