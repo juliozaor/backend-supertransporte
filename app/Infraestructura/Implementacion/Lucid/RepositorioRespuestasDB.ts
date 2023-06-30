@@ -53,11 +53,12 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
         data.ruta = respuesta.ruta
       }
       if(respuesta.observacion){
-        respuesta.observacion = respuesta.observacion
+        data.observacion = respuesta.observacion
       }
 
-
       if (existeRespuesta) {
+
+
         existeRespuesta.estableceRespuestaConId(data)
         const respuesta = await existeRespuesta.save();
 
