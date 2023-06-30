@@ -116,10 +116,11 @@ export default class TblUsuarios extends BaseModel {
     pivotForeignKey:'use_nitVigilado',
     relatedKey: 'id',
     pivotRelatedForeignKey: 'use_idEncuesta', 
-    //pivotColumns: ['use_estado_vigilado_id'],
+    pivotColumns: ['use_creacion', 'use_estado_vigilado_id'],
     pivotTable: 'tbl_usuarios_encuestas'
   })
   public usuarioEncuesta: ManyToMany<typeof TblEncuestas>
+
 
   @manyToMany(()=> TblEstadoVigilado, {
     localKey: 'identificacion',

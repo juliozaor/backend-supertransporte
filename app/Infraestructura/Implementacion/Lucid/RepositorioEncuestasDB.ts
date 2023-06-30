@@ -135,9 +135,9 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
   sqlClasC.preload('clasificacion')
   sqlClasC.has('clasificacion')}).where('identificacion', idVigilado).first()
 
-  const nombreClasificaion = usuario?.clasificacionUsuario[0].nombre;
-  const descripcionClasificacion = usuario?.clasificacionUsuario[0].descripcion;
-  const pasos = usuario?.clasificacionUsuario[0].clasificacion
+  const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
+  const descripcionClasificacion = usuario?.clasificacionUsuario[0]?.descripcion;
+  const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
 
 
 

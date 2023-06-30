@@ -12,10 +12,30 @@ export default class ControladorExportacion {
   private servicioExportacion = new ServicioExportacion();
   private reporteTrazabilidad = new ReporteTrazabilidad();
   public async exportToXLSX({ response }: HttpContextContract) {
+    const cabeceras = [
+      { header: 'ID', key: "id", width: 40 },
+      { header: 'NIT', key: "nit", width: 40 },
+      { header: 'RAZON SOCIAL', key: "razonSocial", width: 40 },
+      { header: 'ACCESO', key: "acceso", width: 40 },
+      { header: ' CANTIDAD CONDUCTORES', key: "cantConductores", width: 40 },
+      { header: 'CANTIDAD  VEHÍCULOS', key: "cantVehiculos", width: 40 },
+      { header: 'CLASIFICACIÓN SEGÚN RESOLUCIÓN 20223040040595 DE 2022', key: "clasificacion", width: 40 },
+      { header: 'INICIO DILIGENCIAMIENTO ', key: "inicioDiligenciamiento", width: 40 },
+      { header: 'ENVIÓ LA INFORMACIÓN A LA ST ', key: "envioSt", width: 40 },
+      { header: 'ESTADO', key: "estadoActual", width: 40 },
+      { header: 'LIDER(administrador que asigno)', key: "asignador", width: 40 },
+      { header: 'FECHA HORA ', key: "fechaAsignacion", width: 40 },
+      { header: 'VALIDADOR', key: "validador", width: 40 },
+      { header: 'PENDIENTE ', key: "pendiente", width: 40 },
+      { header: 'EN PROCESO ', key: "proceso", width: 40 },
+      { header: 'VALIDADO ', key: "validado", width: 40 },]
 
- response.send(await this.reporteTrazabilidad.Trazabilidad())
+
+ const data = await this.reporteTrazabilidad.Trazabilidad();
+
+ return data
     
-    /* const buffer = await this.servicioExportacion.exportDataToXLSX(data)
+   /*  const buffer = await this.servicioExportacion.encuestaToXLSX(data, cabeceras)
 
     // Configurar opciones de respuesta
     response.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

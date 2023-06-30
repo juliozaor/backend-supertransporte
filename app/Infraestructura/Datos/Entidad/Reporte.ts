@@ -96,7 +96,7 @@ export default class Reporte extends BaseModel {
     pivotForeignKey: 'rev_reporte_id',
     relatedKey: 'id',
     pivotRelatedForeignKey: 'rev_estado_verificado_id', 
-   // pivotColumns: ['tdc_valor'],
+    pivotColumns: ['rev_creacion'],
     pivotTable: 'tbl_reporte_estado_verificados'
   })
   public reporteEstadoVerificado: ManyToMany<typeof TblEstadosVerificado>
