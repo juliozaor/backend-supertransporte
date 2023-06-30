@@ -226,7 +226,7 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
 
     let aprobado = true;
     const faltantes = new Array();
-    const pasos = usuario?.clasificacionUsuario[0].clasificacion
+    const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
     const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
     pasos?.forEach(paso => {
       paso.pregunta.forEach(preguntaPaso => {
@@ -238,7 +238,15 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
             //throw new NoAprobado('Faltan preguntas por responder')     
             repuestaExiste = false       
           }
-          if (respuesta && preguntaPaso.adjuntableObligatorio) {
+
+    if(respuesta && respuesta.valor === 'N' && respuesta.observacion === ''){
+      repuestaExiste = false 
+    }
+
+
+          if (respuesta && respuesta.valor === 'S' && preguntaPaso.adjuntableObligatorio) {
+            console.log(respuesta.observacion);
+            
             archivoExiste = this.validarDocumento(respuesta, preguntaPaso);            
           }
 
