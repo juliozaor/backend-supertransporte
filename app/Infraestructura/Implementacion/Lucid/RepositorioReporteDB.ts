@@ -65,6 +65,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
     for (const i in reportesAsignar) {
       const { reporte, verificador } = reportesAsignar[i]
       const reporteDb = await TblReporte.findBy('id_reporte', reporte)
+      //TODO validar fecha de asignacion
       reporteDb?.establecerVerificador(true, verificador, asignador)
       reporteDb?.save()
 

@@ -13,6 +13,7 @@ import { Respuesta } from 'App/Dominio/Datos/Entidades/Respuesta';
 import { Pregunta } from 'App/Dominio/Datos/Entidades/Pregunta';
 import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria';
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
+import { DateTime } from 'luxon';
 
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
@@ -269,6 +270,10 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
 
     if(aprobado) {
       this.servicioEstado.Log(idUsuario, 4, idEncuesta)
+      const reporte = await TblReporte.findOrFail(idReporte)
+      reporte.fechaEnviost = DateTime.fromJSDate(new Date())
+      reporte.envioSt = '1'
+      reporte.save();
     }
 
     return {aprobado, faltantes}
