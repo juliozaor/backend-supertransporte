@@ -166,6 +166,8 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
             respuesta: pregunta.respuesta[0]?.valor ?? '',
             tipoDeEvidencia: pregunta.tipoEvidencia,
             documento: pregunta.respuesta[0]?.documento ?? '',
+            nombreOriginal: pregunta.respuesta[0]?.nombredocOriginal ?? '',
+            ruta: pregunta.respuesta[0]?.ruta ?? '',
             adjuntable: pregunta.adjuntable,
             adjuntableObligatorio: obligatorio,// pregunta.adjuntableObligatorio,
             tipoPregunta: pregunta.tiposPregunta.nombre,
