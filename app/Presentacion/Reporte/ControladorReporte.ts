@@ -37,7 +37,7 @@ export default class ControladorArchivo {
   public async asignados({ request, params, response }: HttpContextContract) {
     const payload = await request.obtenerPayloadJWT()
     const parametros = request.all()
-    if (payload.idRol !== '006' && payload.idRol !== '002') {      
+    if (payload.idRol !== '006' && payload.idRol !== '002' && payload.idRol !== '001') {      
       return response.status(401).send('No tiene perminos para acceder a esta consulta')
     }
     if(payload.idRol === '002'){
