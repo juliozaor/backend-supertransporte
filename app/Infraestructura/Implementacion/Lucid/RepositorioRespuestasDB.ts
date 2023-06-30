@@ -34,21 +34,30 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       //validar si existe
       const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
 
-      const data: Respuesta = {
+
+      let data: Respuesta = {
         idPregunta: respuesta.preguntaId,
         valor: respuesta.valor,
         usuarioActualizacion: documento,
         idReporte: idReporte,
-        documento: (respuesta.documento) ?? '',
-        nombredocOriginal: (respuesta.nombreArchivo) ?? '',
-        ruta: (respuesta.ruta) ?? '',
-        fechaActualizacion: DateTime.fromJSDate(new Date),
-        observacion: (respuesta.observacion) ?? ''
+        fechaActualizacion: DateTime.fromJSDate(new Date)
       }
 
+      if(respuesta.documento){
+        data.documento = respuesta.documento
+      }
+      if(respuesta.nombreArchivo){
+        data.nombredocOriginal = respuesta.nombreArchivo
+      }
+      if(respuesta.ruta){
+        data.ruta = respuesta.ruta
+      }
+      if(respuesta.observacion){
+        respuesta.observacion = respuesta.observacion
+      }
+
+
       if (existeRespuesta) {
-
-
         existeRespuesta.estableceRespuestaConId(data)
         const respuesta = await existeRespuesta.save();
 
