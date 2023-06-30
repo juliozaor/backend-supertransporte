@@ -10,12 +10,12 @@ export default class Respuestas extends BaseModel {
   public id?: number
   @column({ columnName: 'id_pregunta' }) public idPregunta: number;
   @column({ columnName: 'valor' }) public valor: string;
-  @column({ columnName: 'documento' }) public documento: string;
+  @column({ columnName: 'documento' }) public documento?: string;
   @column({ columnName: 'usuario_actualizacion' }) public usuarioActualizacion: string;
   @column({ columnName: 'fecha_actualizacion' }) public fechaActualizacion: DateTime;
   @column({ columnName: 'id_reporte' }) public idReporte: number;
-  @column({ columnName: 'ruta' }) public ruta: string;
-  @column({ columnName: 'nombredoc_original' }) public nombredocOriginal: string;
+  @column({ columnName: 'ruta' }) public ruta?: string;
+  @column({ columnName: 'nombredoc_original' }) public nombredocOriginal?: string;
   @column({ columnName: 'observacion' }) public observacion?: string;
   @column({ columnName: 'cumple' }) public cumple?: number;
   @column({ columnName: 'observacion_cumple' }) public observacionCumple?: string;
