@@ -2,6 +2,7 @@
 import { RepositorioRadioAccion } from 'App/Dominio/Repositorios/RepositorioRadioAccion'
 import { RadioAccion } from 'App/Dominio/Datos/Entidades/RadioAccion';
 import TblRadioAcciones from 'App/Infraestructura/Datos/Entidad/RadioAccion';
+import TblRestriccionRadio from 'App/Infraestructura/Datos/Entidad/Restriccion';
 
 export class RepositorioRadioAccionDB implements RepositorioRadioAccion {
 
@@ -10,9 +11,16 @@ export class RepositorioRadioAccionDB implements RepositorioRadioAccion {
     let consulta = TblRadioAcciones.query()
     
     if (modalidad) {
-     consulta = consulta.whereHas('restriccion', sql => {
-        sql.where('id_mod', modalidad)
-      })
+      const restriccion = await TblRestriccionRadio.query().where('trr_modalidad_id',modalidad).first()
+      if(restriccion){
+        consulta = consulta.whereHas('restriccion', sql => {
+           sql.where('id_mod', modalidad)
+         })
+
+      }
+
+
+
     }
     const radiosDB = await consulta.orderBy('nombre', 'asc')
 

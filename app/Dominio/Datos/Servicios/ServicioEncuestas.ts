@@ -4,6 +4,7 @@ import { RepositorioEncuesta } from 'App/Dominio/Repositorios/RepositorioEncuest
 import { Reportadas } from "App/Dominio/Dto/Encuestas/Reportadas";
 import { ServicioUsuario } from "./ServicioUsuario";
 import { PayloadJWT } from "App/Dominio/Dto/PayloadJWT";
+import TblMotivos from "App/Infraestructura/Datos/Entidad/Motivo";
 
 export class ServicioEncuestas {
   constructor (private repositorio: RepositorioEncuesta, private servicioUsuarios: ServicioUsuario) { }
@@ -24,6 +25,10 @@ export class ServicioEncuestas {
   async enviarSt(params: any, payload:PayloadJWT): Promise<any> {
     params.idUsuario = payload.documento;
     return this.repositorio.enviarSt(params);
+  }
+
+  async obtenerMotivos(): Promise<any> {
+    return await TblMotivos.query()
   }
 
 }

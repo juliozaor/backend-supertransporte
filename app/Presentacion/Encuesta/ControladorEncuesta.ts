@@ -34,4 +34,9 @@ export default class ControladorEncuesta {
     return enviado
   }
 
+  public async motivos () {
+    const motivos = await this.service.obtenerMotivos()
+    return motivos
+  }
+
 }

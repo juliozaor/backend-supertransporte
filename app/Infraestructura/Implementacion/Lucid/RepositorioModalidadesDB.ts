@@ -120,6 +120,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
         categoriaClasificacion.push({
           id: catClasificacion.id,
           nombre: catClasificacion.nombre,
+          titulo: catClasificacion.titulo,
           orden: catClasificacion.orden,
           cabeceras,
           filas
