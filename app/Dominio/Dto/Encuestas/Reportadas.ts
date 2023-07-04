@@ -3,6 +3,7 @@ import { DateTime } from "luxon"
 export interface Reportadas {
   idEncuestaDiligenciada: number,
     idVigilado: string,
+    clasificacion:string,
     numeroReporte: number,
     encuesta: string ,
     descripcion : string,

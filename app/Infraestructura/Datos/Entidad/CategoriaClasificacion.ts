@@ -9,6 +9,7 @@ export default class TbCategoriasClasificaciones extends BaseModel {
   public id: number
 
 @column({ columnName: 'tcc_nombre' }) public nombre:string;
+@column({ columnName: 'tcc_titulo' }) public titulo:string;
 @column({ columnName: 'tcc_orden' }) public orden:number;
 @column({ columnName: 'tcc_estado' }) public estado:boolean;
 @column({ columnName: 'tcc_tipo_categoria_id' }) public tipoCategoriaId:number;

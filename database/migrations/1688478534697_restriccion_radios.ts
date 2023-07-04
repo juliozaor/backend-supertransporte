@@ -6,8 +6,8 @@ export default class extends BaseSchema {
   public async up() {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
-      table.float('trr_modalidad_id').references('id_mod').inTable('tb_modalidades')
-      table.float('trr_radio_id').references('id_radio').inTable('tb_radio_accion')
+      table.integer('trr_modalidad_id').references('id_mod').inTable('tb_modalidades')
+      table.integer('trr_radio_id').references('id_radio').inTable('tb_radio_accion')
 
     })
   }

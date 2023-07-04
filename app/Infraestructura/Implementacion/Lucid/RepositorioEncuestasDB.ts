@@ -24,7 +24,9 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     let usuarioCreacion: string = "";
 
     const reportadas: Reportadas[] = []
-    const consulta = TblReporte.query().preload('usuario');
+    const consulta = TblReporte.query().preload('usuario', sqlUsuario =>{
+      sqlUsuario.preload('clasificacionUsuario')
+    });
 
     if (idEncuesta) {
       consulta.preload('encuesta', sqlE => {
@@ -79,9 +81,10 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     }
 
 
-    reportadasBD.map(reportada => {
+    reportadasBD.map(reportada => {      
       reportadas.push({
         idEncuestaDiligenciada: reportada.encuesta.id,
+        clasificacion: reportada.usuario.clasificacionUsuario[0]?.nombre??'Sin Clasificar',
         idVigilado: reportada.loginVigilado,
         numeroReporte: reportada.id!,
         encuesta: reportada.encuesta.nombre,
