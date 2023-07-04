@@ -9,8 +9,9 @@ export default class ControladorRadioAccion {
     this.service = new ServicioRadioAccion(new RepositorioRadioAccionDB())
   }
 
-public async listar () {
-    const radiosAccion = await this.service.obtenerRadiosAccion()
+public async listar ({request}:HttpContextContract) {
+  const {modalidad} = request.all()  
+    const radiosAccion = await this.service.obtenerRadiosAccion(modalidad)
     return radiosAccion
   }
 
