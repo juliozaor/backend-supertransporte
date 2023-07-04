@@ -1,4 +1,6 @@
+import { extname } from "path";
 import { HttpContextContract } from "@ioc:Adonis/Core/HttpContext"
+import Drive from "@ioc:Adonis/Core/Drive"
 import { ServicioSoporte } from "App/Dominio/Datos/Servicios/ServicioSoporte";
 import { ServicioUsuario } from "App/Dominio/Datos/Servicios/ServicioUsuario";
 import { RepositorioFicheroLocal } from "App/Infraestructura/Ficheros/RepositorioFicheroLocal";
@@ -69,5 +71,33 @@ export default class ControladorSoporte{
         const filtros = querys as FiltrosSoporte
         const paginable = await this.servicio.listar(pagina, limite, filtros)
         response.status(200).send(paginable)
+    }
+
+    async descargarAdjunto({request, response}: HttpContextContract){
+        const nombreArchivo = request.param('archivo')
+        try {
+            const { size } = await Drive.getStats(`soportes/${nombreArchivo}`)
+            response.type(extname(`soportes/${nombreArchivo}`))
+            response.header('content-length', size)
+            const archivo = await Drive.getStream(`soportes/${nombreArchivo}`)
+            response.header('content-disposition', `attachment; filename=${nombreArchivo}`)
+            return response.stream(archivo)
+        } catch (error) {
+            response.status(404).send("Archivo no encontrado")
+        }
+    }
+
+    async descargarAdjuntoRespuesta({request, response}: HttpContextContract){
+        const nombreArchivo = request.param('archivo')
+        try {
+            const { size } = await Drive.getStats(`respuestas_soportes/${nombreArchivo}`)
+            response.type(extname(`respuestas_soportes/${nombreArchivo}`))
+            response.header('content-length', size)
+            const archivo = await Drive.getStream(`respuestas_soportes/${nombreArchivo}`)
+            response.header('content-disposition', `attachment; filename=${nombreArchivo}`)
+            return response.stream(archivo)
+        } catch (error) {
+            response.status(404).send("Archivo no encontrado")
+        }
     }
 }
