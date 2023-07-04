@@ -38,4 +38,13 @@ export default class TblRadioAccion extends BaseModel {
   })
   public modalidades: ManyToMany<typeof TblModalidades>
 
+  @manyToMany(() => TblModalidades, {
+    localKey: 'id',
+    pivotForeignKey: 'trr_radio_id',
+    relatedKey: 'id',
+    pivotRelatedForeignKey: 'trr_modalidad_id', 
+    pivotTable: 'tbl_restriccion_radios'
+  })
+  public restriccion: ManyToMany<typeof TblModalidades>
+
 }

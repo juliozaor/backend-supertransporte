@@ -5,8 +5,8 @@ import { RadioAccion } from '../Entidades/RadioAccion';
 export class ServicioRadioAccion{
   constructor (private repositorio: RepositorioRadioAccion) { }
 
-  async obtenerRadiosAccion (): Promise<{ radios: RadioAccion[]}> {
-    return this.repositorio.obtenerRadiosAccion();
+  async obtenerRadiosAccion (modalidad:number): Promise<{ radios: RadioAccion[]}> {
+    return this.repositorio.obtenerRadiosAccion(modalidad);
   }
 
 }
