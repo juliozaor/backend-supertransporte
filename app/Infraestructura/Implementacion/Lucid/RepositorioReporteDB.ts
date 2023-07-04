@@ -106,6 +106,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       reportadas.push({
         idEncuestaDiligenciada: reportada.encuesta.id,
         idVigilado: reportada.loginVigilado,
+        clasificacion:'',
         numeroReporte: reportada.id!,
         encuesta: reportada.encuesta.nombre,
         descripcion: reportada.encuesta.descripcion,
