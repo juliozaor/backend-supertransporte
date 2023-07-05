@@ -25,7 +25,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
       sqlEstado.orderBy('rev_creacion', 'desc').first()
     })
 
-    if(rol === '006'){
+    if(rol === '001'){
+      
       consulta.where('asignado', true);
       if(idVerificador){
         consulta.andWhere('ultimo_usuario_asignado', idVerificador)
@@ -47,7 +48,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
         razonSocial: reportada.razonSocialRues,
         asignador: reportada.asignador,
         fechaAsignacion: reportada.fechaAsignacion,
+        fechaEnvioST: reportada.fechaEnviost!,
         asignado: reportada.asignado,
+        email: reportada.usuario?.correo,
         estadoValidacion: reportada.reporteEstadoVerificado[0]?.nombre  
       });
     })
@@ -92,15 +95,22 @@ export class RepositorioReporteDB implements RepositorioReporte {
   
 
   async obtenerEnviadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
-    const { pagina, limite } = params;
+    const { pagina, limite, filtro} = params;
+console.log(filtro);
 
     let usuarioCreacion: string = "";
 
     const reportadas: Reportadas[] = []
     const consulta = TblReporte.query().preload('usuario');
+    if(filtro && filtro !== ''){
+    consulta.whereHas('usuario', sqlUser =>{
+      sqlUser.orWhere('usn_nombre', 'ilike', `%${filtro}%`)
+      sqlUser.orWhere('usn_identificacion', 'ilike', `%${filtro}%`)
+    })
+  }
       consulta.preload('encuesta')
       consulta.whereNotNull('fecha_enviost')
-    let reportadasBD = await consulta.paginate(pagina, limite)
+    let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
     reportadasBD.map(reportada => {
       reportadas.push({
@@ -115,7 +125,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
         fechaEnvioST: reportada.fechaEnviost!,
         razonSocial: reportada.razonSocialRues,
         nit: reportada.nitRues,
-        email: reportada.usuario.correo,
+        email: reportada.usuario?.correo,
         usuarioCreacion: reportada.usuarioCreacion,
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,

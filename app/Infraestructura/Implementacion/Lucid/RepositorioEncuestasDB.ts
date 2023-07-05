@@ -114,7 +114,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
   async visualizar(params: any): Promise<any> {
 
     const { idEncuesta, idUsuario, idVigilado, idReporte } = params;
-    const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
+    let tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
     let clasificacionesArr: any = [];
 
 
