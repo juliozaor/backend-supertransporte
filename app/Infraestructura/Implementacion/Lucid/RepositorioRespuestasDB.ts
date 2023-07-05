@@ -18,7 +18,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
     const { respuestas } = JSON.parse(datos);    
     const { usuarioCreacion, loginVigilado, idEncuesta } = await TblReporte.findByOrFail('id', idReporte)
    
-    this.servicioEstado.Log(loginVigilado, 3, idEncuesta)
+    this.servicioEstado.Log(loginVigilado, 1003, idEncuesta, idReporte)
     this.servicioAuditoria.Auditar({
       accion: "Guardar Respuesta",
       modulo: "Encuesta",

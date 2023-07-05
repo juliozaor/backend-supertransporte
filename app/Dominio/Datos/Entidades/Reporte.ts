@@ -12,4 +12,5 @@ export class ReporteI {
   ultimoUsuarioAsignado?: string
   asignador?: string
   fechaAsignacion?: DateTime;
+  estadoVerificacionId?:number;
 }

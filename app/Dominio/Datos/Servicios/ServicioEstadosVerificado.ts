@@ -24,7 +24,12 @@ export class ServicioEstadosVerificado {
       reporteEstado.vigilado = reporte.loginVigilado
       reporteEstado.verificador = verificador
       await reporteEstado.save()
+
+      //const reporte = await TblReporte.findOrFail(idreporte)
+        reporte.estadoVerificacionId = estado
+        reporte.save();
     }
+
   }
 
 

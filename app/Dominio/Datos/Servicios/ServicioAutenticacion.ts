@@ -76,7 +76,7 @@ export class ServicioAutenticacion {
     })
 
     if (usuarioVerificado.idRol === '003') {
-      this.servicioEstado.Log(usuarioVerificado.identificacion, 1)
+      this.servicioEstado.Log(usuarioVerificado.identificacion, 1001)
     }
 
 

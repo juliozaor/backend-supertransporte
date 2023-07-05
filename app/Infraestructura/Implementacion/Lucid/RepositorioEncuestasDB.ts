@@ -61,13 +61,14 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         loginVigilado: idVigilado,
         razonSocialRues: usuario?.nombre!,
         nitRues: idVigilado,
-        usuarioCreacion: idUsuario
+        usuarioCreacion: idUsuario,
+        estadoVerificacionId: 1002
       })
 
       await reporte.save();
       reportadasBD = await consulta.paginate(pagina, limite)
 
-      this.servicioEstado.Log(idUsuario, 2, idEncuesta)
+      this.servicioEstado.Log(idUsuario, 1002, idEncuesta)
 
       this.servicioAuditoria.Auditar({
         accion: "Listar Encuestas",
@@ -272,10 +273,11 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
     });
 
     if(aprobado) {
-      this.servicioEstado.Log(idUsuario, 4, idEncuesta)
+      this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
       const reporte = await TblReporte.findOrFail(idReporte)
       reporte.fechaEnviost = DateTime.fromJSDate(new Date())
       reporte.envioSt = '1'
+      reporte.estadoVerificacionId = 1004
       reporte.save();
     }
 

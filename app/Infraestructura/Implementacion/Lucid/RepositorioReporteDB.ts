@@ -21,9 +21,11 @@ export class RepositorioReporteDB implements RepositorioReporte {
     const asignadas: any[] = []
     const consulta = TblReporte.query().preload('usuario');
     consulta.preload('encuesta')
-    consulta.preload('reporteEstadoVerificado', sqlEstado =>{
+    consulta.preload('estadoVerificado')
+    consulta.preload('estadoVigilado')
+   /*  consulta.preload('reporteEstadoVerificado', sqlEstado =>{
       sqlEstado.orderBy('rev_creacion', 'desc').first()
-    })
+    }) */
 
     if(rol === '001'){
       
@@ -38,9 +40,15 @@ export class RepositorioReporteDB implements RepositorioReporte {
     }
 
     let reportadasBD = await consulta.paginate(pagina, limite)
-    
 
+    console.log(reportadasBD[0].estadoVerificado?.nombre);
+    console.log(reportadasBD[0].estadoVigilado?.nombre);
+    
+    
     reportadasBD.map(reportada => {
+      let estadoValidacion = '';
+      estadoValidacion = reportada.estadoVerificado?.nombre??estadoValidacion;
+      estadoValidacion = reportada.estadoVigilado?.nombre??estadoValidacion;
       asignadas.push({
         idReporte: reportada.id!,
         nit: reportada.nitRues,
@@ -51,7 +59,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
         fechaEnvioST: reportada.fechaEnviost!,
         asignado: reportada.asignado,
         email: reportada.usuario?.correo,
-        estadoValidacion: reportada.reporteEstadoVerificado[0]?.nombre  
+        estadoValidacion
+        //estadoValidacion: reportada.reporteEstadoVerificado[0]?.nombre  
       });
     })
 

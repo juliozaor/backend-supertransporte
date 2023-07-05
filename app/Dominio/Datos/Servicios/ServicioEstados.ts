@@ -1,9 +1,10 @@
 import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 import TblUsuarioEncuesta from 'App/Infraestructura/Datos/Entidad/UsuarioEncuesta';
+import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
 export class ServicioEstados{
 
-  public async Log (usuario:string, estado:number, idEncuesta?: number) {
-if(estado === 1){
+  public async Log (usuario:string, estado:number, idEncuesta?: number, idReporte?: number) {
+if(estado === 1001){
     TblEncuestas.query().where('logueo', true).andWhere('fecha_fin', '>', new Date()).select('id_encuesta', 'fecha_inicio').then((encuestas) => {
       encuestas.forEach(async encuesta => {
         this.valdarEstado(usuario, estado, encuesta.id)        
@@ -12,6 +13,11 @@ if(estado === 1){
     })
   }else{
     this.valdarEstado(usuario, estado, idEncuesta)  
+  }
+  if(idReporte){
+    const reporte = await TblReporte.findOrFail(idReporte)
+      reporte.estadoVerificacionId = estado
+      reporte.save();
   }
   }
 

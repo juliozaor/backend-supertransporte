@@ -5,6 +5,7 @@ import { ReporteI } from 'App/Dominio/Datos/Entidades/Reporte';
 import Encuestas from './Encuesta';
 import TblUsuarios from './Usuario';
 import TblEstadosVerificado from './EstadoVerificado';
+import TblEstadoVigilado from './EstadoVigilado';
 const { format } = require('date-fns');
 
 export default class Reporte extends BaseModel {
@@ -38,6 +39,7 @@ export default class Reporte extends BaseModel {
     this.loginVigilado = reporte.loginVigilado
     this.asignado = reporte.asignado
     this.ultimoUsuarioAsignado = reporte.ultimoUsuarioAsignado
+    this.estadoVerificacionId = reporte.estadoVerificacionId
   }
 
   public estableceReporteConId(reporte: ReporteI) {
@@ -50,6 +52,7 @@ export default class Reporte extends BaseModel {
     this.loginVigilado = reporte.loginVigilado
     this.asignado = reporte.asignado
     this.ultimoUsuarioAsignado = reporte.ultimoUsuarioAsignado
+    this.estadoVerificacionId = reporte.estadoVerificacionId
   }
 
   public establecerVerificador(asignado: boolean = true, usuarioAsignado: string = '', asignador: string = '') {
@@ -76,6 +79,7 @@ export default class Reporte extends BaseModel {
     reporte.loginVigilado = this.loginVigilado 
     reporte.asignado = this.asignado 
     reporte.ultimoUsuarioAsignado = this.ultimoUsuarioAsignado 
+    reporte.estadoVerificacionId = this.estadoVerificacionId
     return reporte
   }
 
@@ -100,5 +104,17 @@ export default class Reporte extends BaseModel {
     pivotTable: 'tbl_reporte_estado_verificados'
   })
   public reporteEstadoVerificado: ManyToMany<typeof TblEstadosVerificado>
+
+  @belongsTo(() => TblEstadoVigilado, {
+    localKey: 'id',
+    foreignKey: 'estadoVerificacionId',
+  })
+  public estadoVigilado: BelongsTo<typeof TblEstadoVigilado>
+
+  @belongsTo(() => TblEstadosVerificado, {
+    localKey: 'id',
+    foreignKey: 'estadoVerificacionId',
+  })
+  public estadoVerificado: BelongsTo<typeof TblEstadosVerificado>
 
 }
