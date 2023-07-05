@@ -43,10 +43,11 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
       consulta.where('login_vigilado', idVigilado);
     }
+    consulta.preload('estadoVerificado')
+    consulta.preload('estadoVigilado')
 
 
-
-    let reportadasBD = await consulta.paginate(pagina, limite)
+    let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
 
 
@@ -66,7 +67,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       })
 
       await reporte.save();
-      reportadasBD = await consulta.paginate(pagina, limite)
+      reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
       this.servicioEstado.Log(idUsuario, 1002, idEncuesta)
 
@@ -82,7 +83,10 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     }
 
 
-    reportadasBD.map(reportada => {      
+    reportadasBD.map(reportada => {  
+      let estado = 'FORMULARIO EN BORRADOR';
+      estado = reportada.estadoVerificado?.nombre??estado;
+      estado = reportada.estadoVigilado?.nombre??estado;    
       reportadas.push({
         idEncuestaDiligenciada: reportada.encuesta.id,
         clasificacion: reportada.usuario.clasificacionUsuario[0]?.nombre??'Sin Clasificar',
@@ -99,7 +103,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         usuarioCreacion: reportada.usuarioCreacion,
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
-        estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
+        estado
+      //  estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
       });
     })
 

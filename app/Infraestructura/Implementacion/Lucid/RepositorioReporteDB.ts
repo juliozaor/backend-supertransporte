@@ -39,11 +39,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
       consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador });
     }
 
-    let reportadasBD = await consulta.paginate(pagina, limite)
+    let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
-    console.log(reportadasBD[0].estadoVerificado?.nombre);
-    console.log(reportadasBD[0].estadoVigilado?.nombre);
-    
     
     reportadasBD.map(reportada => {
       let estadoValidacion = '';
@@ -105,7 +102,6 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
   async obtenerEnviadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
     const { pagina, limite, filtro} = params;
-console.log(filtro);
 
     let usuarioCreacion: string = "";
 
@@ -118,10 +114,17 @@ console.log(filtro);
     })
   }
       consulta.preload('encuesta')
+
+      consulta.preload('estadoVerificado')
+    consulta.preload('estadoVigilado')
+
       consulta.whereNotNull('fecha_enviost')
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
     reportadasBD.map(reportada => {
+      let estado = 'FORMULARIO EN BORRADOR';
+      estado = reportada.estadoVerificado?.nombre??estado;
+      estado = reportada.estadoVigilado?.nombre??estado;
       reportadas.push({
         idEncuestaDiligenciada: reportada.encuesta.id,
         idVigilado: reportada.loginVigilado,
@@ -138,7 +141,8 @@ console.log(filtro);
         usuarioCreacion: reportada.usuarioCreacion,
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
-        estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
+        estado
+       // estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
       });
     })
 
