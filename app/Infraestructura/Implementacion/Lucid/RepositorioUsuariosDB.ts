@@ -15,6 +15,13 @@ export class RepositorioUsuariosDB implements RepositorioUsuario {
     if (params.rol) {
       consulta.where('usn_rol_id', params.rol)
     }
+if(params.termino){
+  consulta.orWhere('usn_correo', 'ilike', `%${params.termino}%`)
+  consulta.orWhere('usn_nombre', 'ilike', `%${params.termino}%`)
+  consulta.orWhere('usn_apellido', 'ilike', `%${params.termino}%`)
+  consulta.orWhere('usn_identificacion', 'ilike', `%${params.termino}%`)
+}
+    
 
     const usuariosDB = await consulta.orderBy('id', 'desc').paginate(params.pagina, params.limite)
 
