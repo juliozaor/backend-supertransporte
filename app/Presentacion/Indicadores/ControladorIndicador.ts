@@ -33,7 +33,10 @@ export default class ControladorReporte {
                   "adjuntableObligatorio": false,
                   "tipoPregunta": "NUMBER",
                   "valoresPregunta": [],
-                  "validaciones": null,
+                  "validaciones": {
+                    "tipoDato":"real",
+                    "cantDecimal":1
+                  },
                   "observacion": "",
                   "cumple": "",
                   "observacionCumple": "",
@@ -52,7 +55,10 @@ export default class ControladorReporte {
                   "adjuntableObligatorio": false,
                   "tipoPregunta": "NUMBER",
                   "valoresPregunta": [],
-                  "validaciones": null,
+                  "validaciones": {
+                    "tipoDato":"real",
+                    "cantDecimal":1
+                  },
                   "observacion": "",
                   "cumple": "",
                   "observacionCumple": "",
@@ -75,7 +81,10 @@ export default class ControladorReporte {
                   "adjuntableObligatorio": false,
                   "tipoPregunta": "NUMBER",
                   "valoresPregunta": [],
-                  "validaciones": null,
+                  "validaciones": {
+                    "tipoDato":"real",
+                    "cantDecimal":1
+                  },
                   "observacion": "",
                   "cumple": "",
                   "observacionCumple": "",
@@ -94,7 +103,10 @@ export default class ControladorReporte {
                   "adjuntableObligatorio": false,
                   "tipoPregunta": "NUMBER",
                   "valoresPregunta": [],
-                  "validaciones": null,
+                  "validaciones": {
+                    "tipoDato":"entero",
+                    "cantDecimal":0
+                  },
                   "observacion": "",
                   "cumple": "",
                   "observacionCumple": "",
@@ -120,7 +132,10 @@ export default class ControladorReporte {
                   "adjuntableObligatorio": false,
                   "tipoPregunta": "NUMBER",
                   "valoresPregunta": [],
-                  "validaciones": null,
+                  "validaciones": {
+                    "tipoDato":"entero",
+                    "cantDecimal":0
+                  },
                   "observacion": "",
                   "cumple": "",
                   "observacionCumple": "",
@@ -143,7 +158,10 @@ export default class ControladorReporte {
                   "adjuntableObligatorio": false,
                   "tipoPregunta": "NUMBER",
                   "valoresPregunta": [],
-                  "validaciones": null,
+                  "validaciones": {
+                    "tipoDato":"entero",
+                    "cantDecimal":0
+                  },
                   "observacion": "",
                   "cumple": "",
                   "observacionCumple": "",
@@ -162,7 +180,10 @@ export default class ControladorReporte {
                   "adjuntableObligatorio": false,
                   "tipoPregunta": "NUMBER",
                   "valoresPregunta": [],
-                  "validaciones": null,
+                  "validaciones": {
+                    "tipoDato":"entero",
+                    "cantDecimal":0
+                  },
                   "observacion": "",
                   "cumple": "",
                   "observacionCumple": "",
@@ -173,6 +194,19 @@ export default class ControladorReporte {
       }]
   })
   }
+
+
+  public async respuestas ({ request, response }:HttpContextContract) {
+      response.status(200).send({
+      mensaje: "Formulario guardado correctamente"
+    }) 
+  }
+
+  public async enviar ({ request, response }:HttpContextContract) {
+    response.status(200).send({
+      aprobado:true, faltantes:[]
+  }) 
+}
 
 
 
