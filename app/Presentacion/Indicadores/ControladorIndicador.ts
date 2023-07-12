@@ -120,7 +120,7 @@ export default class ControladorReporte {
               "nombreSubIndicador": "Cantidad de riesgos identificados al inicio del año",
               "codigo": 3.1,
               "preguntas": [{
-                  "idPregunta": 5,
+                  "idPregunta": 6,
                   "pregunta": "Cantidad de riesgos identificados al inicio del año, Enero - Diciembre",
                   "obligatoria": true,
                   "respuesta": "S",

@@ -10,6 +10,8 @@ export default class extends BaseSchema {
       table.string('sub_codigo', 5)
       table.integer('sub_orden')
       table.integer('sub_indicador_id').references('ind_id').inTable('tbl_indicadores')
+      table.integer('sub_formulario_id').references('fmi_id').inTable('tbl_formularios_indicadores')
+      table.integer('sub_periodo_id').references('per_id').inTable('tbl_periodos').comment('Unidad de medida')
       table.boolean('sub_estado').defaultTo(true)
     })
   }

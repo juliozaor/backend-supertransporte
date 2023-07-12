@@ -7,8 +7,6 @@ export class TblIndicadores extends BaseModel {
   public nombre: string;
   @column({ columnName: 'ind_descripcion' })
   public descripcion: string;
-  @column({ columnName: 'ind_unidad_medida' })
-  public unidadMedida: string;
   @column({ columnName: 'ind_codigo' })
   public codigo: string;
   @column({ columnName: 'ind_estado' })

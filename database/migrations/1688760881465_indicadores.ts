@@ -8,7 +8,6 @@ export default class extends BaseSchema {
       table.increments('ind_id')
       table.string('ind_nombre', 150)
       table.text('ind_descripcion')
-      table.string('ind_unidad_medida', 150)
       table.string('ind_codigo', 5)
       table.boolean('ind_estado').defaultTo(true)
     })
