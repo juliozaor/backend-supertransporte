@@ -8,17 +8,16 @@ import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 import { DateTime } from 'luxon';
 import { TblFormulariosIndicadores } from 'App/Infraestructura/Datos/Entidad/FormularioIndicadores';
+import { TblDetalleDatos } from 'App/Infraestructura/Datos/Entidad/DetalleDatos';
+import { DetalleDatos } from 'App/Dominio/Datos/Entidades/DetalleDatos';
 
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
-  private servicioEstado = new ServicioEstados();
-
-
 
 
   async visualizar(params: any): Promise<any> {
-    const { idEncuesta, idUsuario, idVigilado, idReporte } = params;
+    const { idUsuario, idVigilado, idReporte } = params;
     let tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
     const formularios: any = [];
     const reporte = await TblReporte.findOrFail(idReporte)
@@ -92,76 +91,80 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     });
 
-    return {vigencia, formularios}
+    return { 
+      idVigilado, idReporte ,
+      idEncuesta: reporte.idEncuesta,
+      vigencia, 
+      formularios }
   }
 
-/*   async enviarSt(params: any): Promise<any> {
-    const { idEncuesta, idReporte, idVigilado, idUsuario } = params
-    const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
-      sqlClasC.preload('clasificacion', (sqlCla) => {
-        sqlCla.preload('pregunta', (sqlPre) => {
-          sqlPre.where('id_encuesta', idEncuesta)
-        }).whereHas('pregunta', sqlE => {
-          sqlE.where('id_encuesta', idEncuesta);
-        })
-      })
-    }).where('identificacion', idUsuario).first()
-
-    let aprobado = true;
-    const faltantes = new Array();
-    const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
-    const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
-    pasos?.forEach(paso => {
-      paso.pregunta.forEach(preguntaPaso => {
-        let repuestaExiste = true
-        let archivoExiste = true
-        const respuesta = respuestas.find(r => r.idPregunta === preguntaPaso.id)
-        if (preguntaPaso.obligatoria) {
-          if (!respuesta) {
-            //throw new NoAprobado('Faltan preguntas por responder')     
-            repuestaExiste = false
-          }
-
-          if (respuesta && respuesta.valor === 'N' && respuesta.observacion === '') {
-            repuestaExiste = false
-          }
-
-
-          if (respuesta && respuesta.valor === 'S' && preguntaPaso.adjuntableObligatorio) {
-            console.log(respuesta.observacion);
-
-            archivoExiste = this.validarDocumento(respuesta, preguntaPaso);
-          }
-
-        }
-
-
-        if (!repuestaExiste || !archivoExiste) {
-          aprobado = false
-          faltantes.push({
-            preguntaId: preguntaPaso.id,
-            archivoObligatorio: preguntaPaso.adjuntableObligatorio
+  /*   async enviarSt(params: any): Promise<any> {
+      const { idEncuesta, idReporte, idVigilado, idUsuario } = params
+      const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
+        sqlClasC.preload('clasificacion', (sqlCla) => {
+          sqlCla.preload('pregunta', (sqlPre) => {
+            sqlPre.where('id_encuesta', idEncuesta)
+          }).whereHas('pregunta', sqlE => {
+            sqlE.where('id_encuesta', idEncuesta);
           })
-
-        }
-
-
+        })
+      }).where('identificacion', idUsuario).first()
+  
+      let aprobado = true;
+      const faltantes = new Array();
+      const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
+      const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
+      pasos?.forEach(paso => {
+        paso.pregunta.forEach(preguntaPaso => {
+          let repuestaExiste = true
+          let archivoExiste = true
+          const respuesta = respuestas.find(r => r.idPregunta === preguntaPaso.id)
+          if (preguntaPaso.obligatoria) {
+            if (!respuesta) {
+              //throw new NoAprobado('Faltan preguntas por responder')     
+              repuestaExiste = false
+            }
+  
+            if (respuesta && respuesta.valor === 'N' && respuesta.observacion === '') {
+              repuestaExiste = false
+            }
+  
+  
+            if (respuesta && respuesta.valor === 'S' && preguntaPaso.adjuntableObligatorio) {
+              console.log(respuesta.observacion);
+  
+              archivoExiste = this.validarDocumento(respuesta, preguntaPaso);
+            }
+  
+          }
+  
+  
+          if (!repuestaExiste || !archivoExiste) {
+            aprobado = false
+            faltantes.push({
+              preguntaId: preguntaPaso.id,
+              archivoObligatorio: preguntaPaso.adjuntableObligatorio
+            })
+  
+          }
+  
+  
+        });
+  
       });
-
-    });
-
-    if (aprobado) {
-      this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
-      const reporte = await TblReporte.findOrFail(idReporte)
-      reporte.fechaEnviost = DateTime.fromJSDate(new Date())
-      reporte.envioSt = '1'
-      reporte.estadoVerificacionId = 1004
-      reporte.save();
-    }
-
-    return { aprobado, faltantes }
-
-  } */
+  
+      if (aprobado) {
+        this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
+        const reporte = await TblReporte.findOrFail(idReporte)
+        reporte.fechaEnviost = DateTime.fromJSDate(new Date())
+        reporte.envioSt = '1'
+        reporte.estadoVerificacionId = 1004
+        reporte.save();
+      }
+  
+      return { aprobado, faltantes }
+  
+    } */
 
   validarDocumento = (r: Respuesta, p: Pregunta): boolean => {
     if (!r.documento || r.documento.length <= 0) {
@@ -171,56 +174,56 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     return true
   }
 
-/*   async guardar(datos: string, idReporte: number, documento: string): Promise<any> {
-    const { respuestas } = JSON.parse(datos);
-    const { usuarioCreacion, loginVigilado, idEncuesta } = await TblReporte.findByOrFail('id', idReporte)
+  async guardar(datos: string, documento: string): Promise<any> {
+    const { respuestas, reporteId } = JSON.parse(datos);
 
-    this.servicioEstado.Log(loginVigilado, 1003, idEncuesta, idReporte)
-    this.servicioAuditoria.Auditar({
-      accion: "Guardar Respuesta",
-      modulo: "Encuesta",
-      usuario: usuarioCreacion ?? '',
-      vigilado: loginVigilado ?? '',
-      descripcion: 'Primer guardado de la encuesta',
-      encuestaId: idEncuesta,
-      tipoLog: 4
-    })
+    //const { usuarioCreacion, loginVigilado, idEncuesta } = await TblReporte.findByOrFail('id', idReporte)
+
+    /*   this.servicioEstado.Log(loginVigilado, 1003, idEncuesta, idReporte)
+      this.servicioAuditoria.Auditar({
+        accion: "Guardar Respuesta",
+        modulo: "Encuesta",
+        usuario: usuarioCreacion ?? '',
+        vigilado: loginVigilado ?? '',
+        descripcion: 'Primer guardado de la encuesta',
+        encuestaId: idEncuesta,
+        tipoLog: 4
+      }) */
 
     respuestas.forEach(async respuesta => {
       //Evaluar si el archivo en la tabla temporal y borrarlo
       //validar si existe
-      const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
+      //   const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
 
+      const existeDatos = await TblDetalleDatos.query().where({ 'ddt_dato_indicador_id': respuesta.preguntaId, 'ddt_reporte_id': reporteId }).first()
 
-      let data: Respuesta = {
-        idPregunta: respuesta.preguntaId,
+      let data: DetalleDatos = {
+        datoIndicadorId: respuesta.preguntaId,
         valor: respuesta.valor,
-        usuarioActualizacion: documento,
-        idReporte: idReporte,
-        fechaActualizacion: DateTime.fromJSDate(new Date)
+        reporteId: reporteId,
+        fechaActualizacion: DateTime.fromJSDate(new Date),
+        anioActivoId: 2023
       }
 
-      if (respuesta.documento) {
-        data.documento = respuesta.documento
-      }
-      if (respuesta.nombreArchivo) {
-        data.nombredocOriginal = respuesta.nombreArchivo
-      }
-      if (respuesta.ruta) {
-        data.ruta = respuesta.ruta
-      }
-      if (respuesta.observacion) {
-        data.observacion = respuesta.observacion
-      }
+       if (respuesta.documento) {
+         data.documento = respuesta.documento
+       }
+       if (respuesta.nombreArchivo) {
+         data.nombredocOriginal = respuesta.nombreArchivo
+       }
+       if (respuesta.ruta) {
+         data.ruta = respuesta.ruta
+       }
+       if (respuesta.observacion) {
+         data.observacion = respuesta.observacion
+       }
 
-      if (existeRespuesta) {
-
-
-        existeRespuesta.estableceRespuestaConId(data)
-        const respuesta = await existeRespuesta.save();
+      if (existeDatos) {
+        existeDatos.estableceDetalleDatosConId(data)
+        const respuesta = await existeDatos.save();
 
 
-        this.servicioAuditoria.Auditar({
+      /*   this.servicioAuditoria.Auditar({
           accion: "Actualizar Respuesta",
           modulo: "Encuesta",
           jsonAnterior: JSON.stringify(existeRespuesta.$attributes),
@@ -229,33 +232,24 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
           vigilado: loginVigilado ?? '',
           descripcion: 'Actualización de respuesta',
           encuestaId: idEncuesta
-        })
+        }) */
 
 
       } else {
-        const respuestaDB = new TblRespuestas();
-        respuestaDB.establecerRespuestaDb(data)
+        const respuestaDB = new TblDetalleDatos();
+        respuestaDB.establecerDetalleDatosDb(data)
         respuestaDB.save();
       }
 
-      //Elimnar de la tabla temporal el archivo almacenado     
-      console.log({ 'art_pregunta_id': respuesta.preguntaId, 'art_usuario_id': loginVigilado, 'art_nombre_archivo': respuesta.documento });
-
-      if (respuesta.documento) {
-        const temporal = await TblArchivosTemporales.query().where({ 'art_pregunta_id': respuesta.preguntaId, 'art_usuario_id': loginVigilado, 'art_nombre_archivo': respuesta.documento }).first()
-        console.log(temporal);
-
-        await temporal?.delete()
-      }
 
     });
 
 
     return {
-      mensaje: "Encuesta guardada correctamente"
+      mensaje: "Formulario guardado correctamente"
     }
 
 
-  } */
+  }
 
 }

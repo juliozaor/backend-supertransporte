@@ -17,9 +17,9 @@ export class ServicioIndicadores {
     return this.repositorio.enviarSt(params);
   }
 
-  async guardar(datos: string, idReporte: number, payload:PayloadJWT): Promise<any> {
+  async guardar(datos: string, payload:PayloadJWT): Promise<any> {
     const {documento} = payload;
-    return this.repositorio.guardar(datos, idReporte, documento);
+    return this.repositorio.guardar(datos, documento);
   }
 
 }

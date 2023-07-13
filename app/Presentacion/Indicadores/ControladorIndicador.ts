@@ -203,9 +203,13 @@ export default class ControladorReporte {
 
 
   public async respuestas ({ request, response }:HttpContextContract) {
-      response.status(200).send({
+    /*   response.status(200).send({
       mensaje: "Formulario guardado correctamente"
-    }) 
+    })  */
+    const payload = await request.obtenerPayloadJWT()
+    const respuesta = await this.service.guardar(JSON.stringify(request.all()), payload )
+ 
+    response.status(200).send(respuesta) 
   }
 
   public async enviar ({ request, response }:HttpContextContract) {
