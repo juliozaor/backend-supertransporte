@@ -26,6 +26,8 @@ export default class Reporte extends BaseModel {
   @column({ columnName: 'estado_verificacion_id' }) public estadoVerificacionId?: number;
   @column({ columnName: 'asignador' }) public asignador?: string;
   @column({ columnName: 'fecha_asignacion' }) public fechaAsignacion?: DateTime;
+  @column({ columnName: 'anio_vigencia' }) public anioVigencia?: number;
+
   @column.dateTime({ autoCreate: true , columnName: 'fecha_creacion'}) public fechaCreacion: DateTime
 
   public establecerReporteDb(reporte: ReporteI) {
@@ -40,6 +42,7 @@ export default class Reporte extends BaseModel {
     this.asignado = reporte.asignado
     this.ultimoUsuarioAsignado = reporte.ultimoUsuarioAsignado
     this.estadoVerificacionId = reporte.estadoVerificacionId
+    this.anioVigencia = reporte.anioVigencia
   }
 
   public estableceReporteConId(reporte: ReporteI) {
@@ -53,6 +56,7 @@ export default class Reporte extends BaseModel {
     this.asignado = reporte.asignado
     this.ultimoUsuarioAsignado = reporte.ultimoUsuarioAsignado
     this.estadoVerificacionId = reporte.estadoVerificacionId
+    this.anioVigencia = reporte.anioVigencia
   }
 
   public establecerVerificador(asignado: boolean = true, usuarioAsignado: string = '', asignador: string = '') {
@@ -80,6 +84,7 @@ export default class Reporte extends BaseModel {
     reporte.asignado = this.asignado 
     reporte.ultimoUsuarioAsignado = this.ultimoUsuarioAsignado 
     reporte.estadoVerificacionId = this.estadoVerificacionId
+    reporte.anioVigencia = this.anioVigencia
     return reporte
   }
 

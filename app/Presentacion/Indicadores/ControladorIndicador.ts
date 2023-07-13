@@ -1,19 +1,25 @@
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/naming-convention */
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { ServicioIndicadores } from 'App/Dominio/Datos/Servicios/ServicioIndicadores'
+import { RepositorioIndicadoresDB } from 'App/Infraestructura/Implementacion/Lucid/RepositorioIndicadoresDB'
 /* import { ServicioRespuestas } from 'App/Dominio/Datos/Servicios/ServicioRespuestas'
 import { RepositorioRespuestasDB } from '../../Infraestructura/Implementacion/Lucid/RepositorioRespuestasDB' */
 
 export default class ControladorReporte {
-/*   private service: ServicioRespuestas
+  private service: ServicioIndicadores
   constructor () {
-    this.service = new ServicioRespuestas(
-      new RepositorioRespuestasDB()
+    this.service = new ServicioIndicadores(
+      new RepositorioIndicadoresDB()
     )
-  } */
+  }
+
 
   public async formularios ({ request, response }:HttpContextContract) {
-    response.status(200).send({
+    const payload = await request.obtenerPayloadJWT()
+    const encuestas = await this.service.visualizar(request.all(), payload)
+    return encuestas
+    /* response.status(200).send({
       "vigencia": "Año de vigencia 2023",
       "formularios": [{
           "nombre": "A. Siniestros",
@@ -192,7 +198,7 @@ export default class ControladorReporte {
               }]
           }]
       }]
-  })
+  }) */
   }
 
 

@@ -13,4 +13,5 @@ export class ReporteI {
   asignador?: string
   fechaAsignacion?: DateTime;
   estadoVerificacionId?:number;
+  anioVigencia?:number;
 }

@@ -10,6 +10,8 @@ export default class extends BaseSchema {
       table.integer('estado_verificacion_id')
       table.string('asignador')
       table.timestamp('fecha_asignacion')
+      table.integer('anio_vigencia')
+
   })
 }
 
@@ -20,6 +22,7 @@ public async down () {
     table.dropColumn('estado_verificacion_id')
     table.dropColumn('asignador')
     table.dropColumn('fecha_asignacion')
+    table.dropColumn('anio_vigencia')
 })
 }
 }

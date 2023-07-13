@@ -9,6 +9,7 @@ export default class extends BaseSchema {
       table.integer('ddt_dato_indicador_id').references('dai_id').inTable('tbl_datos_indicadores')
       table.float('ddt_valor')
       table.integer('ddt_anio_activo_id')
+      table.float('ddt_reporte_id')
       table.boolean('ddt_estado').defaultTo(true)
     })
   }

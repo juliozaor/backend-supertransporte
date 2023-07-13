@@ -4,12 +4,13 @@ import Env from '@ioc:Adonis/Core/Env';
 export class ServicioAuditoria{
 
   public async Auditar (datos: {}) {
-    try {
-      axios.post(`${Env.get('LOGS')}/auditoria`, datos)
-    } catch (error) {
-      console.log("Fallo auditoria", error);
-      
-    }
+      axios.post(`${Env.get('LOGS')}/auditoria`, datos).then(resp =>{
+        console.log('guardo log');
+        
+      }).catch(err =>{
+        console.log("Fallo auditoria", err);
+        
+      })
   }
 
 }

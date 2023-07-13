@@ -1,7 +1,8 @@
-import { BaseModel, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import { TblIndicadores } from './Indicadores';
 import { TblFormulariosIndicadores } from './FormularioIndicadores';
 import { TblPeriodos } from './Periodos';
+import { TblDatosIndicadores } from './DatosIndicadores';
 export class TblSubIndicadores extends BaseModel {
 
   @column({ columnName: 'sub_id' }) public id?: number;
@@ -30,4 +31,10 @@ export class TblSubIndicadores extends BaseModel {
     foreignKey: 'periodoId',
   })
   public periodo: BelongsTo<typeof TblPeriodos>
+
+  @hasMany(() => TblDatosIndicadores, {
+    localKey: 'id',
+    foreignKey: 'subIndicadorId',
+  })
+  public datosIndicadores: HasMany<typeof TblDatosIndicadores>
 }

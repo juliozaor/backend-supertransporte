@@ -14,14 +14,16 @@ import { Pregunta } from 'App/Dominio/Datos/Entidades/Pregunta';
 import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria';
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 import { DateTime } from 'luxon';
+import { TblAnioVigencias } from 'App/Infraestructura/Datos/Entidad/AnioVigencia';
 
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
     const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol } = params;
-
-    let usuarioCreacion: string = "";
+    
+      const anioVigencia = await TblAnioVigencias.query().where('anv_estado', true).orderBy('anv_id','desc').select('anv_anio').first()
+    
 
     const reportadas: Reportadas[] = []
     const consulta = TblReporte.query().preload('usuario', sqlUsuario =>{
@@ -46,12 +48,16 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     consulta.preload('estadoVerificado')
     consulta.preload('estadoVigilado')
 
-
+if(idEncuesta == 2){
+  consulta.where('anio_vigencia', anioVigencia?.anio!)
+}
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
 
 
-    if (reportadasBD.length <= 0 && idEncuesta == 1 && idRol === '003') {
+    if (reportadasBD.length <= 0 && idRol === '003') {
+
+      
       const usuario = await TblUsuarios.query().where('identificacion', idUsuario).first()
 
 
@@ -63,12 +69,13 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         razonSocialRues: usuario?.nombre!,
         nitRues: idVigilado,
         usuarioCreacion: idUsuario,
-        estadoVerificacionId: 1002
+        estadoVerificacionId: 1002,
+        anioVigencia : anioVigencia?.anio!
       })
 
       await reporte.save();
       reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
-
+ 
       this.servicioEstado.Log(idUsuario, 1002, idEncuesta)
 
       this.servicioAuditoria.Auditar({
@@ -103,7 +110,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         usuarioCreacion: reportada.usuarioCreacion,
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
-        estado
+        estado,
       //  estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
       });
     })

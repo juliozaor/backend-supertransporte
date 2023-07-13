@@ -253,101 +253,101 @@ export default class extends BaseSeeder {
         periodoId: 5
       },
       {
-        id: 29,
-        nombre: "Vehículos de terceros utilizados para desplazamientos laborales",
+        id: 31,
+        nombre: "Número total de desplazamientos laborales",
         codigo: "8.2",
-        orden: 29,
+        orden: 31,
         indicadorId: 8,
         formularioId: 3,
         periodoId: 5
       },
       {
-        id: 30,
+        id: 32,
         nombre: "Promedio de vehículos inspeccionados diariamente",
         codigo: "9.1",
-        orden: 30,
-        indicadorId: 9,
-        formularioId: 4,
-        periodoId: 5
-      },
-      {
-        id: 29,
-        nombre: "Promedio de vehículos que operan diariamente",
-        codigo: "9.2",
-        orden: 29,
-        indicadorId: 9,
-        formularioId: 4,
-        periodoId: 5
-      },
-      {
-        id: 30,
-        nombre: "Actividades de mantenimiento programadas a los vehículos con los cuales se presta el servicio",
-        codigo: "10.1",
-        orden: 30,
-        indicadorId: 10,
-        formularioId: 4,
-        periodoId: 4
-      },
-      {
-        id: 31,
-        nombre: "Actividades de mantenimiento ejecutadas a los vehículos con los cuales se presta el servicio",
-        codigo: "10.2",
-        orden: 31,
-        indicadorId: 10,
-        formularioId: 4,
-        periodoId: 4
-      },
-      {
-        id: 32,
-        nombre: "Capacitaciones en seguridad vial programadas",
-        codigo: "11.1",
         orden: 32,
-        indicadorId: 11,
-        formularioId: 2,
-        periodoId: 4
+        indicadorId: 9,
+        formularioId: 4,
+        periodoId: 5
       },
       {
         id: 33,
-        nombre: "Capacitaciones en seguridad vial programadas",
-        codigo: "11.2",
+        nombre: "Promedio de vehículos que operan diariamente",
+        codigo: "9.2",
         orden: 33,
-        indicadorId: 11,
-        formularioId: 2,
-        periodoId: 4
+        indicadorId: 9,
+        formularioId: 4,
+        periodoId: 5
       },
       {
         id: 34,
-        nombre: "Colaboradores capacitados en seguridad vial",
-        codigo: "12.1",
+        nombre: "Actividades de mantenimiento programadas a los vehículos con los cuales se presta el servicio",
+        codigo: "10.1",
         orden: 34,
-        indicadorId: 12,
-        formularioId: 2,
+        indicadorId: 10,
+        formularioId: 4,
         periodoId: 4
       },
       {
         id: 35,
-        nombre: "Colaboradores de la organización",
-        codigo: "12.2",
+        nombre: "Actividades de mantenimiento ejecutadas a los vehículos con los cuales se presta el servicio",
+        codigo: "10.2",
         orden: 35,
+        indicadorId: 10,
+        formularioId: 4,
+        periodoId: 4
+      },
+      {
+        id: 36,
+        nombre: "Capacitaciones en seguridad vial programadas",
+        codigo: "11.1",
+        orden: 36,
+        indicadorId: 11,
+        formularioId: 2,
+        periodoId: 4
+      },
+      {
+        id: 37,
+        nombre: "Capacitaciones en seguridad vial programadas",
+        codigo: "11.2",
+        orden: 37,
+        indicadorId: 11,
+        formularioId: 2,
+        periodoId: 4
+      },
+      {
+        id: 38,
+        nombre: "Colaboradores capacitados en seguridad vial",
+        codigo: "12.1",
+        orden: 38,
         indicadorId: 12,
         formularioId: 2,
         periodoId: 4
       },
       {
-        id: 36,
+        id: 39,
+        nombre: "Colaboradores de la organización",
+        codigo: "12.2",
+        orden: 39,
+        indicadorId: 12,
+        formularioId: 2,
+        periodoId: 4
+      },
+      {
+        id: 40,
         nombre: "No conformidades identificadas y analizadas",
         codigo: "13.1",
-        orden: 36,
+        orden: 40,
         indicadorId: 13,
         formularioId: 2,
         periodoId: 6
       }
       ,
       {
-        id: 37,
+        id: 41,
         nombre: "No conformidades gestionadas y cerradas",
         codigo: "13.2",
-        orden: 37,
+        orden: 41,
         indicadorId: 13,
         formularioId: 2,
         periodoId: 6
