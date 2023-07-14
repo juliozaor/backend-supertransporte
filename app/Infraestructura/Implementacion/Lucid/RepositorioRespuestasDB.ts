@@ -28,10 +28,13 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       encuestaId:idEncuesta,
       tipoLog: 4
     })
-
-    respuestas.forEach(async respuesta => {
+for await (const respuesta of respuestas) {
+ 
+   // respuestas.for(async respuesta => {
       //Evaluar si el archivo en la tabla temporal y borrarlo
       //validar si existe
+      console.log({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte });
+      
       const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
 
 
@@ -56,9 +59,12 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
         data.observacion = respuesta.observacion
       }
 
+      console.log(existeRespuesta);
+      
       if (existeRespuesta) {
 
-
+        console.log("Entro si");
+        
         existeRespuesta.estableceRespuestaConId(data)
         const respuesta = await existeRespuesta.save();
 
@@ -76,9 +82,11 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
 
       } else {
+        console.log("Entro no");
+        
         const respuestaDB = new TblRespuestas();
         respuestaDB.establecerRespuestaDb(data)
-        respuestaDB.save();
+        await respuestaDB.save();
       }
 
       //Elimnar de la tabla temporal el archivo almacenado     
@@ -91,8 +99,8 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
         await temporal?.delete()
       }
 
-    });
-
+    //});
+    }
 
     return {
       mensaje: "Encuesta guardada correctamente"
@@ -111,9 +119,6 @@ respuestas.forEach(async respuesta => {
   const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
     existeRespuesta?.estableceVerificacion(respuesta)
     existeRespuesta?.save()
-
-
-
 });
     
 

@@ -70,7 +70,7 @@ if(idEncuesta == 2){
         nitRues: idVigilado,
         usuarioCreacion: idUsuario,
         estadoVerificacionId: 1002,
-        anioVigencia : anioVigencia?.anio!
+        anioVigencia : anioVigencia?.anio??undefined
       })
 
       await reporte.save();

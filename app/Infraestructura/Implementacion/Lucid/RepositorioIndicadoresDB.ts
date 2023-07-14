@@ -2,10 +2,7 @@ import { RepositorioIndicador } from 'App/Dominio/Repositorios/RepositorioIndica
 import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TblRespuestas from 'App/Infraestructura/Datos/Entidad/Respuesta';
-import { Respuesta } from 'App/Dominio/Datos/Entidades/Respuesta';
-import { Pregunta } from 'App/Dominio/Datos/Entidades/Pregunta';
 import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria';
-import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 import { DateTime } from 'luxon';
 import { TblFormulariosIndicadores } from 'App/Infraestructura/Datos/Entidad/FormularioIndicadores';
 import { TblDetalleDatos } from 'App/Infraestructura/Datos/Entidad/DetalleDatos';
@@ -18,7 +15,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
   async visualizar(params: any): Promise<any> {
     const { idUsuario, idVigilado, idReporte } = params;
-    let tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
+    //let tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
     const formularios: any = [];
     const reporte = await TblReporte.findOrFail(idReporte)
 
@@ -98,21 +95,11 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       formularios }
   }
 
-  /*   async enviarSt(params: any): Promise<any> {
+    async enviarSt(params: any): Promise<any> {
       const { idEncuesta, idReporte, idVigilado, idUsuario } = params
-      const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
-        sqlClasC.preload('clasificacion', (sqlCla) => {
-          sqlCla.preload('pregunta', (sqlPre) => {
-            sqlPre.where('id_encuesta', idEncuesta)
-          }).whereHas('pregunta', sqlE => {
-            sqlE.where('id_encuesta', idEncuesta);
-          })
-        })
-      }).where('identificacion', idUsuario).first()
-  
-      let aprobado = true;
+      
+        let aprobado = true;
       const faltantes = new Array();
-      const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
       const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
       pasos?.forEach(paso => {
         paso.pregunta.forEach(preguntaPaso => {
@@ -164,16 +151,9 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
   
       return { aprobado, faltantes }
   
-    } */
-
-  validarDocumento = (r: Respuesta, p: Pregunta): boolean => {
-    if (!r.documento || r.documento.length <= 0) {
-      //throw new NoAprobado('Faltan archivos adjuntar')
-      return false
     }
-    return true
-  }
 
+ 
   async guardar(datos: string, documento: string): Promise<any> {
     const { respuestas, reporteId } = JSON.parse(datos);
 
