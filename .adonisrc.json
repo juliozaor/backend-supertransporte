@@ -33,7 +33,8 @@
     "./start/Rutas/ruta_reporte",
     "./start/Rutas/ruta_validador",
     "./start/Rutas/ruta_exportacion",
-    "./start/Rutas/rura_indicadores",
+    "./start/Rutas/ruta_indicadores",
+    "./start/Rutas/ruta_maestras",
     "./start/Rutas/ruta_soportes"
   ],
   "providers": [

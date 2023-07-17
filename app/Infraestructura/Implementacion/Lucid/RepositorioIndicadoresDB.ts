@@ -14,7 +14,9 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
 
   async visualizar(params: any): Promise<any> {
-    const { idUsuario, idVigilado, idReporte } = params;
+    const { idUsuario, idVigilado, idReporte, idMes } = params;
+    console.log(idMes);
+    
     //let tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
     const formularios: any = [];
     const reporte = await TblReporte.findOrFail(idReporte)
