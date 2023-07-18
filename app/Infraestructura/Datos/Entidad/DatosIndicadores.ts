@@ -10,6 +10,7 @@ export class TblDatosIndicadores extends BaseModel {
   @column({ columnName: 'dai_estado' }) public estado: boolean;
   @column({ columnName: 'dai_sub_indicador_id' }) public subIndicadorId: number;
   @column({ columnName: 'dai_visible' }) public visible: boolean;
+  @column({ columnName: 'dai_meses' }) public meses: string;
 
   @belongsTo(() => TblSubIndicadores, {
     localKey: 'id',

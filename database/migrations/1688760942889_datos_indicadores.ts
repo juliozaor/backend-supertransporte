@@ -12,6 +12,7 @@ export default class extends BaseSchema {
       table.integer('dai_sub_indicador_id').references('sub_id').inTable('tbl_sub_indicadores')
       table.integer('dai_orden')
       table.boolean('dai_visible').defaultTo(true).comment('Si es visible en 2023')
+      table.string('dai_meses').comment('Arreglo de meses')
        })
   }
 

@@ -381,6 +381,12 @@ export default class ControladorReporte {
             {
               "idEvidencia": 1,
               "nombre": "Copia de las actas de reunión del comité PESV, donde conste la investigación interna de los siniestros viales ",
+              "tipoEvidencia":"FILE",
+              "validaciones": {
+                "tipoDato": "WinRAR",
+                "cantDecimal": 0
+              },
+              "respuesta":"",
               "documento": "",
               "nombreOriginal": "",
               "ruta": ""
@@ -628,6 +634,12 @@ export default class ControladorReporte {
             {
               "idEvidencia": 2,
               "nombre": "Certificación del Representante Legal donde se describa el mecanismo empleado para la medición de los riesgos ",
+              "tipoEvidencia":"FILE",
+              "validaciones": {
+                "tipoDato": "pdf",
+                "cantDecimal": 0
+              },
+              "respuesta":"",
               "documento": "",
               "nombreOriginal": "",
               "ruta": ""
@@ -787,6 +799,12 @@ export default class ControladorReporte {
             {
               "idEvidencia": 3,
               "nombre": "Listado de rutas de desplazamientos laborales (origen, destino), número de kilometros por ruta",
+              "tipoEvidencia":"FILE",
+              "validaciones": {
+                "tipoDato": "excel",
+                "cantDecimal": 0
+              },
+              "respuesta":"",
               "documento": "",
               "nombreOriginal": "",
               "ruta": ""
@@ -1089,8 +1107,14 @@ export default class ControladorReporte {
           ],
           "evidencias": [
             {
-              "idEvidencia": 1,
-              "nombre": "Copia del informe mensual presentado por el lider del PESV al comité sobre el programa de gestión de velocidad y las mediciones realizadas.",
+              "idEvidencia": 4,
+              "nombre": "Desplazamientos laborales realizados",
+              "tipoEvidencia":"NUMBER",
+              "validaciones": {
+                "tipoDato": "real",
+                "cantDecimal": 1
+              },
+              "respuesta":"3",
               "documento": "",
               "nombreOriginal": "",
               "ruta": ""

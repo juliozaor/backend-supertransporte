@@ -1,5 +1,6 @@
 import { BaseModel, HasMany, column, hasMany} from '@ioc:Adonis/Lucid/Orm'
 import { TblSubIndicadores } from './SubIndicadores';
+import { TblEvidencias } from './Evidencias';
 export class TblFormulariosIndicadores extends BaseModel {
   @column({ columnName: 'fmi_id' })
   public id?: number;
@@ -13,5 +14,11 @@ export class TblFormulariosIndicadores extends BaseModel {
     foreignKey: 'formularioId',
   })
   public subIndicadores: HasMany<typeof TblSubIndicadores>
+
+  @hasMany(() => TblEvidencias, {
+    localKey: 'id',
+    foreignKey: 'formularioId',
+  })
+  public evidencias: HasMany<typeof TblEvidencias>
 }
 
