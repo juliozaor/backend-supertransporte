@@ -31,6 +31,7 @@ export class RepositorioSoporteDB implements RepositorioSoporte{
             query.andWhere( subquery => {
                 subquery.where('radicado', 'ilike', `%${filtros.termino}%`)
                 subquery.orWhere('razon_social', 'ilike', `%${filtros.termino}%`)
+                subquery.orWhere('nit', 'ilike', `%${filtros.termino}%`)
                 subquery.orWhere('email', 'ilike', `%${filtros.termino}%`)
                 subquery.orWhere('usuario_respuesta', 'ilike', `%${filtros.termino}%`)
             })
