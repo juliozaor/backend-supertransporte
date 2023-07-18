@@ -10,6 +10,7 @@ export class TblDetalleDatosEvidencias extends BaseModel {
   @column({ columnName: 'dde_documento' }) public documento?: string;
   @column({ columnName: 'dde_ruta' }) public ruta?: string;
   @column({ columnName: 'dde_nombredoc_original' }) public nombredocOriginal?: string;
+  @column({ columnName: 'dde_valor' }) public valor?: string;
   @column({ columnName: 'dde_estado' }) public estado?: boolean;
 
 
@@ -23,6 +24,7 @@ export class TblDetalleDatosEvidencias extends BaseModel {
     this.fechaActualizacion = detalleEvidencia.fechaActualizacion
     this.documento = detalleEvidencia.documento
     this.ruta = detalleEvidencia.ruta
+    this.valor= detalleEvidencia.valor
     this.nombredocOriginal = detalleEvidencia.nombredocOriginal
 
   }
@@ -35,6 +37,7 @@ export class TblDetalleDatosEvidencias extends BaseModel {
     this.fechaActualizacion = detalleEvidencia.fechaActualizacion
     this.documento = detalleEvidencia.documento
     this.ruta = detalleEvidencia.ruta
+    this.valor= detalleEvidencia.valor
     this.nombredocOriginal = detalleEvidencia.nombredocOriginal
 
   }
@@ -49,6 +52,7 @@ export class TblDetalleDatosEvidencias extends BaseModel {
     detalleEvidencia.fechaActualizacion = this.fechaActualizacion 
     detalleEvidencia.documento = this.documento 
     detalleEvidencia.ruta = this.ruta 
+    detalleEvidencia.valor = this.valor
     detalleEvidencia.nombredocOriginal = this.nombredocOriginal 
     return detalleEvidencia
   }

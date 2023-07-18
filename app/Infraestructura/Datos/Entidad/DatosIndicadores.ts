@@ -1,6 +1,7 @@
 import { BaseModel, BelongsTo, HasMany, belongsTo, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import { TblSubIndicadores } from './SubIndicadores';
 import { TblDetalleDatos } from './DetalleDatos';
+import { TblMeses } from './Mes';
 export class TblDatosIndicadores extends BaseModel {
 
   @column({ columnName: 'dai_id' }) public id?: number;
@@ -23,4 +24,10 @@ export class TblDatosIndicadores extends BaseModel {
     foreignKey: 'datoIndicadorId',
   })
   public detalleDatos: HasMany<typeof TblDetalleDatos>
+
+  @belongsTo(() => TblMeses, {
+    localKey: 'id',
+    foreignKey: 'meses',
+  })
+  public mes: BelongsTo<typeof TblMeses>
 }

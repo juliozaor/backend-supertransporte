@@ -13,7 +13,7 @@ export default class extends BaseSchema {
       table.string('dde_documento')
       table.string('dde_ruta')
       table.string('dde_nombredoc_original')
-      table.float('dde_valor')
+      table.string('dde_valor')
       table.dateTime('dde_fecha_actualizacion')
     })
   }

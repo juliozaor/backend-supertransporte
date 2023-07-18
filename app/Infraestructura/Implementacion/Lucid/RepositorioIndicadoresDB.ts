@@ -23,29 +23,72 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     const consulta = TblFormulariosIndicadores.query()
     let vigencia = '';
+    vigencia = `Año de vigencia ${reporte.anioVigencia}`
 
     consulta.preload('subIndicadores', subIndicador => {
       if (reporte && reporte.anioVigencia == 2023) {
-        vigencia = `Año de vigencia ${reporte.anioVigencia}`
         subIndicador.preload('datosIndicadores', datos => {
           datos.preload('detalleDatos', detalle => {
             detalle.where('ddt_reporte_id', idReporte)
           })
           datos.where('dai_visible', true)
+          datos.where('dai_meses', idMes)
+        }).whereHas('datosIndicadores', datos => {
+          datos.where('dai_meses', idMes)
         })
+
+        
       } else {
         subIndicador.preload('datosIndicadores', datos => {
           datos.preload('detalleDatos', detalle => {
             detalle.where('ddt_reporte_id', idReporte)
           })
+          datos.where('dai_meses', idMes)
+        }).whereHas('datosIndicadores', datos => {
+          datos.where('dai_meses', idMes)
         })
+
 
       }
       subIndicador.preload('periodo')
 
     })
 
+    //Evidencias
+    consulta.preload('evidencias', sqlEvidencia =>{
+
+      if (reporte && reporte.anioVigencia == 2023) {
+         sqlEvidencia.preload('datosEvidencias', sqlDatosE =>{
+           sqlDatosE.preload('detalleEvidencias', detalleV => {
+             detalleV.where('dde_reporte_id', idReporte)
+           })
+           sqlDatosE.where('dae_visible', true)
+           sqlDatosE.where('dae_meses', idMes)
+  
+         }).whereHas('datosEvidencias', sqlDatosE => {
+           sqlDatosE.where('dae_meses', idMes)
+         }).preload('subTipoDato', sqlSubTipoDato=>{
+           sqlSubTipoDato.preload('tipoDato')
+         })
+
+      }else{
+        sqlEvidencia.preload('datosEvidencias', sqlDatosE =>{
+          sqlDatosE.preload('detalleEvidencias', detalleV => {
+            detalleV.where('dde_reporte_id', idReporte)
+          })
+          sqlDatosE.where('dae_meses', idMes)
+        }).whereHas('datosEvidencias', sqlDatosE => {
+          sqlDatosE.where('dae_meses', idMes) 
+        }).preload('subTipoDato', sqlSubTipoDato=>{
+          sqlSubTipoDato.preload('tipoDato')
+        })
+      }
+     })
+    
+
+
     const formulariosBD = await consulta
+    
 
     formulariosBD.forEach(formulario => {
       const nombre = formulario.nombre
@@ -83,15 +126,37 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
           preguntas
         })
       });
+
+      const evidencias: any = [];
+      formulario.evidencias.forEach(evidencia => {
+        evidencia.datosEvidencias.forEach(datoEvidencia => {
+          evidencias.push({
+            idEvidencia: datoEvidencia.id,
+              nombre: evidencia.nombre,
+              tipoEvidencia: evidencia.subTipoDato.tipoDato.nombre,
+              validaciones: {
+                tipoDato: evidencia.subTipoDato.nombre,
+                cantDecimal: evidencia.subTipoDato.decimales
+              },
+              respuesta:datoEvidencia.detalleEvidencias[0]?.valor ?? '',
+              documento: datoEvidencia.detalleEvidencias[0]?.documento ?? '',
+              nombreOriginal: datoEvidencia.detalleEvidencias[0]?.nombredocOriginal ?? '',
+              ruta:datoEvidencia.detalleEvidencias[0]?.ruta ?? '' 
+          })
+        });
+      })
+
       formularios.push({
         nombre,
-        subIndicador
+        subIndicador,
+        evidencias
       })
 
     });
 
     return { 
-      idVigilado, idReporte ,
+      idVigilado, 
+      idReporte ,
       idEncuesta: reporte.idEncuesta,
       vigencia, 
       formularios }

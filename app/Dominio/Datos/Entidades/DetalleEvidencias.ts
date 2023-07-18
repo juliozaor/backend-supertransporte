@@ -8,5 +8,6 @@ export class DetalleEvidencia {
   fechaActualizacion: DateTime;
   documento?: string;
   ruta?: string;
+  valor?:string;
   nombredocOriginal?: string;
 }

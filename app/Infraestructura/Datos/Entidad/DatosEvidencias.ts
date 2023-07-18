@@ -4,7 +4,6 @@ export class TblDatosEvidencias extends BaseModel {
 
   @column({ columnName: 'dae_id' }) public id?: number;
   @column({ columnName: 'dae_nombre' }) public nombre: string;
-  @column({ columnName: 'dae_tipo_id' }) public tipoId: number;
   @column({ columnName: 'dae_orden' }) public orden: number;
   @column({ columnName: 'dae_estado' }) public estado: boolean;
   @column({ columnName: 'dae_evidencia_id' }) public evidenciaId: number;
@@ -15,7 +14,7 @@ export class TblDatosEvidencias extends BaseModel {
 
   @hasMany(() => TblDetalleDatosEvidencias, {
     localKey: 'id',
-    foreignKey: 'datoIndicadorId',
+    foreignKey: 'datoEvidenciaId',
   })
   public detalleEvidencias: HasMany<typeof TblDetalleDatosEvidencias>
 }

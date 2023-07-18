@@ -16,10 +16,10 @@ export default class ControladorReporte {
 
 
   public async formularios({ request, response }: HttpContextContract) {
-    /* const payload = await request.obtenerPayloadJWT()
+    const payload = await request.obtenerPayloadJWT()
     const encuestas = await this.service.visualizar(request.all(), payload)
-    return encuestas */
-    response.status(200).send({
+    return encuestas
+    /* response.status(200).send({
       "idVigilado": "0000000",
       "idReporte": "7028",
       "idEncuesta": 2,
@@ -1122,7 +1122,7 @@ export default class ControladorReporte {
           ]
         }
       ]
-    })
+    }) */
   }
 
 
