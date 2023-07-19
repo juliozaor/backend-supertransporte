@@ -33,8 +33,6 @@ for await (const respuesta of respuestas) {
    // respuestas.for(async respuesta => {
       //Evaluar si el archivo en la tabla temporal y borrarlo
       //validar si existe
-      console.log({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte });
-      
       const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
 
 
@@ -59,21 +57,19 @@ for await (const respuesta of respuestas) {
         data.observacion = respuesta.observacion
       }
 
-      console.log(existeRespuesta);
       
       if (existeRespuesta) {
 
-        console.log("Entro si");
         
         existeRespuesta.estableceRespuestaConId(data)
-        const respuesta = await existeRespuesta.save();
+        const resp= await existeRespuesta.save();
 
 
         this.servicioAuditoria.Auditar({
           accion: "Actualizar Respuesta",
           modulo: "Encuesta",
           jsonAnterior: JSON.stringify(existeRespuesta.$attributes),
-          jsonNuevo: JSON.stringify(respuesta.$attributes),
+          jsonNuevo: JSON.stringify(resp.$attributes),
           usuario: usuarioCreacion ?? '',
           vigilado: loginVigilado ?? '',
           descripcion: 'Actualización de respuesta',
@@ -82,7 +78,6 @@ for await (const respuesta of respuestas) {
 
 
       } else {
-        console.log("Entro no");
         
         const respuestaDB = new TblRespuestas();
         respuestaDB.establecerRespuestaDb(data)
@@ -90,12 +85,10 @@ for await (const respuesta of respuestas) {
       }
 
       //Elimnar de la tabla temporal el archivo almacenado     
-      console.log({ 'art_pregunta_id': respuesta.preguntaId, 'art_usuario_id': loginVigilado, 'art_nombre_archivo': respuesta.documento });
-
+     
       if (respuesta.documento) {
         const temporal = await TblArchivosTemporales.query().where({ 'art_pregunta_id': respuesta.preguntaId, 'art_usuario_id': loginVigilado, 'art_nombre_archivo': respuesta.documento }).first()
-        console.log(temporal);
-
+       
         await temporal?.delete()
       }
 

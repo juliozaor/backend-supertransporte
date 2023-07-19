@@ -33,6 +33,11 @@ export default class extends BaseSeeder {
         nombre: 'Anual',
         tipo:'porcentaje',
         decimal: 1
+      },{
+        id: 7,
+        nombre: 'Trimestral',
+        tipo:'archivo',
+        decimal: 0
       }
     ])
   }

@@ -16,10 +16,10 @@ export default class ControladorReporte {
 
 
   public async formularios({ request, response }: HttpContextContract) {
-    /* const payload = await request.obtenerPayloadJWT()
+    const payload = await request.obtenerPayloadJWT()
     const encuestas = await this.service.visualizar(request.all(), payload)
-    return encuestas */
-    response.status(200).send({
+    return encuestas
+    /* response.status(200).send({
       "idVigilado": "0000000",
       "idReporte": "7028",
       "idEncuesta": 2,
@@ -1122,7 +1122,7 @@ export default class ControladorReporte {
           ]
         }
       ]
-    })
+    }) */
   }
 
 
@@ -1137,15 +1137,15 @@ export default class ControladorReporte {
   }
 
   public async enviar({ request, response }: HttpContextContract) {
-    /* response.status(200).send({
+    response.status(200).send({
       aprobado:true, faltantes:[]
-  })  */
-    const payload = await request.obtenerPayloadJWT()
+  }) 
+  /*   const payload = await request.obtenerPayloadJWT()
     const enviado = await this.service.enviarSt(request.all(), payload)
     if (enviado && !enviado.aprobado) {
       return response.status(400).send(enviado)
     }
-    return enviado
+    return enviado */
   }
 
 

@@ -20,7 +20,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
-    const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol } = params;
+    const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol, termino } = params;
     
       const anioVigencia = await TblAnioVigencias.query().where('anv_estado', true).orderBy('anv_id','desc').select('anv_anio').first()
     
@@ -28,16 +28,22 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     const reportadas: Reportadas[] = []
     const consulta = TblReporte.query().preload('usuario', sqlUsuario =>{
       sqlUsuario.preload('clasificacionUsuario')
+      
     });
 
     if (idEncuesta) {
       consulta.preload('encuesta', sqlE => {
         sqlE.where('id', idEncuesta);
+        /* if(termino) sqlE.orWhere('nombre', 'ilike', `%${params.termino}%`)
+        if(termino) sqlE.orWhere('descripcion', 'ilike', `%${params.termino}%`) */
       }).whereHas('encuesta', sqlE => {
         sqlE.where('id', idEncuesta);
       })
     } else {
-      consulta.preload('encuesta')
+      consulta.preload('encuesta', sqlE => {
+      /*   if(termino) sqlE.orWhere('nombre', 'ilike', `%${params.termino}%`)
+        if(termino) sqlE.orWhere('descripcion', 'ilike', `%${params.termino}%`) */
+      })
     }
 
     if (idRol === '003') {
@@ -51,9 +57,20 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 if(idEncuesta == 2){
   consulta.where('anio_vigencia', anioVigencia?.anio!)
 }
+if(termino) {
+  consulta.andWhere( subquery => {
+    subquery.where('nit_rues', 'ilike', `%${params.termino}%`)
+    subquery.orWhere('razon_social_rues', 'ilike', `%${params.termino}%`)
+    if(Number.isInteger(parseInt(params.termino))) {
+      console.log('entro');
+      
+      subquery.orWhere('id_reporte', `${params.termino}`)
+    }
+})
+}
+
+
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
-
-
 
     if (reportadasBD.length <= 0 && idRol === '003') {
 
@@ -95,14 +112,14 @@ if(idEncuesta == 2){
       estado = reportada.estadoVerificado?.nombre??estado;
       estado = reportada.estadoVigilado?.nombre??estado;    
       reportadas.push({
-        idEncuestaDiligenciada: reportada.encuesta.id,
+        idEncuestaDiligenciada: reportada.encuesta?.id,
         clasificacion: reportada.usuario.clasificacionUsuario[0]?.nombre??'Sin Clasificar',
         idVigilado: reportada.loginVigilado,
         numeroReporte: reportada.id!,
-        encuesta: reportada.encuesta.nombre,
-        descripcion: reportada.encuesta.descripcion,
-        fechaInicio: reportada.encuesta.fechaInicio,
-        fechaFinal: reportada.encuesta.fechaFin,
+        encuesta: reportada.encuesta?.nombre,
+        descripcion: reportada.encuesta?.descripcion,
+        fechaInicio: reportada.encuesta?.fechaInicio,
+        fechaFinal: reportada.encuesta?.fechaFin,
         fechaEnvioST: reportada.fechaEnviost!,
         razonSocial: reportada.razonSocialRues,
         nit: reportada.nitRues,
