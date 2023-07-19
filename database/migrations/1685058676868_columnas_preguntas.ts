@@ -8,6 +8,7 @@ export default class extends BaseSchema {
       table.boolean('adjuntable_obligatorio').defaultTo(true)
       table.boolean('obligatoria').defaultTo(true)
       table.integer('orden').defaultTo(1)
+      table.float('tamanio').defaultTo(5)
     })
   }
 
@@ -18,6 +19,7 @@ export default class extends BaseSchema {
       table.dropColumn('adjuntable_obligatorio')
       table.dropColumn('obligatoria')
       table.dropColumn('orden')
+      table.dropColumn('tamanio')
   
   })
   }

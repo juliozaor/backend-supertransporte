@@ -14,4 +14,5 @@ export class Pregunta {
   adjuntableObligatorio: boolean;
   obligatoria: boolean;
   orden: number;
+  tamanio?: number;
 }

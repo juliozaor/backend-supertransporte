@@ -134,6 +134,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
           evidencias.push({
             idEvidencia: datoEvidencia.id,
             nombre: evidencia.nombre,
+            tamanio:evidencia.tamanio,
             tipoEvidencia: evidencia.subTipoDato.tipoDato.nombre,
             validaciones: {
               tipoDato: evidencia.subTipoDato.nombre,

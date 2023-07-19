@@ -9,6 +9,7 @@ export class TblEvidencias extends BaseModel {
   @column({ columnName: 'evi_formulario_id' }) public formularioId: number;
   @column({ columnName: 'evi_sub_tipo_id' }) public subTipoId: number;
   @column({ columnName: 'evi_periodo_id' }) public periodoId: number;
+  @column({ columnName: 'evi_tamanio' }) public tamanio?: number;
   @column({ columnName: 'evi_estado' }) public estado: boolean;
 
   @hasMany(() => TblDatosEvidencias, {

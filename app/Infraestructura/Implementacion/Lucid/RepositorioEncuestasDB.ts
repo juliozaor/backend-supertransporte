@@ -201,6 +201,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             adjuntable: pregunta.adjuntable,
             adjuntableObligatorio: obligatorio,// pregunta.adjuntableObligatorio,
             tipoPregunta: pregunta.tiposPregunta.nombre,
+            tamanio: pregunta.tamanio,
             valoresPregunta: pregunta.tiposPregunta.opciones,
             validaciones: pregunta.tiposPregunta.validaciones,
 

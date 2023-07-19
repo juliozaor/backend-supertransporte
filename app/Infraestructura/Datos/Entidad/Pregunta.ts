@@ -26,6 +26,7 @@ export default class Preguntas extends BaseModel {
   @column({ columnName: 'adjuntable_obligatorio' }) public adjuntableObligatorio: boolean;
   @column({ columnName: 'obligatoria' }) public obligatoria: boolean
   @column({ columnName: 'orden' }) public orden: number;
+  @column({ columnName: 'tamanio' }) public tamanio?: number;
 
   public establecerPreguntaDb(pregunta: Pregunta) {
     this.id = pregunta.id
@@ -42,6 +43,7 @@ export default class Preguntas extends BaseModel {
     this.adjuntableObligatorio = pregunta.adjuntableObligatorio
     this.obligatoria = pregunta.obligatoria
     this.orden = pregunta.orden
+    this.tamanio = pregunta.tamanio
   }
 
   public establecePreguntaConId(pregunta: Pregunta) {
@@ -58,6 +60,7 @@ export default class Preguntas extends BaseModel {
     this.adjuntableObligatorio = pregunta.adjuntableObligatorio
     this.obligatoria = pregunta.obligatoria
     this.orden = pregunta.orden
+    this.tamanio = pregunta.tamanio
   }
 
   public obtenerPregunta(): Pregunta {
@@ -76,6 +79,7 @@ export default class Preguntas extends BaseModel {
     pregunta.adjuntableObligatorio = this.adjuntableObligatorio 
     pregunta.obligatoria = this.obligatoria 
     pregunta.orden = this.orden 
+    pregunta.tamanio = this.tamanio 
     return pregunta
   }
 
