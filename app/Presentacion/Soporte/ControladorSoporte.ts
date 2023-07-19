@@ -10,15 +10,19 @@ import { crearSoporteSchema } from "./Validadores/CrearSoporte";
 import { MapeadorFicheroAdonis } from "../Mapeadores/MapeadorFicheroAdonis";
 import { FiltrosSoporte } from "App/Dominio/Dto/Soporte/FiltrosSoporte";
 import { crearRespuesta } from "./Validadores/CrearRespuesta";
+import { RepositorioMotivoSoporte } from "App/Dominio/Repositorios/RepositorioMotivoSoporte";
+import { RepositorioMotivoSoporteDB } from "App/Infraestructura/Implementacion/Lucid/RepositorioMotivoSoporteDB";
 
 export default class ControladorSoporte{
     private servicio: ServicioSoporte
+    private repositorioMotivos: RepositorioMotivoSoporte
     constructor(){
         this.servicio = new ServicioSoporte( 
             new RepositorioSoporteDB(),
             new RepositorioFicheroLocal(),
             new ServicioUsuario( new RepositorioUsuariosDB() )
         )
+        this.repositorioMotivos = new RepositorioMotivoSoporteDB()
     }
 
     async responder({ request, response }: HttpContextContract ){
@@ -71,6 +75,11 @@ export default class ControladorSoporte{
         const filtros = querys as FiltrosSoporte
         const paginable = await this.servicio.listar(pagina, limite, filtros)
         response.status(200).send(paginable)
+    }
+
+    async listarMotivos({response}: HttpContextContract){
+        const motivos = await this.repositorioMotivos.listar()
+        response.status(200).send(motivos)
     }
 
     async descargarAdjunto({request, response}: HttpContextContract){
