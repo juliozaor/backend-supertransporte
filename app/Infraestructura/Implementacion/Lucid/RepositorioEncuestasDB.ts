@@ -57,12 +57,20 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 if(idEncuesta == 2){
   consulta.where('anio_vigencia', anioVigencia?.anio!)
 }
-//if(termino) consulta.orWhere('id_reporte', 'ilike', `%${params.termino}%`)
+if(termino) {
+  consulta.andWhere( subquery => {
+    subquery.where('nit_rues', 'ilike', `%${params.termino}%`)
+    subquery.orWhere('razon_social_rues', 'ilike', `%${params.termino}%`)
+    if(Number.isInteger(parseInt(params.termino))) {
+      console.log('entro');
+      
+      subquery.orWhere('id_reporte', `${params.termino}`)
+    }
+})
+}
 
 
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
-
-
 
     if (reportadasBD.length <= 0 && idRol === '003') {
 
@@ -104,14 +112,14 @@ if(idEncuesta == 2){
       estado = reportada.estadoVerificado?.nombre??estado;
       estado = reportada.estadoVigilado?.nombre??estado;    
       reportadas.push({
-        idEncuestaDiligenciada: reportada.encuesta.id,
+        idEncuestaDiligenciada: reportada.encuesta?.id,
         clasificacion: reportada.usuario.clasificacionUsuario[0]?.nombre??'Sin Clasificar',
         idVigilado: reportada.loginVigilado,
         numeroReporte: reportada.id!,
-        encuesta: reportada.encuesta.nombre,
-        descripcion: reportada.encuesta.descripcion,
-        fechaInicio: reportada.encuesta.fechaInicio,
-        fechaFinal: reportada.encuesta.fechaFin,
+        encuesta: reportada.encuesta?.nombre,
+        descripcion: reportada.encuesta?.descripcion,
+        fechaInicio: reportada.encuesta?.fechaInicio,
+        fechaFinal: reportada.encuesta?.fechaFin,
         fechaEnvioST: reportada.fechaEnviost!,
         razonSocial: reportada.razonSocialRues,
         nit: reportada.nitRues,
