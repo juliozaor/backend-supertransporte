@@ -136,8 +136,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
           evidencias.push({
             idEvidencia: datoEvidencia.id,
             nombre: evidencia.nombre,
-            tamanio:evidencia.tamanio,
-            obligatoria:evidencia.obligatorio,
+            tamanio: evidencia.tamanio,
+            obligatoria: evidencia.obligatorio,
             tipoEvidencia: evidencia.subTipoDato.tipoDato.nombre,
             validaciones: {
               tipoDato: evidencia.subTipoDato.nombre,
@@ -176,30 +176,34 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     const indicadores = await this.visualizar(params)
 
-    indicadores.formularios.forEach(formulario => {      
-     if(formulario.subIndicador.length !=0){
-      formulario.subIndicador.forEach(subInd => {
-        if(subInd.preguntas.length !=0){
-          subInd.preguntas.forEach(pregunta => {
-            if(pregunta.obligatoria && pregunta.respuesta === ''){
-              faltantesIndicadores.push(pregunta.idPregunta);
+    indicadores.formularios.forEach(formulario => {
+      if (formulario.subIndicador.length != 0) {
+        formulario.subIndicador.forEach(subInd => {
+          if (subInd.preguntas.length != 0) {
+            subInd.preguntas.forEach(pregunta => {
+              if (pregunta.obligatoria && pregunta.respuesta === '') {
+                faltantesIndicadores.push(pregunta.idPregunta);
+                aprobado = false;
+              }
+            });
+          }
+        });
+      }
+      if (formulario.evidencias.length != 0) {
+        formulario.evidencias.forEach(evidencia => {
+          if (evidencia.obligatoria{
+            if ((evidencia.tipoEvidencia === 'FILE' && evidencia.documento === '') || (evidencia.tipoEvidencia !== 'FILE' && evidencia.respuesta === '')) {
+              faltantesEvidencias.push(evidencia.idEvidencia);
               aprobado = false;
-            }        
-          });          
-        }
-      });
-     }     
-     if(formulario.evidencias.length !=0){
-      formulario.evidencias.forEach(evidencia => {
-        if(evidencia.obligatoria && evidencia.respuesta === ''){
-          faltantesEvidencias.push(evidencia.idEvidencia);
-          aprobado = false;
-        }     
-      });
-     
-     }
+
+            }
+
+          }
+        });
+
+      }
     });
-    
+
     if (aprobado) {
       this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
       const reporte = await TblReporte.findOrFail(idReporte)
@@ -210,7 +214,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     }
 
     //return indicadores
-    return { aprobado, faltantesIndicadores,faltantesEvidencias }
+    return { aprobado, faltantesIndicadores, faltantesEvidencias }
 
   }
 
@@ -220,17 +224,17 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     //const { usuarioCreacion, loginVigilado, idEncuesta } = await TblReporte.findByOrFail('id', idReporte)
 
-      this.servicioEstado.Log(documento, 1003, undefined, reporteId)
-      /* this.servicioAuditoria.Auditar({
-        accion: "Guardar Respuesta",
-        modulo: "Encuesta",
-        usuario: usuarioCreacion ?? '',
-        vigilado: loginVigilado ?? '',
-        descripcion: 'Primer guardado de la encuesta',
-        encuestaId: idEncuesta,
-        tipoLog: 4
-      }) */
-      for await (const respuesta of respuestas) {
+    this.servicioEstado.Log(documento, 1003, undefined, reporteId)
+    /* this.servicioAuditoria.Auditar({
+      accion: "Guardar Respuesta",
+      modulo: "Encuesta",
+      usuario: usuarioCreacion ?? '',
+      vigilado: loginVigilado ?? '',
+      descripcion: 'Primer guardado de la encuesta',
+      encuestaId: idEncuesta,
+      tipoLog: 4
+    }) */
+    for await (const respuesta of respuestas) {
       //Evaluar si el archivo en la tabla temporal y borrarlo
       //validar si existe
       //   const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
@@ -278,7 +282,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
       const existeDatosE = await TblDetalleDatosEvidencias.query().where({ 'dde_dato_evidencia_id': evidencia.evidenciaId, 'dde_reporte_id': reporteId }).first()
 
-      let data: DetalleEvidencia = {        
+      let data: DetalleEvidencia = {
         datoEvidenciaId: evidencia.evidenciaId,
         valor: evidencia.valor,
         reporteId: reporteId,
@@ -309,7 +313,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
       if (evidencia.documento) {
         const temporal = await TblArchivosTemporales.query().where({ 'art_pregunta_id': evidencia.preguntaId, 'art_usuario_id': documento, 'art_nombre_archivo': evidencia.documento }).first()
-       
+
         await temporal?.delete()
       }
 
