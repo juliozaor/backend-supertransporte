@@ -77,7 +77,8 @@ export class ServicioSoporte{
             ruta: 'RUTA PENDIENTE',
             documento: peticion.adjunto ? peticion.adjunto.nombre : undefined,
             telefono: usuario.telefono ?? '',
-            problemaAcceso: false
+            problemaAcceso: false,
+            motivo: peticion.motivo
         })
         soporte = await this.repositorio.guardar(soporte)
         if(peticion.adjunto){
