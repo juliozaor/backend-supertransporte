@@ -7,16 +7,19 @@ import { DateTime } from 'luxon';
 import { TblFormulariosIndicadores } from 'App/Infraestructura/Datos/Entidad/FormularioIndicadores';
 import { TblDetalleDatos } from 'App/Infraestructura/Datos/Entidad/DetalleDatos';
 import { DetalleDatos } from 'App/Dominio/Datos/Entidades/DetalleDatos';
+import { TblDetalleDatosEvidencias } from 'App/Infraestructura/Datos/Entidad/DetalleEvidencias';
+import { DetalleEvidencia } from 'App/Dominio/Datos/Entidades/DetalleEvidencias';
+import { TblArchivosTemporales } from 'App/Infraestructura/Datos/Entidad/Archivo';
+import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
-
+  private servicioEstado = new ServicioEstados();
 
   async visualizar(params: any): Promise<any> {
     const { idUsuario, idVigilado, idReporte, idMes } = params;
-    console.log(idMes);
-    
+
     //let tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
     const formularios: any = [];
     const reporte = await TblReporte.findOrFail(idReporte)
@@ -37,7 +40,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
           datos.where('dai_meses', idMes)
         })
 
-        
+
       } else {
         subIndicador.preload('datosIndicadores', datos => {
           datos.preload('detalleDatos', detalle => {
@@ -55,40 +58,38 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     })
 
     //Evidencias
-    consulta.preload('evidencias', sqlEvidencia =>{
+    consulta.preload('evidencias', sqlEvidencia => {
 
       if (reporte && reporte.anioVigencia == 2023) {
-         sqlEvidencia.preload('datosEvidencias', sqlDatosE =>{
-           sqlDatosE.preload('detalleEvidencias', detalleV => {
-             detalleV.where('dde_reporte_id', idReporte)
-           })
-           sqlDatosE.where('dae_visible', true)
-           sqlDatosE.where('dae_meses', idMes)
-  
-         }).whereHas('datosEvidencias', sqlDatosE => {
-           sqlDatosE.where('dae_meses', idMes)
-         }).preload('subTipoDato', sqlSubTipoDato=>{
-           sqlSubTipoDato.preload('tipoDato')
-         })
+        sqlEvidencia.preload('datosEvidencias', sqlDatosE => {
+          sqlDatosE.preload('detalleEvidencias', detalleV => {
+            detalleV.where('dde_reporte_id', idReporte)
+          })
+          sqlDatosE.where('dae_visible', true)
+          sqlDatosE.where('dae_meses', idMes)
 
-      }else{
-        sqlEvidencia.preload('datosEvidencias', sqlDatosE =>{
+        }).whereHas('datosEvidencias', sqlDatosE => {
+          sqlDatosE.where('dae_meses', idMes)
+        }).preload('subTipoDato', sqlSubTipoDato => {
+          sqlSubTipoDato.preload('tipoDato')
+        })
+
+      } else {
+        sqlEvidencia.preload('datosEvidencias', sqlDatosE => {
           sqlDatosE.preload('detalleEvidencias', detalleV => {
             detalleV.where('dde_reporte_id', idReporte)
           })
           sqlDatosE.where('dae_meses', idMes)
         }).whereHas('datosEvidencias', sqlDatosE => {
-          sqlDatosE.where('dae_meses', idMes) 
-        }).preload('subTipoDato', sqlSubTipoDato=>{
+          sqlDatosE.where('dae_meses', idMes)
+        }).preload('subTipoDato', sqlSubTipoDato => {
           sqlSubTipoDato.preload('tipoDato')
         })
       }
-     })
-    
+    })
 
 
     const formulariosBD = await consulta
-    
 
     formulariosBD.forEach(formulario => {
       const nombre = formulario.nombre
@@ -132,16 +133,16 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
         evidencia.datosEvidencias.forEach(datoEvidencia => {
           evidencias.push({
             idEvidencia: datoEvidencia.id,
-              nombre: evidencia.nombre,
-              tipoEvidencia: evidencia.subTipoDato.tipoDato.nombre,
-              validaciones: {
-                tipoDato: evidencia.subTipoDato.nombre,
-                cantDecimal: evidencia.subTipoDato.decimales
-              },
-              respuesta:datoEvidencia.detalleEvidencias[0]?.valor ?? '',
-              documento: datoEvidencia.detalleEvidencias[0]?.documento ?? '',
-              nombreOriginal: datoEvidencia.detalleEvidencias[0]?.nombredocOriginal ?? '',
-              ruta:datoEvidencia.detalleEvidencias[0]?.ruta ?? '' 
+            nombre: evidencia.nombre,
+            tipoEvidencia: evidencia.subTipoDato.tipoDato.nombre,
+            validaciones: {
+              tipoDato: evidencia.subTipoDato.nombre,
+              cantDecimal: evidencia.subTipoDato.decimales
+            },
+            respuesta: datoEvidencia.detalleEvidencias[0]?.valor ?? '',
+            documento: datoEvidencia.detalleEvidencias[0]?.documento ?? '',
+            nombreOriginal: datoEvidencia.detalleEvidencias[0]?.nombredocOriginal ?? '',
+            ruta: datoEvidencia.detalleEvidencias[0]?.ruta ?? ''
           })
         });
       })
@@ -154,80 +155,81 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     });
 
-    return { 
-      idVigilado, 
-      idReporte ,
+    return {
+      idVigilado,
+      idReporte,
       idEncuesta: reporte.idEncuesta,
-      vigencia, 
-      formularios }
+      vigencia,
+      formularios
+    }
   }
 
-    async enviarSt(params: any): Promise<any> {
-      const { idEncuesta, idReporte, idVigilado, idUsuario } = params
-      
-        let aprobado = true;
-      const faltantes = new Array();
-      const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
-      pasos?.forEach(paso => {
-        paso.pregunta.forEach(preguntaPaso => {
-          let repuestaExiste = true
-          let archivoExiste = true
-          const respuesta = respuestas.find(r => r.idPregunta === preguntaPaso.id)
-          if (preguntaPaso.obligatoria) {
-            if (!respuesta) {
-              //throw new NoAprobado('Faltan preguntas por responder')     
-              repuestaExiste = false
-            }
-  
-            if (respuesta && respuesta.valor === 'N' && respuesta.observacion === '') {
-              repuestaExiste = false
-            }
-  
-  
-            if (respuesta && respuesta.valor === 'S' && preguntaPaso.adjuntableObligatorio) {
-              console.log(respuesta.observacion);
-  
-              archivoExiste = this.validarDocumento(respuesta, preguntaPaso);
-            }
-  
+  async enviarSt(params: any): Promise<any> {
+    const { idEncuesta, idReporte, idVigilado, idUsuario } = params
+
+    let aprobado = true;
+    const faltantes = new Array();
+    const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
+    pasos?.forEach(paso => {
+      paso.pregunta.forEach(preguntaPaso => {
+        let repuestaExiste = true
+        let archivoExiste = true
+        const respuesta = respuestas.find(r => r.idPregunta === preguntaPaso.id)
+        if (preguntaPaso.obligatoria) {
+          if (!respuesta) {
+            //throw new NoAprobado('Faltan preguntas por responder')     
+            repuestaExiste = false
           }
-  
-  
-          if (!repuestaExiste || !archivoExiste) {
-            aprobado = false
-            faltantes.push({
-              preguntaId: preguntaPaso.id,
-              archivoObligatorio: preguntaPaso.adjuntableObligatorio
-            })
-  
+
+          if (respuesta && respuesta.valor === 'N' && respuesta.observacion === '') {
+            repuestaExiste = false
           }
-  
-  
-        });
-  
+
+
+          if (respuesta && respuesta.valor === 'S' && preguntaPaso.adjuntableObligatorio) {
+            console.log(respuesta.observacion);
+
+            archivoExiste = this.validarDocumento(respuesta, preguntaPaso);
+          }
+
+        }
+
+
+        if (!repuestaExiste || !archivoExiste) {
+          aprobado = false
+          faltantes.push({
+            preguntaId: preguntaPaso.id,
+            archivoObligatorio: preguntaPaso.adjuntableObligatorio
+          })
+
+        }
+
+
       });
-  
-      if (aprobado) {
-        this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
-        const reporte = await TblReporte.findOrFail(idReporte)
-        reporte.fechaEnviost = DateTime.fromJSDate(new Date())
-        reporte.envioSt = '1'
-        reporte.estadoVerificacionId = 1004
-        reporte.save();
-      }
-  
-      return { aprobado, faltantes }
-  
+
+    });
+
+    if (aprobado) {
+      this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
+      const reporte = await TblReporte.findOrFail(idReporte)
+      reporte.fechaEnviost = DateTime.fromJSDate(new Date())
+      reporte.envioSt = '1'
+      reporte.estadoVerificacionId = 1004
+      reporte.save();
     }
 
- 
+    return { aprobado, faltantes }
+
+  }
+
+
   async guardar(datos: string, documento: string): Promise<any> {
-    const { respuestas, reporteId } = JSON.parse(datos);
+    const { respuestas, reporteId, evidencias, mesId } = JSON.parse(datos);
 
     //const { usuarioCreacion, loginVigilado, idEncuesta } = await TblReporte.findByOrFail('id', idReporte)
 
-    /*   this.servicioEstado.Log(loginVigilado, 1003, idEncuesta, idReporte)
-      this.servicioAuditoria.Auditar({
+      this.servicioEstado.Log(documento, 1003, undefined, reporteId)
+      /* this.servicioAuditoria.Auditar({
         accion: "Guardar Respuesta",
         modulo: "Encuesta",
         usuario: usuarioCreacion ?? '',
@@ -236,8 +238,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
         encuestaId: idEncuesta,
         tipoLog: 4
       }) */
-
-    respuestas.forEach(async respuesta => {
+      for await (const respuesta of respuestas) {
       //Evaluar si el archivo en la tabla temporal y borrarlo
       //validar si existe
       //   const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
@@ -252,35 +253,22 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
         anioActivoId: 2023
       }
 
-       if (respuesta.documento) {
-         data.documento = respuesta.documento
-       }
-       if (respuesta.nombreArchivo) {
-         data.nombredocOriginal = respuesta.nombreArchivo
-       }
-       if (respuesta.ruta) {
-         data.ruta = respuesta.ruta
-       }
-       if (respuesta.observacion) {
-         data.observacion = respuesta.observacion
-       }
+      if (respuesta.documento) {
+        data.documento = respuesta.documento
+      }
+      if (respuesta.nombreArchivo) {
+        data.nombredocOriginal = respuesta.nombreArchivo
+      }
+      if (respuesta.ruta) {
+        data.ruta = respuesta.ruta
+      }
+      if (respuesta.observacion) {
+        data.observacion = respuesta.observacion
+      }
 
       if (existeDatos) {
         existeDatos.estableceDetalleDatosConId(data)
-        const respuesta = await existeDatos.save();
-
-
-      /*   this.servicioAuditoria.Auditar({
-          accion: "Actualizar Respuesta",
-          modulo: "Encuesta",
-          jsonAnterior: JSON.stringify(existeRespuesta.$attributes),
-          jsonNuevo: JSON.stringify(respuesta.$attributes),
-          usuario: usuarioCreacion ?? '',
-          vigilado: loginVigilado ?? '',
-          descripcion: 'Actualización de respuesta',
-          encuestaId: idEncuesta
-        }) */
-
+        const resp = await existeDatos.save();
 
       } else {
         const respuestaDB = new TblDetalleDatos();
@@ -289,7 +277,52 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       }
 
 
-    });
+    }
+
+    for await (const evidencia of evidencias) {
+      //Evaluar si el archivo en la tabla temporal y borrarlo
+      //validar si existe
+      //   const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
+
+      const existeDatosE = await TblDetalleDatosEvidencias.query().where({ 'dde_dato_evidencia_id': evidencia.evidenciaId, 'dde_reporte_id': reporteId }).first()
+
+      let data: DetalleEvidencia = {        
+        datoEvidenciaId: evidencia.evidenciaId,
+        valor: evidencia.valor,
+        reporteId: reporteId,
+        fechaActualizacion: DateTime.fromJSDate(new Date),
+        anioActivoId: 2023
+      }
+
+      if (evidencia.documento) {
+        data.documento = evidencia.documento
+      }
+      if (evidencia.nombreArchivo) {
+        data.nombredocOriginal = evidencia.nombreArchivo
+      }
+      if (evidencia.ruta) {
+        data.ruta = evidencia.ruta
+      }
+
+      if (existeDatosE) {
+        existeDatosE.estableceDetalleEvidenciaConId(data)
+        const evid = await existeDatosE.save();
+
+
+      } else {
+        const evidenciaDB = new TblDetalleDatosEvidencias();
+        evidenciaDB.establecerDetalleEvidenciaDb(data)
+        evidenciaDB.save();
+      }
+
+      if (evidencia.documento) {
+        const temporal = await TblArchivosTemporales.query().where({ 'art_pregunta_id': evidencia.preguntaId, 'art_usuario_id': documento, 'art_nombre_archivo': evidencia.documento }).first()
+       
+        await temporal?.delete()
+      }
+
+
+    }
 
 
     return {

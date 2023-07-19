@@ -20,7 +20,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
-    const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol } = params;
+    const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol, termino } = params;
     
       const anioVigencia = await TblAnioVigencias.query().where('anv_estado', true).orderBy('anv_id','desc').select('anv_anio').first()
     
@@ -28,16 +28,22 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     const reportadas: Reportadas[] = []
     const consulta = TblReporte.query().preload('usuario', sqlUsuario =>{
       sqlUsuario.preload('clasificacionUsuario')
+      
     });
 
     if (idEncuesta) {
       consulta.preload('encuesta', sqlE => {
         sqlE.where('id', idEncuesta);
+        /* if(termino) sqlE.orWhere('nombre', 'ilike', `%${params.termino}%`)
+        if(termino) sqlE.orWhere('descripcion', 'ilike', `%${params.termino}%`) */
       }).whereHas('encuesta', sqlE => {
         sqlE.where('id', idEncuesta);
       })
     } else {
-      consulta.preload('encuesta')
+      consulta.preload('encuesta', sqlE => {
+      /*   if(termino) sqlE.orWhere('nombre', 'ilike', `%${params.termino}%`)
+        if(termino) sqlE.orWhere('descripcion', 'ilike', `%${params.termino}%`) */
+      })
     }
 
     if (idRol === '003') {
@@ -51,6 +57,9 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 if(idEncuesta == 2){
   consulta.where('anio_vigencia', anioVigencia?.anio!)
 }
+//if(termino) consulta.orWhere('id_reporte', 'ilike', `%${params.termino}%`)
+
+
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
 
