@@ -191,7 +191,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       }
       if (formulario.evidencias.length != 0) {
         formulario.evidencias.forEach(evidencia => {
-          if (evidencia.obligatoria{
+          if (evidencia.obligatoria){
             if ((evidencia.tipoEvidencia === 'FILE' && evidencia.documento === '') || (evidencia.tipoEvidencia !== 'FILE' && evidencia.respuesta === '')) {
               faltantesEvidencias.push(evidencia.idEvidencia);
               aprobado = false;
