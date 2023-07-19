@@ -4,6 +4,7 @@ export interface PeticionCrearSoporte{
     documentoUsuario: string
     descripcion: string
     //parametros opcionales
+    motivo?: number
     adjunto?: Fichero
     telefono?: string
     correo?: string

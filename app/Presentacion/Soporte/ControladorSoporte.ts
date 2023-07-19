@@ -40,11 +40,12 @@ export default class ControladorSoporte{
 
     async guardar({ request, response }: HttpContextContract ){
         const payload = await request.obtenerPayloadJWT()
-        const { adjunto, descripcion } = await request.validate({ schema: crearSoporteSchema })
+        const { adjunto, descripcion, motivo } = await request.validate({ schema: crearSoporteSchema })
         const soporte = await this.servicio.guardar({
             adjunto: adjunto ? await MapeadorFicheroAdonis.obtenerFichero(adjunto) : undefined,
             descripcion: descripcion,
-            documentoUsuario: payload.documento
+            documentoUsuario: payload.documento,
+            motivo: motivo
         }, false)
         response.status(201).send(soporte)
     }

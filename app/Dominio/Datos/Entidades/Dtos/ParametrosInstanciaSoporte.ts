@@ -14,6 +14,7 @@ export interface ParametrosInstanciaSoporte {
     identificadorDocumentoRespuesta?: string //nombre en sistema de ficheros
     ruta: string
     usuarioRespuesta?: string
+    motivo?: number
     idEstado: number // 1 abierto, 2 en revisión, 3 cerrado
     fechaCreacion: DateTime
     fechaRespuesta?: DateTime

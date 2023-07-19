@@ -20,6 +20,7 @@ export class Soporte{
     identificadorDocumentoRespuesta?: string //nombre en sistema de ficheros
     ruta: string
     usuarioRespuesta?: string
+    motivo?: number
     idEstado: number 
     fechaCreacion: DateTime
     fechaRespuesta?: DateTime
@@ -44,6 +45,7 @@ export class Soporte{
         this.fechaCreacion = parametros.fechaCreacion
         this.fechaRespuesta = parametros.fechaRespuesta
         this.problemaAcceso = parametros.problemaAcceso
+        this.motivo = parametros.motivo
     }
 
     public static crear(parametros: ParametrosCrearSoporte){
@@ -57,7 +59,8 @@ export class Soporte{
             razonSocial: parametros.razonSocial,
             ruta: parametros.ruta,
             telefono: parametros.telefono,
-            problemaAcceso: parametros.problemaAcceso
+            problemaAcceso: parametros.problemaAcceso,
+            motivo: parametros.motivo
         })
     }
 
