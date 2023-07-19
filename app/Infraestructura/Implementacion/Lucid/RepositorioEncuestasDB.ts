@@ -230,7 +230,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     const encuesta = {
       tipoAccion,
-      estado,
+      estadoActual:estado,
       nombreEncuesta: encuestaSql?.nombre,
       clasificaion: nombreClasificaion,
       descripcionClasificacion,
