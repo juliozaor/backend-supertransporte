@@ -13,6 +13,7 @@ export class TblSubIndicadores extends BaseModel {
   @column({ columnName: 'sub_formulario_id' }) public formularioId: number;
   @column({ columnName: 'sub_periodo_id' }) public periodoId: number;
   @column({ columnName: 'sub_estado' }) public estado: boolean;
+  @column({ columnName: 'sub_obligatorio' }) public obligatorio?: boolean;
 
   @belongsTo(() => TblIndicadores, {
     localKey: 'id',

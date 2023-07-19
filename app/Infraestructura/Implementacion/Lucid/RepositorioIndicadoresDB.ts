@@ -11,6 +11,8 @@ import { TblDetalleDatosEvidencias } from 'App/Infraestructura/Datos/Entidad/Det
 import { DetalleEvidencia } from 'App/Dominio/Datos/Entidades/DetalleEvidencias';
 import { TblArchivosTemporales } from 'App/Infraestructura/Datos/Entidad/Archivo';
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
+import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
+import addBusinessDays from 'date-fns/fp/addBusinessDays/index';
 
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
@@ -100,7 +102,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
           preguntas.push({
             idPregunta: datos.id,
             pregunta: datos.nombre,
-            obligatoria: true,
+            obligatoria: subInd.obligatorio,
             respuesta: datos.detalleDatos[0]?.valor ?? '',
             tipoDeEvidencia: "",
             documento: "",
@@ -135,6 +137,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
             idEvidencia: datoEvidencia.id,
             nombre: evidencia.nombre,
             tamanio:evidencia.tamanio,
+            obligatoria:evidencia.obligatorio,
             tipoEvidencia: evidencia.subTipoDato.tipoDato.nombre,
             validaciones: {
               tipoDato: evidencia.subTipoDato.nombre,
@@ -167,49 +170,36 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
   async enviarSt(params: any): Promise<any> {
     const { idEncuesta, idReporte, idVigilado, idUsuario } = params
-
     let aprobado = true;
-    const faltantes = new Array();
-    const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
-    pasos?.forEach(paso => {
-      paso.pregunta.forEach(preguntaPaso => {
-        let repuestaExiste = true
-        let archivoExiste = true
-        const respuesta = respuestas.find(r => r.idPregunta === preguntaPaso.id)
-        if (preguntaPaso.obligatoria) {
-          if (!respuesta) {
-            //throw new NoAprobado('Faltan preguntas por responder')     
-            repuestaExiste = false
-          }
+    const faltantesIndicadores = new Array();
+    const faltantesEvidencias = new Array();
 
-          if (respuesta && respuesta.valor === 'N' && respuesta.observacion === '') {
-            repuestaExiste = false
-          }
+    const indicadores = await this.visualizar(params)
 
-
-          if (respuesta && respuesta.valor === 'S' && preguntaPaso.adjuntableObligatorio) {
-            console.log(respuesta.observacion);
-
-            archivoExiste = this.validarDocumento(respuesta, preguntaPaso);
-          }
-
+    indicadores.formularios.forEach(formulario => {      
+     if(formulario.subIndicador.length !=0){
+      formulario.subIndicador.forEach(subInd => {
+        if(subInd.preguntas.length !=0){
+          subInd.preguntas.forEach(pregunta => {
+            if(pregunta.obligatoria && pregunta.respuesta === ''){
+              faltantesIndicadores.push(pregunta.idPregunta);
+              aprobado = false;
+            }        
+          });          
         }
-
-
-        if (!repuestaExiste || !archivoExiste) {
-          aprobado = false
-          faltantes.push({
-            preguntaId: preguntaPaso.id,
-            archivoObligatorio: preguntaPaso.adjuntableObligatorio
-          })
-
-        }
-
-
       });
-
+     }     
+     if(formulario.evidencias.length !=0){
+      formulario.evidencias.forEach(evidencia => {
+        if(evidencia.obligatoria && evidencia.respuesta === ''){
+          faltantesEvidencias.push(evidencia.idEvidencia);
+          aprobado = false;
+        }     
+      });
+     
+     }
     });
-
+    
     if (aprobado) {
       this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
       const reporte = await TblReporte.findOrFail(idReporte)
@@ -219,7 +209,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       reporte.save();
     }
 
-    return { aprobado, faltantes }
+    //return indicadores
+    return { aprobado, faltantesIndicadores,faltantesEvidencias }
 
   }
 

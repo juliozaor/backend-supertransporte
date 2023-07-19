@@ -11,6 +11,7 @@ export class TblEvidencias extends BaseModel {
   @column({ columnName: 'evi_periodo_id' }) public periodoId: number;
   @column({ columnName: 'evi_tamanio' }) public tamanio?: number;
   @column({ columnName: 'evi_estado' }) public estado: boolean;
+  @column({ columnName: 'evi_obligatorio' }) public obligatorio?: boolean;
 
   @hasMany(() => TblDatosEvidencias, {
     localKey: 'id',

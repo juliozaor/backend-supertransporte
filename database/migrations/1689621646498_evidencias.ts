@@ -12,7 +12,8 @@ export default class extends BaseSchema {
       table.integer('evi_sub_tipo_id').references('sds_id').inTable('tbl_sub_tipo_datos')
       table.float('evi_tamanio')
       table.integer('evi_orden')
-      table.boolean('evi_estado')
+      table.boolean('evi_estado').defaultTo(true)
+      table.boolean('evi_obligatorio').defaultTo(true)
     })
   }
 
