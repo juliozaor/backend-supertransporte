@@ -78,7 +78,19 @@ if(params.termino){
     let encuestaCategorizable: boolean = false;
     let categorizado: boolean = true;
     //administrador - revisor y vigilado
+    if(idRol == '007') {
+      const clasificarDB = await TblClasificacionesUsuario.query().where({'clu_usuario_id':idUsuario,'clu_clasificacion_id':5}).first()
+      if(!clasificarDB){
+        const clasificar = new TblClasificacionesUsuario()
+        clasificar.usuarioId = idUsuario
+        clasificar.clasificacionId = 5
+        clasificar.save()
+      }
+
+    }
+
     if(idRol !== '003') return { categorizado, encuestaCategorizable }
+
 
     const categorizadoBd = await TblClasificacionesUsuario.query().where('usuarioId', idUsuario).first();
     categorizado = categorizadoBd?.estado ?? false;
