@@ -15,9 +15,9 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
   private servicioEstadoVerificado = new ServicioEstadosVerificado()
 
   async guardar(datos: string, idReporte: number, documento: string): Promise<any> {
-    const { respuestas } = JSON.parse(datos);    
+    const { respuestas } = JSON.parse(datos);
     const { usuarioCreacion, loginVigilado, idEncuesta } = await TblReporte.findByOrFail('id', idReporte)
-   
+
     this.servicioEstado.Log(loginVigilado, 1003, idEncuesta, idReporte)
     this.servicioAuditoria.Auditar({
       accion: "Guardar Respuesta",
@@ -25,12 +25,12 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       usuario: usuarioCreacion ?? '',
       vigilado: loginVigilado ?? '',
       descripcion: 'Primer guardado de la encuesta',
-      encuestaId:idEncuesta,
+      encuestaId: idEncuesta,
       tipoLog: 4
     })
-for await (const respuesta of respuestas) {
- 
-   // respuestas.for(async respuesta => {
+    for await (const respuesta of respuestas) {
+
+      // respuestas.for(async respuesta => {
       //Evaluar si el archivo en la tabla temporal y borrarlo
       //validar si existe
       const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
@@ -44,25 +44,25 @@ for await (const respuesta of respuestas) {
         fechaActualizacion: DateTime.fromJSDate(new Date)
       }
 
-      if(respuesta.documento){
+      if (respuesta.documento) {
         data.documento = respuesta.documento
       }
-      if(respuesta.nombreArchivo){
+      if (respuesta.nombreArchivo) {
         data.nombredocOriginal = respuesta.nombreArchivo
       }
-      if(respuesta.ruta){
+      if (respuesta.ruta) {
         data.ruta = respuesta.ruta
       }
-      if(respuesta.observacion){
+      if (respuesta.observacion) {
         data.observacion = respuesta.observacion
       }
 
-      
+
       if (existeRespuesta) {
 
-        
+
         existeRespuesta.estableceRespuestaConId(data)
-        const resp= await existeRespuesta.save();
+        const resp = await existeRespuesta.save();
 
 
         this.servicioAuditoria.Auditar({
@@ -73,26 +73,26 @@ for await (const respuesta of respuestas) {
           usuario: usuarioCreacion ?? '',
           vigilado: loginVigilado ?? '',
           descripcion: 'Actualización de respuesta',
-          encuestaId:idEncuesta
+          encuestaId: idEncuesta
         })
 
 
       } else {
-        
+
         const respuestaDB = new TblRespuestas();
         respuestaDB.establecerRespuestaDb(data)
         await respuestaDB.save();
       }
 
       //Elimnar de la tabla temporal el archivo almacenado     
-     
+
       if (respuesta.documento) {
         const temporal = await TblArchivosTemporales.query().where({ 'art_pregunta_id': respuesta.preguntaId, 'art_usuario_id': loginVigilado, 'art_nombre_archivo': respuesta.documento }).first()
-       
+
         await temporal?.delete()
       }
 
-    //});
+      //});
     }
 
     return {
@@ -102,33 +102,18 @@ for await (const respuesta of respuestas) {
 
   }
 
-  async verificar(datos: string, payload:PayloadJWT): Promise<any> {
-const { idReporte, respuestas } =  JSON.parse(datos)
+  async verificar(datos: string, payload: PayloadJWT): Promise<any> {
+    const { idReporte, respuestas } = JSON.parse(datos)
 
-this.servicioEstadoVerificado.Log(idReporte,2,payload.documento)
+    this.servicioEstadoVerificado.Log(idReporte, 2, payload.documento)
 
-respuestas.forEach(async respuesta => {
- 
-  const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
-    existeRespuesta?.estableceVerificacion(respuesta)
-    existeRespuesta?.save()
-});
-    
+    respuestas.forEach(async respuesta => {
 
- /*    const {idReporte, estado} = JSON.parse(datos)
-    const reporteDb = await TblReporte.findBy('id_reporte', idReporte)  
-    if(payload.documento !== reporteDb?.ultimoUsuarioAsignado){
-      throw new Error("Usted no tiene autorización para hacer esta verificación");  
-    }
+      const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
+      existeRespuesta?.estableceVerificacion(respuesta)
+      existeRespuesta?.save()
+    });
 
-    
-
-    const reporteEstado = new TblReporteEstadoVerificado()
-    reporteEstado.reporteId = idReporte
-    reporteEstado.estadoVerificadoId = 2
-    reporteEstado.save()
-
-    return { mensaje: 'Se establecio el estado verificado' } */
   }
 
   async finalizar(params: any): Promise<any> {
@@ -146,18 +131,30 @@ respuestas.forEach(async respuesta => {
       })
     }).where('identificacion', idVigilado).first()
 
-    
+
     let aprobado = true;
     const faltantes = new Array();
-    const pasos = usuario?.clasificacionUsuario[0].clasificacion  
+    const pasos = usuario?.clasificacionUsuario[0].clasificacion
     pasos?.forEach(paso => {
       paso.pregunta.forEach(preguntaPaso => {
         const respuesta = preguntaPaso.respuesta[0];
-        if(respuesta){
-            if (!respuesta.cumple  && !respuesta.corresponde ) {
-              faltantes.push(respuesta.idPregunta)
-              aprobado = false
-            }
+        
+        if (respuesta) {
+         // console.log(respuesta.cumple , respuesta.corresponde);
+          if (!respuesta.cumple || respuesta.cumple == 0 || !respuesta.corresponde || respuesta.corresponde == 0) {
+            faltantes.push(respuesta.idPregunta)
+            aprobado = false
+          }
+        if (respuesta.cumple && respuesta.cumple == 2 && (!respuesta.observacionCumple || respuesta.observacionCumple == '')) {
+          faltantes.push(respuesta.idPregunta)
+          aprobado = false
+        }
+
+          if (respuesta.corresponde && respuesta.corresponde == 2 && (!respuesta.observacionCorresponde || respuesta.observacionCorresponde == '')) {
+            faltantes.push(respuesta.idPregunta)
+            aprobado = false
+          }
+
         }
 
       });
@@ -166,13 +163,13 @@ respuestas.forEach(async respuesta => {
 
     //guardar log de intento si falla 
 
-    if(aprobado) {
+    if (aprobado) {
       this.servicioEstadoVerificado.Log(idReporte, 3, idUsuario)
     }
-    
 
-  
-    return {aprobado, faltantes}
+
+
+    return { aprobado, faltantes }
 
   }
 
