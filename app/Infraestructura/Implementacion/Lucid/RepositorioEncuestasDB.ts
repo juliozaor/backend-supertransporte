@@ -72,7 +72,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
-    if (reportadasBD.length <= 0 && idRol === '003') {
+    if (reportadasBD.length <= 0) {
 
 
       const usuario = await TblUsuarios.query().where('identificacion', idUsuario).first()
