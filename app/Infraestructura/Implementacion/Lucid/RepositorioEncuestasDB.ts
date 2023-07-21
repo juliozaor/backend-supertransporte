@@ -192,7 +192,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             idPregunta: pregunta.id,
             numeroPregunta: consecutivo,
             pregunta: pregunta.pregunta,
-            obligatoria: obligatorio,// pregunta.obligatoria,
+            obligatoria:pregunta.obligatoria, //obligatorio,// 
             respuesta: pregunta.respuesta[0]?.valor ?? '',
             tipoDeEvidencia: pregunta.tipoEvidencia,
             documento: pregunta.respuesta[0]?.documento ?? '',
