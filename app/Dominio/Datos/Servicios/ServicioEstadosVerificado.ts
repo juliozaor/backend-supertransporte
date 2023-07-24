@@ -26,9 +26,9 @@ export class ServicioEstadosVerificado {
       await reporteEstado.save()
 
       //const reporte = await TblReporte.findOrFail(idreporte)
-        reporte.estadoVerificacionId = estado
-        reporte.save();
     }
+    reporte.estadoVerificacionId = estado
+    reporte.save();
 
   }
 

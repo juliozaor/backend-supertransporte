@@ -133,26 +133,31 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
 
     let aprobado = true;
+    let cumple = true;
     const faltantes = new Array();
     const pasos = usuario?.clasificacionUsuario[0].clasificacion
     pasos?.forEach(paso => {
       paso.pregunta.forEach(preguntaPaso => {
         const respuesta = preguntaPaso.respuesta[0];
-        
+
         if (respuesta) {
-         // console.log(respuesta.cumple , respuesta.corresponde);
+          // console.log(respuesta.cumple , respuesta.corresponde);
           if (!respuesta.cumple || respuesta.cumple == 0 || !respuesta.corresponde || respuesta.corresponde == 0) {
             faltantes.push(respuesta.idPregunta)
             aprobado = false
           }
-        if (respuesta.cumple && respuesta.cumple == 2 && (!respuesta.observacionCumple || respuesta.observacionCumple == '')) {
-          faltantes.push(respuesta.idPregunta)
-          aprobado = false
-        }
+          if (respuesta.cumple && respuesta.cumple == 2 && (!respuesta.observacionCumple || respuesta.observacionCumple == '')) {
+            faltantes.push(respuesta.idPregunta)
+            aprobado = false
+          }
 
           if (respuesta.corresponde && respuesta.corresponde == 2 && (!respuesta.observacionCorresponde || respuesta.observacionCorresponde == '')) {
             faltantes.push(respuesta.idPregunta)
             aprobado = false
+          }
+
+          if (respuesta.corresponde == 2) {
+            cumple = false;
           }
 
         }
@@ -164,7 +169,11 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
     //guardar log de intento si falla 
 
     if (aprobado) {
-      this.servicioEstadoVerificado.Log(idReporte, 3, idUsuario)
+      let estado = 7;
+      if (cumple) {
+        estado = 6;
+      }
+      this.servicioEstadoVerificado.Log(idReporte, estado, idUsuario)
     }
 
 
