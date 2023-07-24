@@ -186,9 +186,12 @@ export class RepositorioReporteDB implements RepositorioReporte {
     
     })
     consulta.preload('reportes', sqlReporte =>{
+      sqlReporte.preload('estadoVerificado')
       sqlReporte.preload('reporteEstadoVerificado')
       sqlReporte.where('id_reporte', idReporte)
     })
+
+    
 
     consulta.where({ 'id_encuesta': idEncuesta })
     const encuestaSql = await consulta.first();
@@ -261,7 +264,11 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
 
     });
 
-    const estadoActual = encuestaSql?.reportes[0].reporteEstadoVerificado[0]?.nombre??''
+    //const estadoActual = encuestaSql?.reportes[0].reporteEstadoVerificado[0]?.nombre??''
+    let estadoActual = '';
+    
+    estadoActual = encuestaSql?.reportes[0].estadoVerificado?.nombre??estadoActual
+    estadoActual = encuestaSql?.reportes[0].estadoVigilado?.nombre??estadoActual
 
     const encuesta = {
       tipoAccion,
