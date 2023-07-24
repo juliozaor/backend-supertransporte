@@ -16,10 +16,16 @@ export class RepositorioUsuariosDB implements RepositorioUsuario {
       consulta.where('usn_rol_id', params.rol)
     }
 if(params.termino){
-  consulta.orWhere('usn_correo', 'ilike', `%${params.termino}%`)
-  consulta.orWhere('usn_nombre', 'ilike', `%${params.termino}%`)
-  consulta.orWhere('usn_apellido', 'ilike', `%${params.termino}%`)
-  consulta.orWhere('usn_identificacion', 'ilike', `%${params.termino}%`)
+  consulta.andWhere(subquery => {
+    subquery.orWhere('usn_correo', 'ilike', `%${params.termino}%`)
+    subquery.orWhere('usn_nombre', 'ilike', `%${params.termino}%`)
+    subquery.orWhere('usn_apellido', 'ilike', `%${params.termino}%`)
+    subquery.orWhere('usn_identificacion', 'ilike', `%${params.termino}%`)
+  })
+
+
+
+
 }
     
 
