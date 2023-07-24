@@ -141,11 +141,14 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
         const respuesta = preguntaPaso.respuesta[0];
 
         if (respuesta) {
+          
           // console.log(respuesta.cumple , respuesta.corresponde);
           if (!respuesta.cumple || respuesta.cumple == 0 || !respuesta.corresponde || respuesta.corresponde == 0) {
             faltantes.push(respuesta.idPregunta)
             aprobado = false
           }
+        
+          
           if (respuesta.cumple && respuesta.cumple == 2 && (!respuesta.observacionCumple || respuesta.observacionCumple == '')) {
             faltantes.push(respuesta.idPregunta)
             aprobado = false
@@ -156,7 +159,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
             aprobado = false
           }
 
-          if (respuesta.corresponde == 2) {
+          if (respuesta.corresponde == 2 || respuesta.cumple == 2  ) {
             cumple = false;
           }
 
@@ -172,7 +175,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       let estado = 7;
       if (cumple) {
         estado = 6;
-      }
+      }      
       this.servicioEstadoVerificado.Log(idReporte, estado, idUsuario)
     }
 
