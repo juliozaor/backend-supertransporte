@@ -22,10 +22,6 @@ if(params.termino){
     subquery.orWhere('usn_apellido', 'ilike', `%${params.termino}%`)
     subquery.orWhere('usn_identificacion', 'ilike', `%${params.termino}%`)
   })
-
-
-
-
 }
     
 

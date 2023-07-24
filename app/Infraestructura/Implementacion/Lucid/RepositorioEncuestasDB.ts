@@ -62,8 +62,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         subquery.where('nit_rues', 'ilike', `%${params.termino}%`)
         subquery.orWhere('razon_social_rues', 'ilike', `%${params.termino}%`)
         if (Number.isInteger(parseInt(params.termino))) {
-          console.log('entro');
-
           subquery.orWhere('id_reporte', `${params.termino}`)
         }
       })

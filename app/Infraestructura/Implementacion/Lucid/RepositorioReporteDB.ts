@@ -107,10 +107,22 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     const reportadas: Reportadas[] = []
     const consulta = TblReporte.query().preload('usuario');
-    if(filtro && filtro !== ''){
+  /*   if(filtro && filtro !== ''){
     consulta.whereHas('usuario', sqlUser =>{
       sqlUser.orWhere('usn_nombre', 'ilike', `%${filtro}%`)
       sqlUser.orWhere('usn_identificacion', 'ilike', `%${filtro}%`)
+    })
+  } */
+
+  if(filtro){
+    consulta.andWhere(subquery => {
+      subquery.orWhere('razon_social_rues', 'ilike', `%${filtro}%`)
+      subquery.orWhere('nit_rues', 'ilike', `%${filtro}%`)
+      subquery.orWhere('login_vigilado', 'ilike', `%${filtro}%`)
+      subquery.orWhere('usuario_creacion', 'ilike', `%${filtro}%`)
+      if (Number.isInteger(parseInt(filtro))) {
+        subquery.orWhere('id_reporte', `${filtro}`)
+      }
     })
   }
       consulta.preload('encuesta')
@@ -118,7 +130,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
       consulta.preload('estadoVerificado')
     consulta.preload('estadoVigilado')
 
-      consulta.whereNotNull('fecha_enviost')
+
+
+      consulta.whereNotNull('fecha_enviost').andWhere('envio_st','>',0)
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
     reportadasBD.map(reportada => {
