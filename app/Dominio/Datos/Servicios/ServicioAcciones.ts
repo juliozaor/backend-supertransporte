@@ -23,7 +23,7 @@ export class ServicioAcciones {
       verificacionVisible= false
     }
 
-    if(estado === 6{
+    if(estado === 6){
       encuestaEditable= false
       verificacionVisible= true
     }
