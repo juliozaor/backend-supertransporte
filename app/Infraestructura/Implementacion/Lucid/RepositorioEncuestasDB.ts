@@ -270,7 +270,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             repuestaExiste = false
           }
 
-          if (respuesta && respuesta.valor === 'N' && respuesta.observacion === '') {
+          if (respuesta && respuesta.valor === 'N' && (!respuesta.observacion || respuesta.observacion === '' )) {
             repuestaExiste = false
           }
 
