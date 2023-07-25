@@ -16,9 +16,12 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
   async guardar(datos: string, idReporte: number, documento: string): Promise<any> {
     const { respuestas } = JSON.parse(datos);
-    const { usuarioCreacion, loginVigilado, idEncuesta } = await TblReporte.findByOrFail('id', idReporte)
-
-    this.servicioEstado.Log(loginVigilado, 1003, idEncuesta, idReporte)
+    const { usuarioCreacion, loginVigilado, idEncuesta, estadoVerificacionId } = await TblReporte.findByOrFail('id', idReporte)
+    let estado = 1003
+    if (estadoVerificacionId === 7 || estadoVerificacionId === 1005) {
+      estado = 1005
+    }
+    this.servicioEstado.Log(loginVigilado, estado, idEncuesta, idReporte)
     this.servicioAuditoria.Auditar({
       accion: "Guardar Respuesta",
       modulo: "Encuesta",
@@ -141,14 +144,14 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
         const respuesta = preguntaPaso.respuesta[0];
 
         if (respuesta) {
-          
+
           // console.log(respuesta.cumple , respuesta.corresponde);
           if (!respuesta.cumple || respuesta.cumple == 0 || !respuesta.corresponde || respuesta.corresponde == 0) {
             faltantes.push(respuesta.idPregunta)
             aprobado = false
           }
-        
-          
+
+
           if (respuesta.cumple && respuesta.cumple == 2 && (!respuesta.observacionCumple || respuesta.observacionCumple == '')) {
             faltantes.push(respuesta.idPregunta)
             aprobado = false
@@ -159,7 +162,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
             aprobado = false
           }
 
-          if (respuesta.corresponde == 2 || respuesta.cumple == 2  ) {
+          if (respuesta.corresponde == 2 || respuesta.cumple == 2) {
             cumple = false;
           }
 
@@ -175,7 +178,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       let estado = 7;
       if (cumple) {
         estado = 6;
-      }      
+      }
       this.servicioEstadoVerificado.Log(idReporte, estado, idUsuario)
     }
 
