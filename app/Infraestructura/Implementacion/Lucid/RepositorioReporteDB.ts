@@ -187,7 +187,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
     })
     consulta.preload('reportes', sqlReporte =>{
       sqlReporte.preload('estadoVerificado')
-      sqlReporte.preload('reporteEstadoVerificado')
+      sqlReporte.preload('estadoVigilado')
       sqlReporte.where('id_reporte', idReporte)
     })
 
@@ -270,6 +270,8 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
     estadoActual = encuestaSql?.reportes[0].estadoVerificado?.nombre??estadoActual
     estadoActual = encuestaSql?.reportes[0].estadoVigilado?.nombre??estadoActual
 
+    console.log(estadoActual);
+    
     const encuesta = {
       tipoAccion,
       razonSocila: usuario?.nombre,
