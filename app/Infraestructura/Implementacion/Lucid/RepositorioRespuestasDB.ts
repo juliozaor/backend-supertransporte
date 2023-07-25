@@ -144,7 +144,6 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
         const respuesta = preguntaPaso.respuesta[0];
 
         if (respuesta) {
-
           // console.log(respuesta.cumple , respuesta.corresponde);
           if (!respuesta.cumple || respuesta.cumple == 0 || !respuesta.corresponde || respuesta.corresponde == 0) {
             faltantes.push(respuesta.idPregunta)

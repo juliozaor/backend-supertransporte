@@ -15,10 +15,12 @@ import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 import { DateTime } from 'luxon';
 import { TblAnioVigencias } from 'App/Infraestructura/Datos/Entidad/AnioVigencia';
+import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
 
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
+  private servicioAcciones = new ServicioAcciones();
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
     const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol, termino } = params;
 
@@ -34,15 +36,11 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     if (idEncuesta) {
       consulta.preload('encuesta', sqlE => {
         sqlE.where('id', idEncuesta);
-        /* if(termino) sqlE.orWhere('nombre', 'ilike', `%${params.termino}%`)
-        if(termino) sqlE.orWhere('descripcion', 'ilike', `%${params.termino}%`) */
       }).whereHas('encuesta', sqlE => {
         sqlE.where('id', idEncuesta);
       })
     } else {
       consulta.preload('encuesta', sqlE => {
-        /*   if(termino) sqlE.orWhere('nombre', 'ilike', `%${params.termino}%`)
-          if(termino) sqlE.orWhere('descripcion', 'ilike', `%${params.termino}%`) */
       })
     }
 
@@ -150,6 +148,11 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     estado = reporte?.estadoVigilado?.nombre ?? estado;
     let clasificacion = '';
 
+    console.log(reporte);
+    
+   const {encuestaEditable,verificacionVisible,verificacionEditable} = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId??0);
+    
+
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
       sql.preload('clasificacion')
       sql.preload('tiposPregunta')
@@ -233,7 +236,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       clasificaion: nombreClasificaion,
       descripcionClasificacion,
       observacion: encuestaSql?.observacion,
-      clasificaciones: clasificacionesArr
+      clasificaciones: clasificacionesArr,
+      encuestaEditable,verificacionVisible,verificacionEditable
     }
 
     return encuesta
