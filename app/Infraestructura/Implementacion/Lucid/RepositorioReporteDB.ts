@@ -269,8 +269,6 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
     
     estadoActual = encuestaSql?.reportes[0].estadoVerificado?.nombre??estadoActual
     estadoActual = encuestaSql?.reportes[0].estadoVigilado?.nombre??estadoActual
-
-    console.log(estadoActual);
     
     const encuesta = {
       tipoAccion,
@@ -281,7 +279,8 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
       nombreEncuesta:encuestaSql?.nombre,
       clasificaion: nombreClasificaion,
       observacion:encuestaSql?.observacion,
-      clasificaciones: clasificacionesArr
+      clasificaciones: clasificacionesArr,
+      encuestaEditable:true,verificacionVisible:true,verificacionEditable:true
     }
 
     return encuesta

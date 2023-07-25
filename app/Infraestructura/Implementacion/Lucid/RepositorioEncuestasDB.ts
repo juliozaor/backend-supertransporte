@@ -124,7 +124,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
         estado,
-        //  estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
       });
     })
 
@@ -147,8 +146,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     estado = reporte?.estadoVerificado?.nombre ?? estado;
     estado = reporte?.estadoVigilado?.nombre ?? estado;
     let clasificacion = '';
-
-    console.log(reporte);
     
    const {encuestaEditable,verificacionVisible,verificacionEditable} = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId??0);
     
@@ -159,8 +156,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       sql.preload('respuesta', sqlResp => {
         sqlResp.where('id_reporte', idReporte)
       })
-
-      // sql.orderBy('preguntas.orden', 'desc')
 
 
     }).where({ 'id_encuesta': idEncuesta }).first();

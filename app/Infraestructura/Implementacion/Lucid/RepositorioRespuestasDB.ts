@@ -32,12 +32,8 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       tipoLog: 4
     })
     for await (const respuesta of respuestas) {
-
-      // respuestas.for(async respuesta => {
-      //Evaluar si el archivo en la tabla temporal y borrarlo
       //validar si existe
       const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
-
 
       let data: Respuesta = {
         idPregunta: respuesta.preguntaId,
