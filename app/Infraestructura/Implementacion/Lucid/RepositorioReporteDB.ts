@@ -12,9 +12,11 @@ import { ServicioEstadosVerificado } from 'App/Dominio/Datos/Servicios/ServicioE
 import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
+import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
 
 export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado()
+  private servicioAcciones = new ServicioAcciones();
   async obtenerAsignadas(params: any): Promise<{ asignadas: Reportadas[], paginacion: Paginador }> {
     const { idVerificador, pagina, limite, rol} = params;
 
@@ -269,6 +271,8 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
     
     estadoActual = encuestaSql?.reportes[0].estadoVerificado?.nombre??estadoActual
     estadoActual = encuestaSql?.reportes[0].estadoVigilado?.nombre??estadoActual
+
+    const {encuestaEditable,verificacionVisible,verificacionEditable} = await this.servicioAcciones.obtenerAccion(encuestaSql?.reportes[0]?.estadoVerificacionId??0, rol);
     
     const encuesta = {
       tipoAccion,
@@ -280,7 +284,7 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
       clasificaion: nombreClasificaion,
       observacion:encuestaSql?.observacion,
       clasificaciones: clasificacionesArr,
-      encuestaEditable:true,verificacionVisible:true,verificacionEditable:true
+      encuestaEditable,verificacionVisible,verificacionEditable
     }
 
     return encuesta

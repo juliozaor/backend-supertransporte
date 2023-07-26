@@ -138,7 +138,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
   async visualizar(params: any): Promise<any> {
 
-    const { idEncuesta, idUsuario, idVigilado, idReporte } = params;
+    const { idEncuesta, idUsuario, idVigilado, idReporte, idRol } = params;
     let tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
     let clasificacionesArr: any = [];
     let estado = '';
@@ -146,34 +146,35 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     estado = reporte?.estadoVerificado?.nombre ?? estado;
     estado = reporte?.estadoVigilado?.nombre ?? estado;
     let clasificacion = '';
-    
-   const {encuestaEditable,verificacionVisible,verificacionEditable} = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId??0);
-    
 
+    
+    
+    
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
       sql.preload('clasificacion')
       sql.preload('tiposPregunta')
       sql.preload('respuesta', sqlResp => {
         sqlResp.where('id_reporte', idReporte)
       })
-
-
+      
+      
     }).where({ 'id_encuesta': idEncuesta }).first();
-    const encuestaSql = await consulta
-
-
+    const encuestaSql = await consulta    
+    
     //BUscar la clasificacion del usuario
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion')
       sqlClasC.has('clasificacion')
     }).where('identificacion', idVigilado).first()
-
+    
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
     const descripcionClasificacion = usuario?.clasificacionUsuario[0]?.descripcion;
     const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
-
-
-
+    
+    const fechaActual = DateTime.now();    
+    const rolDefecto = (fechaActual < encuestaSql?.fechaFin!)?idRol:'000'    
+    const {encuestaEditable,verificacionVisible,verificacionEditable} = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId??0, rolDefecto);
+   
     const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
     let consecutivo: number = 1;
     claficiacionesSql.forEach(clasificacionSql => {
@@ -188,7 +189,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             idPregunta: pregunta.id,
             numeroPregunta: consecutivo,
             pregunta: pregunta.pregunta,
-            obligatoria:pregunta.obligatoria, //obligatorio,// 
+            obligatoria:obligatorio, //obligatorio,// 
             respuesta: pregunta.respuesta[0]?.valor ?? '',
             tipoDeEvidencia: pregunta.tipoEvidencia,
             documento: pregunta.respuesta[0]?.documento ?? '',
@@ -305,6 +306,20 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       reporte.envioSt = '1'
       reporte.estadoVerificacionId = estado
       reporte.save();
+
+
+this.servicioAuditoria.Auditar({
+        accion: "Enviar a St",
+        modulo: "Encuesta",
+        usuario: idUsuario,
+        jsonNuevo: JSON.stringify(respuestas),
+        vigilado: idVigilado,
+        descripcion: 'Se envia a ST',
+        encuestaId: idEncuesta,
+        tipoLog: 5
+
+      })
+
     }
 
     return { aprobado, faltantes }
