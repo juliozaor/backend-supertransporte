@@ -119,12 +119,14 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
             corresponde: "",
             observacionCorresponde: ""
           })
-        });
+        });        
+        if(preguntas.length >= 1){
         subIndicador.push({
           nombreSubIndicador: subInd.nombre,
           codigo: subInd.codigo,
           preguntas
         })
+      }
       });
 
       const evidencias: any = [];
@@ -138,7 +140,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
             tipoEvidencia: evidencia.subTipoDato.tipoDato.nombre,
             validaciones: {
               tipoDato: evidencia.subTipoDato.nombre,
-              cantDecimal: evidencia.subTipoDato.decimales
+              cantDecimal: evidencia.subTipoDato.decimales,
+              tamanio: evidencia.tamanio
             },
             respuesta: datoEvidencia.detalleEvidencias[0]?.valor ?? '',
             documento: datoEvidencia.detalleEvidencias[0]?.documento ?? '',
