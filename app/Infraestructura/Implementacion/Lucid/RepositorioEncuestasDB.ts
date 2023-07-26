@@ -44,9 +44,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       })
     }
 
-    if (idRol === '003') {
-      console.log("vigilado");
-
+    if (idRol === '003' || idRol === '007') {      
       consulta.where('login_vigilado', idVigilado);
     }
     consulta.preload('estadoVerificado')
@@ -67,6 +65,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
 
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
+    console.log(reportadasBD);
+    
 
     if (reportadasBD.length <= 0 && (idRol === '003' || idRol === '007')) {
 
