@@ -64,9 +64,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     }
 
 
-    let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
-    console.log(reportadasBD);
-    
+    let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)    
 
     if (reportadasBD.length <= 0 && (idRol === '003' || idRol === '007')) {
 
@@ -124,6 +122,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
         estado,
+        vigencia:reportada.anioVigencia??undefined
       });
     })
 

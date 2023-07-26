@@ -11,8 +11,6 @@ import { TblDetalleDatosEvidencias } from 'App/Infraestructura/Datos/Entidad/Det
 import { DetalleEvidencia } from 'App/Dominio/Datos/Entidades/DetalleEvidencias';
 import { TblArchivosTemporales } from 'App/Infraestructura/Datos/Entidad/Archivo';
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
-import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
-import addBusinessDays from 'date-fns/fp/addBusinessDays/index';
 
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
@@ -27,8 +25,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     const reporte = await TblReporte.findOrFail(idReporte)
 
     const consulta = TblFormulariosIndicadores.query()
-    let vigencia = '';
-    vigencia = `Año de vigencia ${reporte.anioVigencia}`
+    const vigencia = reporte.anioVigencia??undefined
 
     consulta.preload('subIndicadores', subIndicador => {
       if (reporte && reporte.anioVigencia == 2023) {
@@ -312,7 +309,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       }
 
       if (evidencia.documento) {
-        const temporal = await TblArchivosTemporales.query().where({ 'art_pregunta_id': evidencia.preguntaId, 'art_usuario_id': documento, 'art_nombre_archivo': evidencia.documento }).first()
+        const temporal = await TblArchivosTemporales.query().where({ 'art_pregunta_id': evidencia.evidenciaId, 'art_usuario_id': documento, 'art_nombre_archivo': evidencia.documento }).first()
 
         await temporal?.delete()
       }
