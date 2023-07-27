@@ -11,6 +11,8 @@ export class TblSubTipoDatos extends BaseModel {
   public decimales: number; 
   @column({ columnName: 'sds_estado' })
   public estado: boolean; 
+  @column({ columnName: 'sds_extension' })
+  public extension: string; 
 
   @belongsTo(() => TblTipoDatos, {
     localKey: 'id',

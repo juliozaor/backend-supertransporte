@@ -140,8 +140,9 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
             tipoEvidencia: evidencia.subTipoDato.tipoDato.nombre,
             validaciones: {
               tipoDato: evidencia.subTipoDato.nombre,
-              cantDecimal: evidencia.subTipoDato.decimales,
-              tamanio: evidencia.tamanio
+              cantDecimal: evidencia.subTipoDato.decimales??0,
+              tamanio: evidencia.tamanio,
+              extension: evidencia.subTipoDato.extension??''
             },
             respuesta: datoEvidencia.detalleEvidencias[0]?.valor ?? '',
             documento: datoEvidencia.detalleEvidencias[0]?.documento ?? '',
