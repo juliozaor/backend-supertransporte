@@ -30,10 +30,13 @@ export default class ControladorRespuesta {
     return this.service.verificar(JSON.stringify(request.all()), payload);
   }
 
-  public async finalizar ({ request }:HttpContextContract) {   
+  public async finalizar ({ request, response }:HttpContextContract) {   
     const payload = await request.obtenerPayloadJWT()
     const enviado = await this.service.finalizar(request.all(), payload)
-    return enviado
+    if(enviado && !enviado.aprobado){
+      return response.status(400). send(enviado)
+      }
+      return enviado
   }
 
 }
