@@ -26,7 +26,7 @@ export class Soportes extends BaseModel {
     @column({ columnName: 'fecha_respuesta' }) fechaRespuesta?: DateTime
 
     obtenerSoporte(): Soporte{
-        console.log('obteniendo soporte (id)', this.id)
+        console.log('obteniendo soporte (respuesta)', this.respuesta)
         return new Soporte({
             descripcion: this.descripcion,
             email: this.email,

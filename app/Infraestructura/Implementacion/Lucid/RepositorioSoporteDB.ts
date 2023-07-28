@@ -36,7 +36,7 @@ export class RepositorioSoporteDB implements RepositorioSoporte{
                 subquery.orWhere('usuario_respuesta', 'ilike', `%${filtros.termino}%`)
             })
         }
-        query.orderBy('fecha_creacion',  filtros.fechaCreacion ?? 'asc') //por defecto los mas antiguos primero
+        query.orderBy('fecha_creacion',  filtros.fechaCreacion ?? 'asc')
         const paginableDb = await query.paginate(pagina, limite) 
         const paginacion = MapeadorPaginacionDB.obtenerPaginacion(paginableDb)
         const datos = paginableDb.all().map( soporteDb => soporteDb.obtenerSoporte())

@@ -40,6 +40,7 @@ export class Soporte{
         this.documentoRespuesta = parametros.documentoRespuesta
         this.identificadorDocumentoRespuesta = parametros.identificadorDocumentoRespuesta
         this.ruta = parametros.ruta
+        this.respuesta = parametros.respuesta
         this.usuarioRespuesta = parametros.usuarioRespuesta
         this.idEstado = parametros.idEstado
         this.fechaCreacion = parametros.fechaCreacion

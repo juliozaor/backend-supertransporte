@@ -11,12 +11,15 @@ import { FiltrosSoporte } from "App/Dominio/Dto/Soporte/FiltrosSoporte";
 import { PeticionResponderSoporte } from "./Dtos/PeticionResponderSoporte";
 import { DateTime } from "luxon";
 import { EstadosSoportes } from "App/Dominio/EstadosSoporte";
+import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
+import { EmailRespuestaSoporte } from "App/Dominio/Email/Emails/EmailRespuestaSoporte";
 
 export class ServicioSoporte{
     constructor(
         private repositorio: RepositorioSoporte,
         private repositorioFicheros: RepositorioFichero,
-        private servicioUsuarios: ServicioUsuario
+        private servicioUsuarios: ServicioUsuario,
+        private enviadorEmail: EnviadorEmail
     ){}
 
     async responder(peticion: PeticionResponderSoporte){
@@ -34,7 +37,22 @@ export class ServicioSoporte{
             soporte.identificadorDocumentoRespuesta = `R_${soporte.id}.${peticion.adjunto.extension}`
         }
         soporte.idEstado = EstadosSoportes.CERRADO;
+        this.enviarEmailRespuesta( soporte, peticion.adjunto );
         return await this.repositorio.actualizarSoporte(soporte)
+    }
+
+    private enviarEmailRespuesta(soporte: Soporte, adjunto?: Fichero){
+        const email = new EmailRespuestaSoporte({
+            descripcion: soporte.descripcion,
+            nombre: soporte.razonSocial,
+            respuesta: soporte.respuesta!,
+            titulo: soporte.radicado!
+        })
+        this.enviadorEmail.enviarTemplate({
+            asunto: `Respuesta, radicado: ${soporte.radicado!}`,
+            destinatarios: soporte.email,
+            adjunto: adjunto
+        }, email)
     }
 
     async listar(pagina: number, limite: number, filtros: FiltrosSoporte){
@@ -68,7 +86,6 @@ export class ServicioSoporte{
 
     private async guardarSoporteGenerico(peticion: PeticionCrearSoporte){
         const usuario = await this.obtenerUsuario(peticion.documentoUsuario)
-        
         let soporte = Soporte.crear({
             descripcion: peticion.descripcion,
             email: usuario.correo,
