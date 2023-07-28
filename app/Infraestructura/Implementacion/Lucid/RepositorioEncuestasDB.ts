@@ -157,7 +157,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       })
       
       
-    }).where({ 'id_encuesta': idEncuesta }).first();
+    }).where({ 'id_encuesta': idEncuesta, 'estado':1 }).first();
     const encuestaSql = await consulta    
     
     //BUscar la clasificacion del usuario
