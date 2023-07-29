@@ -11,6 +11,8 @@ import { GeneradorContrasena } from "App/Dominio/GenerarContrasena/GenerarContra
 import { Encriptador } from "App/Dominio/Encriptacion/Encriptador";
 import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
 import { PayloadJWT } from "App/Dominio/Dto/PayloadJWT";
+import { EmailBienvenida } from "App/Dominio/Email/Emails/EmailBienvenida";
+import { Credenciales } from "App/Dominio/Email/Modelos/Credenciales";
 
 export class ServicioUsuarios {
   constructor(
@@ -40,11 +42,10 @@ export class ServicioUsuarios {
     usuario.clave = await this.encriptador.encriptar(clave)
     usuario.usuario = usuario.identificacion.toString()
     const user = this.repositorio.guardarUsuario(usuario);
-    await this.enviadorEmail.enviarEmail(
-      `Bienvenido ${usuario.nombre}`,
-      `Tu contraseña es: ${clave}`,
-      [usuario.correo]
-    )
+    await this.enviadorEmail.enviarTemplate<Credenciales>({ 
+      asunto: `Bienvenido(a) ${usuario.nombre}`, 
+      destinatarios: usuario.correo,
+    }, new EmailBienvenida({ clave: clave, nombre: usuario.nombre, usuario: usuario.usuario }))
     return user
   }
 
