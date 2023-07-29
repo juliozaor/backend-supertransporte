@@ -155,9 +155,9 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       sql.preload('respuesta', sqlResp => {
         sqlResp.where('id_reporte', idReporte)
       })
+      sql.where('estado',1 )
       
-      
-    }).where({ 'id_encuesta': idEncuesta }).first();
+    }).where({ 'id_encuesta': idEncuesta}).first();
     const encuestaSql = await consulta    
     
     //BUscar la clasificacion del usuario
