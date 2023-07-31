@@ -235,18 +235,17 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
        idClasificado = 1;
        nombre = 'Básico';
      } else */
+     if (totalVehiculos > 50 || totalConductores > 50) {
+      console.log("entro 3");
+      idClasificado = 3;
+      nombre = 'Avanzado';
+    }else
 
     if ((totalVehiculos >= 20 && totalVehiculos <= 50) || (totalConductores >= 20 && totalConductores <= 50)) {
       console.log("entro 2");
       idClasificado = 2;
       nombre = 'Estándar';
-    } else
-
-      if (totalVehiculos > 50 || totalConductores > 50) {
-        console.log("entro 3");
-        idClasificado = 3;
-        nombre = 'Avanzado';
-      } else {
+    } else {
         idClasificado = 1;
         nombre = 'Básico';
       }
