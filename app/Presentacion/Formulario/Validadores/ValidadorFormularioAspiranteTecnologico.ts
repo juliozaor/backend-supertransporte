@@ -15,6 +15,7 @@ export const schemaFormularioAspiranteTecnologico = schema.create({
     identificacionRepLegal: schema.string(),
     correoRepLegal: schema.string(),
     direccionRepLegal: schema.string(),
+    numeroContactoRepLegal: schema.string(),
     
     nombresContTecnico: schema.string(),
     apellidosContTecnico: schema.string(),
@@ -22,6 +23,7 @@ export const schemaFormularioAspiranteTecnologico = schema.create({
     identificacionContTecnico: schema.string(),
     correoContTecnico: schema.string(),
     direccionContTecnico: schema.string(),
+    numeroContactoContTecnico: schema.string(),
 
     docCertificacionRuta: schema.string(),
     docCertificacionNombre: schema.string(),

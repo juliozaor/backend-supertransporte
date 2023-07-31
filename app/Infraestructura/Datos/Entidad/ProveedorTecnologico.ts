@@ -34,6 +34,8 @@ export class ProveedorTecnologicoLucid extends BaseModel{
     correoRepLegal: string
     @column({ columnName: 'direccion_rl' })
     direccionRepLegal: string
+    @column({ columnName: 'numero_contacto_rl'})
+    numeroContactoRepLegal
 
     @column({ columnName: 'nombres_ct' })
     nombresContTecnico: string
@@ -47,6 +49,8 @@ export class ProveedorTecnologicoLucid extends BaseModel{
     correoContTecnico: string
     @column({ columnName: 'direccion_ct' })
     direccionContTecnico: string
+    @column({ columnName: 'numero_celular_ct'})
+    numeroContactoContTecnico
 
     @column({ columnName: 'ruta_cc'})
     docCertificacionRuta: string
@@ -76,18 +80,23 @@ export class ProveedorTecnologicoLucid extends BaseModel{
         proveedor.estadoMatricula = payload.estadoMatricula
         proveedor.correoNotificacion = payload.correoNotificacion
         proveedor.direccion = payload.direccion
+
         proveedor.nombresRepLegal = payload.nombresRepLegal
         proveedor.apellidosRepLegal = payload.apellidosRepLegal
         proveedor.tipoDocumentoRepLegal = payload.tipoDocumentoRepLegal
         proveedor.identificacionRepLegal = payload.identificacionRepLegal
         proveedor.correoRepLegal = payload.correoRepLegal
         proveedor.direccionRepLegal = payload.direccionRepLegal
+        proveedor.numeroContactoRepLegal = payload.numeroContactoRepLegal
+
         proveedor.nombresContTecnico = payload.nombresContTecnico
         proveedor.apellidosContTecnico = payload.apellidosContTecnico
         proveedor.tipoDocumentoContTecnico = payload.tipoDocumentoContTecnico
         proveedor.identificacionContTecnico = payload.identificacionContTecnico
         proveedor.correoContTecnico = payload.correoContTecnico
         proveedor.direccionContTecnico = payload.direccionContTecnico
+        proveedor.numeroContactoContTecnico = payload.numeroContactoContTecnico
+
         proveedor.docCertificacionRuta = payload.docCertificacionRuta
         proveedor.docCertificacionNombre = payload.docCertificacionNombre
         proveedor.docCertificacionNombreOriginal = payload.docCertificacionNombreOriginal

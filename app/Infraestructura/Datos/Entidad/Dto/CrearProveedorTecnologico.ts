@@ -13,6 +13,7 @@ export interface CrearProveedorTecnologico{
     identificacionRepLegal: string
     correoRepLegal: string
     direccionRepLegal: string
+    numeroContactoRepLegal: string
     
     nombresContTecnico: string
     apellidosContTecnico: string
@@ -20,6 +21,7 @@ export interface CrearProveedorTecnologico{
     identificacionContTecnico: string
     correoContTecnico: string
     direccionContTecnico: string
+    numeroContactoContTecnico: string
 
     docCertificacionRuta: string
     docCertificacionNombre: string
