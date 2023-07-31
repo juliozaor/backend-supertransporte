@@ -3,7 +3,7 @@ import { schema, rules } from "@ioc:Adonis/Core/Validator"
 export const schemaFormularioAspiranteTecnologico = schema.create({
     razonSocial: schema.string(),
     nit: schema.string(),
-    dv: schema.number([ rules.maxLength(2) ]),
+    dv: schema.number(),
     sigla: schema.string(),
     estadoMatricula: schema.string(), 
     correoNotificacion: schema.string(),
