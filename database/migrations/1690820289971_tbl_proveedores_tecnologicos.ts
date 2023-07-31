@@ -9,7 +9,7 @@ export default class extends BaseSchema {
       table.string('razon_social_ot').comment('operador tecnologico')
       table.string('nit_ot', 20)
       table.string('siglas_ot')
-      table.string('dv_ot')
+      table.integer('dv_ot', 2)
       table.string('estado_matricula_ot')
       table.string('correo_notificacion_ot')
       table.string('direccion_ot')
@@ -17,7 +17,7 @@ export default class extends BaseSchema {
       table.string('nombres_rl').comment('rl = representante legal')
       table.string('apellidos_rl')
       table.string('tipo_identificacion_rl')
-      table.integer('identificacion_rl', 20)
+      table.string('identificacion_rl', 20)
       table.string('numero_contacto_rl')
       table.string('correo_electronico_rl')
       table.string('direccion_rl')
@@ -25,7 +25,7 @@ export default class extends BaseSchema {
       table.string('nombres_ct').comment('ct = contacto tecnico')
       table.string('apellidos_ct')
       table.string('tipo_identificacion_ct')
-      table.integer('identificacion_ct', 20)
+      table.string('identificacion_ct', 20)
       table.string('numero_celular_ct')
       table.string('correo_electronico_ct')
       table.string('direccion_ct')
@@ -39,8 +39,8 @@ export default class extends BaseSchema {
       table.string('nombre_cr')
 
     
-      table.timestamp('created_at', { useTz: true })
-      table.timestamp('updated_at', { useTz: true })
+      table.timestamp('creado', { useTz: true }).defaultTo( this.now() )
+      table.timestamp('actualizado', { useTz: true }).defaultTo( this.now() )
     })
   }
 
