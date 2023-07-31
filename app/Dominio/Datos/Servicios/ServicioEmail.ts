@@ -41,7 +41,7 @@ export class ServicioEmail{
     }
 
     await this.enviadorEmail.enviarTemplate({
-      asunto: 'Recuperación de contraseña  S.A.S',
+      asunto: 'Recuperar contraseña.',
       destinatarios: usuarioVerificado.correo,
       de: Env.get('SMTP_USERNAME')
     }, new EmailRecuperacionContrasena({
