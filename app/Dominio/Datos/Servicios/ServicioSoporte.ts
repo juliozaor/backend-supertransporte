@@ -60,7 +60,7 @@ export class ServicioSoporte {
     private enviarEmailNotificacion(soporte: Soporte) {
         const email = new EmailnotificacionCorreo({
             nombre: soporte.razonSocial,
-            mensaje: 'soporte'
+            mensaje: `soporte con el radicado: ${soporte.radicado},` 
         })
         this.enviadorEmail.enviarTemplate({
             asunto: 'Envío a ST.',
