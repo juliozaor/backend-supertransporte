@@ -185,7 +185,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       sql.preload('respuesta', sqlResp => {
         sqlResp.where('id_reporte', idReporte)
       })
-    
+      sql.where('estado', 1)
     })
     consulta.preload('reportes', sqlReporte =>{
       sqlReporte.preload('estadoVerificado')
