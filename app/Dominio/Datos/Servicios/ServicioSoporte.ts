@@ -13,35 +13,37 @@ import { DateTime } from "luxon";
 import { EstadosSoportes } from "App/Dominio/EstadosSoporte";
 import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
 import { EmailRespuestaSoporte } from "App/Dominio/Email/Emails/EmailRespuestaSoporte";
+import { EmailnotificacionCorreo } from "App/Dominio/Email/Emails/EmailNotificacionCorreo";
+import Env from '@ioc:Adonis/Core/Env';
 
-export class ServicioSoporte{
+export class ServicioSoporte {
     constructor(
         private repositorio: RepositorioSoporte,
         private repositorioFicheros: RepositorioFichero,
         private servicioUsuarios: ServicioUsuario,
         private enviadorEmail: EnviadorEmail
-    ){}
+    ) { }
 
-    async responder(peticion: PeticionResponderSoporte){
+    async responder(peticion: PeticionResponderSoporte) {
         const usuario = await this.servicioUsuarios.obtenerUsuario(peticion.identificacionUsuarioAdmin)
         const soporte = await this.repositorio.obtenerPorId(peticion.soporteId)
-        if(!soporte){
+        if (!soporte) {
             throw new Exception(`No se encontró el soporte con id: ${peticion.soporteId}`)
-        } 
+        }
         soporte.respuesta = peticion.respuesta
         soporte.fechaRespuesta = DateTime.now()
         soporte.usuarioRespuesta = `${usuario.nombre} ${usuario.apellido}`
-        if(peticion.adjunto){
+        if (peticion.adjunto) {
             this.guardarAdjunto(peticion.adjunto, soporte.id!, true)
             soporte.documentoRespuesta = peticion.adjunto.nombre
             soporte.identificadorDocumentoRespuesta = `R_${soporte.id}.${peticion.adjunto.extension}`
         }
         soporte.idEstado = EstadosSoportes.CERRADO;
-        this.enviarEmailRespuesta( soporte, peticion.adjunto );
+        this.enviarEmailRespuesta(soporte, peticion.adjunto);
         return await this.repositorio.actualizarSoporte(soporte)
     }
 
-    private enviarEmailRespuesta(soporte: Soporte, adjunto?: Fichero){
+    private enviarEmailRespuesta(soporte: Soporte, adjunto?: Fichero) {
         const email = new EmailRespuestaSoporte({
             descripcion: soporte.descripcion,
             nombre: soporte.razonSocial,
@@ -55,36 +57,48 @@ export class ServicioSoporte{
         }, email)
     }
 
-    async listar(pagina: number, limite: number, filtros: FiltrosSoporte){
-        return this.repositorio.obtenerSoportes(pagina, limite, filtros)
-    }
-    
-    async guardar(peticion: PeticionCrearSoporte, problemaAcceso: boolean){
-       if(problemaAcceso){
-        return await this.guardarSoporteProblemasAcceso(peticion)
-       }else{
-        return await this.guardarSoporteGenerico(peticion)
-       }
+    private enviarEmailNotificacion(soporte: Soporte) {
+        const email = new EmailnotificacionCorreo({
+            nombre: soporte.razonSocial,
+            mensaje: 'soporte'
+        })
+        this.enviadorEmail.enviarTemplate({
+            asunto: 'Envío a ST.',
+            destinatarios: soporte.email,
+            de: Env.get('SMTP_USERNAME')
+        }, email)
     }
 
-    private async obtenerUsuario(documento: string): Promise<Usuario>{
-        try{
+    async listar(pagina: number, limite: number, filtros: FiltrosSoporte) {
+        return this.repositorio.obtenerSoportes(pagina, limite, filtros)
+    }
+
+    async guardar(peticion: PeticionCrearSoporte, problemaAcceso: boolean) {
+        if (problemaAcceso) {
+            return await this.guardarSoporteProblemasAcceso(peticion)
+        } else {
+            return await this.guardarSoporteGenerico(peticion)
+        }
+    }
+
+    private async obtenerUsuario(documento: string): Promise<Usuario> {
+        try {
             return this.servicioUsuarios.obtenerUsuario(documento)
-        }catch{
+        } catch {
             throw new Exception(`Error al buscar el usuario con identificación: ${documento}`, 500)
         }
     }
 
-    private guardarAdjunto(adjunto: Fichero, idSoporte: number, esRespuesta: boolean = false){
+    private guardarAdjunto(adjunto: Fichero, idSoporte: number, esRespuesta: boolean = false) {
         this.repositorioFicheros.guardarFichero(
-            adjunto, 
-            esRespuesta ? RUTAS_ARCHIVOS.ADJUNTOS_RESPUESTAS_SOPORTES : RUTAS_ARCHIVOS.ADJUNTOS_SOPORTES, 
-            `${idSoporte}`, 
+            adjunto,
+            esRespuesta ? RUTAS_ARCHIVOS.ADJUNTOS_RESPUESTAS_SOPORTES : RUTAS_ARCHIVOS.ADJUNTOS_SOPORTES,
+            `${idSoporte}`,
             adjunto.extension
         )
     }
 
-    private async guardarSoporteGenerico(peticion: PeticionCrearSoporte){
+    private async guardarSoporteGenerico(peticion: PeticionCrearSoporte) {
         const usuario = await this.obtenerUsuario(peticion.documentoUsuario)
         let soporte = Soporte.crear({
             descripcion: peticion.descripcion,
@@ -98,20 +112,21 @@ export class ServicioSoporte{
             motivo: peticion.motivo
         })
         soporte = await this.repositorio.guardar(soporte)
-        if(peticion.adjunto){
+        if (peticion.adjunto) {
             soporte.identificadorDocumento = `${soporte.id!}.${peticion.adjunto.extension}`
             this.guardarAdjunto(peticion.adjunto, soporte.id!)
         }
         soporte.generarRadicado()
+        this.enviarEmailNotificacion(soporte);
         return await this.repositorio.actualizarSoporte(soporte)
     }
 
-    private async guardarSoporteProblemasAcceso(peticion: PeticionCrearSoporte){
-        if(!peticion.correo){
+    private async guardarSoporteProblemasAcceso(peticion: PeticionCrearSoporte) {
+        if (!peticion.correo) {
             throw new Exception('El correo es necesario para los soportes de problemas de acceso.', 400)
         }
-        if(!peticion.razonSocial){
-            throw new Exception('La razón social es necesaria para los soportes de problemas de acceso.', 400) 
+        if (!peticion.razonSocial) {
+            throw new Exception('La razón social es necesaria para los soportes de problemas de acceso.', 400)
         }
         let soporte = Soporte.crear({
             descripcion: peticion.descripcion,
@@ -124,11 +139,12 @@ export class ServicioSoporte{
             problemaAcceso: true
         })
         soporte = await this.repositorio.guardar(soporte)
-        if(peticion.adjunto){
+        if (peticion.adjunto) {
             soporte.identificadorDocumento = `${soporte.id!}.${peticion.adjunto.extension}`
             this.guardarAdjunto(peticion.adjunto, soporte.id!)
         }
         soporte.generarRadicado()
+        this.enviarEmailNotificacion(soporte);
         return await this.repositorio.actualizarSoporte(soporte)
     }
 }

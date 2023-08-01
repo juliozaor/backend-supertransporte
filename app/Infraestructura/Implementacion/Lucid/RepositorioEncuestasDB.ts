@@ -16,11 +16,15 @@ import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 import { DateTime } from 'luxon';
 import { TblAnioVigencias } from 'App/Infraestructura/Datos/Entidad/AnioVigencia';
 import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
-
+import { EnviadorEmail } from 'App/Dominio/Email/EnviadorEmail'
+import { EmailnotificacionCorreo } from 'App/Dominio/Email/Emails/EmailNotificacionCorreo';
+import Env from '@ioc:Adonis/Core/Env';
+import { EnviadorEmailAdonis } from 'App/Infraestructura/Email/EnviadorEmailAdonis';
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   private servicioAcciones = new ServicioAcciones();
+  private enviadorEmail: EnviadorEmail
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
     const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol, termino } = params;
 
@@ -44,7 +48,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       })
     }
 
-    if (idRol === '003' || idRol === '007') {      
+    if (idRol === '003' || idRol === '007') {
       consulta.where('login_vigilado', idVigilado);
     }
     consulta.preload('estadoVerificado')
@@ -64,7 +68,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     }
 
 
-    let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)    
+    let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
     if (reportadasBD.length <= 0 && (idRol === '003' || idRol === '007')) {
 
@@ -122,7 +126,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
         estado,
-        vigencia:reportada.anioVigencia??undefined
+        vigencia: reportada.anioVigencia ?? undefined
       });
     })
 
@@ -146,34 +150,34 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     estado = reporte?.estadoVigilado?.nombre ?? estado;
     let clasificacion = '';
 
-    
-    
-    
+
+
+
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
       sql.preload('clasificacion')
       sql.preload('tiposPregunta')
       sql.preload('respuesta', sqlResp => {
         sqlResp.where('id_reporte', idReporte)
       })
-      sql.where('estado',1 )
-      
-    }).where({ 'id_encuesta': idEncuesta}).first();
-    const encuestaSql = await consulta    
-    
+      sql.where('estado', 1)
+
+    }).where({ 'id_encuesta': idEncuesta }).first();
+    const encuestaSql = await consulta
+
     //BUscar la clasificacion del usuario
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion')
       sqlClasC.has('clasificacion')
     }).where('identificacion', idVigilado).first()
-    
+
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
     const descripcionClasificacion = usuario?.clasificacionUsuario[0]?.descripcion;
     const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
-    
-    const fechaActual = DateTime.now();    
-    const rolDefecto = (fechaActual < encuestaSql?.fechaFin!)?idRol:'000'    
-    const {encuestaEditable,verificacionVisible,verificacionEditable} = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId??0, rolDefecto);
-   
+
+    const fechaActual = DateTime.now();
+    const rolDefecto = (fechaActual < encuestaSql?.fechaFin!) ? idRol : '000'
+    const { encuestaEditable, verificacionVisible, verificacionEditable } = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId ?? 0, rolDefecto);
+
     const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
     let consecutivo: number = 1;
     claficiacionesSql.forEach(clasificacionSql => {
@@ -188,7 +192,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             idPregunta: pregunta.id,
             numeroPregunta: consecutivo,
             pregunta: pregunta.pregunta,
-            obligatoria:obligatorio, //obligatorio,// 
+            obligatoria: obligatorio, //obligatorio,// 
             respuesta: pregunta.respuesta[0]?.valor ?? '',
             tipoDeEvidencia: pregunta.tipoEvidencia,
             documento: pregunta.respuesta[0]?.documento ?? '',
@@ -226,13 +230,13 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     const encuesta = {
       tipoAccion,
-      estadoActual:estado,
+      estadoActual: estado,
       nombreEncuesta: encuestaSql?.nombre,
       clasificaion: nombreClasificaion,
       descripcionClasificacion,
       observacion: encuestaSql?.observacion,
       clasificaciones: clasificacionesArr,
-      encuestaEditable,verificacionVisible,verificacionEditable
+      encuestaEditable, verificacionVisible, verificacionEditable
     }
 
     return encuesta
@@ -269,7 +273,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             repuestaExiste = false
           }
 
-          if (respuesta && respuesta.valor === 'N' && (!respuesta.observacion || respuesta.observacion === '' )) {
+          if (respuesta && respuesta.valor === 'N' && (!respuesta.observacion || respuesta.observacion === '')) {
             repuestaExiste = false
           }
 
@@ -300,14 +304,14 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     if (aprobado) {
       this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
       const reporte = await TblReporte.findOrFail(idReporte)
-      const estado = (reporte.estadoVerificacionId === 7 || reporte.estadoVerificacionId === 1005)?4:1004
+      const estado = (reporte.estadoVerificacionId === 7 || reporte.estadoVerificacionId === 1005) ? 4 : 1004
       reporte.fechaEnviost = DateTime.fromJSDate(new Date())
       reporte.envioSt = '1'
       reporte.estadoVerificacionId = estado
       reporte.save();
 
 
-this.servicioAuditoria.Auditar({
+      this.servicioAuditoria.Auditar({
         accion: "Enviar a St",
         modulo: "Encuesta",
         usuario: idUsuario,
@@ -319,9 +323,26 @@ this.servicioAuditoria.Auditar({
 
       })
 
+      
+      
+      
+    }
+    try {      
+      this.enviadorEmail = new EnviadorEmailAdonis()
+          await this.enviadorEmail.enviarTemplate({
+            asunto: 'Envío a ST.',
+            destinatarios: usuario?.correo!,
+            de: Env.get('SMTP_USERNAME')
+          }, new EmailnotificacionCorreo({
+            nombre: usuario?.nombre!,
+            mensaje: 'formulario'
+          }))
+    } catch (error) {
+      console.log(error);      
     }
 
-    return { aprobado, faltantes }
+
+    return {  aprobado, faltantes  }
 
   }
 
