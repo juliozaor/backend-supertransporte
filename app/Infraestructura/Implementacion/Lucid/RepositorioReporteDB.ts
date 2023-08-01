@@ -6,8 +6,6 @@ import { RepositorioReporte } from 'App/Dominio/Repositorios/RepositorioReporte'
 import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
 import { EstadosVerificado } from 'App/Dominio/Datos/Entidades/EstadosVerificado';
 import TblEstadosVerificado from 'App/Infraestructura/Datos/Entidad/EstadoVerificado';
-import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
-import TblReporteEstadoVerificado from 'App/Infraestructura/Datos/Entidad/ReporteEstadoVerificado';
 import { ServicioEstadosVerificado } from 'App/Dominio/Datos/Servicios/ServicioEstadosVerificado';
 import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
@@ -109,12 +107,6 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     const reportadas: Reportadas[] = []
     const consulta = TblReporte.query().preload('usuario');
-  /*   if(filtro && filtro !== ''){
-    consulta.whereHas('usuario', sqlUser =>{
-      sqlUser.orWhere('usn_nombre', 'ilike', `%${filtro}%`)
-      sqlUser.orWhere('usn_identificacion', 'ilike', `%${filtro}%`)
-    })
-  } */
 
   if(filtro){
     consulta.andWhere(subquery => {
