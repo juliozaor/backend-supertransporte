@@ -325,20 +325,20 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
       
       
+      try {      
+        this.enviadorEmail = new EnviadorEmailAdonis()
+            await this.enviadorEmail.enviarTemplate({
+              asunto: 'Envío a ST.',
+              destinatarios: usuario?.correo!,
+              de: Env.get('SMTP_USERNAME')
+            }, new EmailnotificacionCorreo({
+              nombre: usuario?.nombre!,
+              mensaje: 'formulario'
+            }))
+      } catch (error) {
+        console.log(error);      
+      }
       
-    }
-    try {      
-      this.enviadorEmail = new EnviadorEmailAdonis()
-          await this.enviadorEmail.enviarTemplate({
-            asunto: 'Envío a ST.',
-            destinatarios: usuario?.correo!,
-            de: Env.get('SMTP_USERNAME')
-          }, new EmailnotificacionCorreo({
-            nombre: usuario?.nombre!,
-            mensaje: 'formulario'
-          }))
-    } catch (error) {
-      console.log(error);      
     }
 
 
