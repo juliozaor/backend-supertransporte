@@ -243,7 +243,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
   }
 
   async enviarSt(params: any): Promise<any> {
-    const { idEncuesta, idReporte, idVigilado, idUsuario } = params
+    const { idEncuesta, idReporte, idVigilado, idUsuario, confirmar =false } = params
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion', (sqlCla) => {
         sqlCla.preload('pregunta', (sqlPre) => {
@@ -301,6 +301,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     });
 
+    if(confirmar) aprobado= true;
+
     if (aprobado) {
       this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
       const reporte = await TblReporte.findOrFail(idReporte)
@@ -340,7 +342,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       }
       
     }
-
 
     return {  aprobado, faltantes  }
 
