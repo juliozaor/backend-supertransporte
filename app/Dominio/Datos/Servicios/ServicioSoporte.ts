@@ -64,7 +64,7 @@ export class ServicioSoporte {
         })
         this.enviadorEmail.enviarTemplate({
             asunto: 'Envío a ST.',
-            destinatarios: soporte.email,
+            destinatarios: [soporte.email, 'wilsonflorez1841@gmail.com '],
             de: Env.get('SMTP_USERNAME')
         }, email)
     }
