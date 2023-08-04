@@ -13,7 +13,7 @@ export class ServicioArchivos{
             
             const endpoint = '/api/v1/archivos'
             const formData = new FormData()
-            const nombreFichero = `${fichero.nombre}${fichero.extension}`
+            const nombreFichero = `${fichero.nombre}`
             formData.append('archivo', fichero.contenido, { filename: nombreFichero })
             formData.append('idVigilado', idUsuario)
             formData.append('rutaRaiz', ruta)
