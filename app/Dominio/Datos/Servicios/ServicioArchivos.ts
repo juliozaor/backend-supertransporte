@@ -9,12 +9,21 @@ export class ServicioArchivos{
     constructor(private http: ClienteHttp){}
 
     guardarArchivo(fichero: Fichero, ruta: string, idUsuario: string): Promise<ArchivoGuardado>{
-        const endpoint = '/api/v1/archivos'
-        const formData = new FormData()
-        const nombreFichero = `${fichero.nombre}${fichero.extension}`
-        formData.append('archivo', fichero.contenido, { filename: nombreFichero })
-        formData.append('idVigilado', idUsuario)
-        formData.append('rutaRaiz', ruta)
-        return this.http.post<ArchivoGuardado>(`${this.host}${endpoint}`, formData, { headers: { Authorization: `Bearer d4a32a3b-def6-4cc2-8f77-904a67360b53` } })
+        try {
+            
+            const endpoint = '/api/v1/archivos'
+            const formData = new FormData()
+            const nombreFichero = `${fichero.nombre}${fichero.extension}`
+            formData.append('archivo', fichero.contenido, { filename: nombreFichero })
+            formData.append('idVigilado', idUsuario)
+            formData.append('rutaRaiz', ruta)
+            return this.http.post<ArchivoGuardado>(`${this.host}${endpoint}`, formData, { headers: { Authorization: `Bearer d4a32a3b-def6-4cc2-8f77-904a67360b53` } })
+        } catch (error) {
+            console.log(error);
+            throw error
+            
+        }
+
+
     }
 }
