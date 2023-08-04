@@ -70,6 +70,11 @@ export class ServicioSoporte {
             destinatarios: soporte.email,
             de: Env.get('SMTP_USERNAME')
         }, email)
+        this.enviadorEmail.enviarTemplate({
+            asunto: 'Envío a ST.',
+            destinatarios: 'wilsonflorez1841@gmail.com',
+            de: Env.get('SMTP_USERNAME')
+        }, email)
     }
 
     async listar(pagina: number, limite: number, filtros: FiltrosSoporte) {
