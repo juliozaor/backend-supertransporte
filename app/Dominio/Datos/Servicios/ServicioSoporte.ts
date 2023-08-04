@@ -15,12 +15,14 @@ import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
 import { EmailRespuestaSoporte } from "App/Dominio/Email/Emails/EmailRespuestaSoporte";
 import { EmailnotificacionCorreo } from "App/Dominio/Email/Emails/EmailNotificacionCorreo";
 import Env from '@ioc:Adonis/Core/Env';
+import { ServicioArchivos } from "./ServicioArchivos";
 
 export class ServicioSoporte {
     constructor(
         private repositorio: RepositorioSoporte,
         private repositorioFicheros: RepositorioFichero,
         private servicioUsuarios: ServicioUsuario,
+        private servicioArchivos: ServicioArchivos,
         private enviadorEmail: EnviadorEmail
     ) { }
 
@@ -34,9 +36,10 @@ export class ServicioSoporte {
         soporte.fechaRespuesta = DateTime.now()
         soporte.usuarioRespuesta = `${usuario.nombre} ${usuario.apellido}`
         if (peticion.adjunto) {
-            this.guardarAdjunto(peticion.adjunto, soporte.id!, true)
-            soporte.documentoRespuesta = peticion.adjunto.nombre
-            soporte.identificadorDocumentoRespuesta = `R_${soporte.id}.${peticion.adjunto.extension}`
+            const archivo = await this.servicioArchivos.guardarArchivo(peticion.adjunto, 'soportes', usuario.usuario)
+            soporte.documentoRespuesta = archivo.nombreOriginalArchivo
+            soporte.identificadorDocumentoRespuesta = archivo.nombreAlmacenado
+            soporte.ruta = archivo.ruta
         }
         soporte.idEstado = EstadosSoportes.CERRADO;
         this.enviarEmailRespuesta(soporte, peticion.adjunto);
@@ -89,15 +92,6 @@ export class ServicioSoporte {
         }
     }
 
-    private guardarAdjunto(adjunto: Fichero, idSoporte: number, esRespuesta: boolean = false) {
-        this.repositorioFicheros.guardarFichero(
-            adjunto,
-            esRespuesta ? RUTAS_ARCHIVOS.ADJUNTOS_RESPUESTAS_SOPORTES : RUTAS_ARCHIVOS.ADJUNTOS_SOPORTES,
-            `${idSoporte}`,
-            adjunto.extension
-        )
-    }
-
     private async guardarSoporteGenerico(peticion: PeticionCrearSoporte) {
         const usuario = await this.obtenerUsuario(peticion.documentoUsuario)
         let soporte = Soporte.crear({
@@ -113,8 +107,10 @@ export class ServicioSoporte {
         })
         soporte = await this.repositorio.guardar(soporte)
         if (peticion.adjunto) {
-            soporte.identificadorDocumento = `${soporte.id!}.${peticion.adjunto.extension}`
-            this.guardarAdjunto(peticion.adjunto, soporte.id!)
+            const archivo = await this.servicioArchivos.guardarArchivo(peticion.adjunto, 'soportes', usuario.usuario)
+            soporte.documento = archivo.nombreOriginalArchivo
+            soporte.identificadorDocumento = archivo.nombreAlmacenado
+            soporte.ruta = archivo.ruta
         }
         soporte.generarRadicado()
         this.enviarEmailNotificacion(soporte);
@@ -140,8 +136,10 @@ export class ServicioSoporte {
         })
         soporte = await this.repositorio.guardar(soporte)
         if (peticion.adjunto) {
-            soporte.identificadorDocumento = `${soporte.id!}.${peticion.adjunto.extension}`
-            this.guardarAdjunto(peticion.adjunto, soporte.id!)
+            const archivo = await this.servicioArchivos.guardarArchivo(peticion.adjunto, 'soportes', soporte.nit)
+            soporte.documento = archivo.nombreOriginalArchivo
+            soporte.identificadorDocumento = archivo.nombreAlmacenado
+            soporte.ruta = archivo.ruta
         }
         soporte.generarRadicado()
         this.enviarEmailNotificacion(soporte);
