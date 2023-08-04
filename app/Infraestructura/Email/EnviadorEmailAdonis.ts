@@ -21,11 +21,19 @@ export class EnviadorEmailAdonis implements EnviadorEmail {
       mensaje.subject(asunto).from(de ?? this.DEFAULT_SMTP_USERNAME, alias ?? this.DEFAULT_EMAIL_ALIAS);
 
       if(typeof destinatarios === 'string') mensaje.to(destinatarios);
-      else mensaje.to(destinatarios.join(','));
+      else {
+        destinatarios.forEach( destinatario => {
+          mensaje.to(destinatario)
+        })
+      }
 
       if(copias){
         if(typeof copias === 'string') mensaje.to(copias);
-        else mensaje.to(copias.join(','));
+        else{
+          copias.forEach( copia => {
+            mensaje.to(copia)
+          })
+        }
       }
 
       if(adjunto){
