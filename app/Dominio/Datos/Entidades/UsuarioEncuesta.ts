@@ -3,4 +3,5 @@ export class UsuarioEncuesta {
   nitVigilado: string;
   encuestaId: number;
   estadoVigiladoId: number;
+  stErrores?: boolean;
 }

@@ -304,7 +304,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     if(confirmar) aprobado= true;
 
     if (aprobado) {
-      this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
+      this.servicioEstado.Log(idUsuario, 1004, idEncuesta, undefined, confirmar)
       const reporte = await TblReporte.findOrFail(idReporte)
       const estado = (reporte.estadoVerificacionId === 7 || reporte.estadoVerificacionId === 1005) ? 4 : 1004
       reporte.fechaEnviost = DateTime.fromJSDate(new Date())

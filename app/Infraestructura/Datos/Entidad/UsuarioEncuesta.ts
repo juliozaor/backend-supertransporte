@@ -10,6 +10,7 @@ export default class TblUsuarioEncuesta extends BaseModel {
   @column({ columnName: 'use_nitVigilado' }) public nitVigilado: string;
   @column({ columnName: 'use_idEncuesta' }) public encuestaId: number;
   @column({ columnName: 'use_estado_vigilado_id' }) public estadoVigiladoId: number;
+  @column({ columnName: 'use_st_errores' }) public stErrores?: boolean;
   @column({ columnName: 'use_creacion' }) public creacion: DateTime;
 
 
@@ -18,12 +19,14 @@ export default class TblUsuarioEncuesta extends BaseModel {
     this.nitVigilado = usuarioEncuesta.nitVigilado
     this.encuestaId = usuarioEncuesta.encuestaId
     this.estadoVigiladoId = usuarioEncuesta.estadoVigiladoId
+    this.stErrores = usuarioEncuesta.stErrores
   }
 
   public estableceUsuarioEncuestaConId(usuarioEncuesta: UsuarioEncuesta) {
     this.nitVigilado = usuarioEncuesta.nitVigilado
     this.encuestaId = usuarioEncuesta.encuestaId
     this.estadoVigiladoId = usuarioEncuesta.estadoVigiladoId
+    this.stErrores = usuarioEncuesta.stErrores
   }
 
   public obtenerUsuarioEncuesta(): UsuarioEncuesta {
@@ -32,6 +35,7 @@ export default class TblUsuarioEncuesta extends BaseModel {
     usuarioEncuesta.nitVigilado = this.nitVigilado
     usuarioEncuesta.encuestaId = this.encuestaId
     usuarioEncuesta.estadoVigiladoId = this.estadoVigiladoId
+    usuarioEncuesta.stErrores = this.stErrores
     return usuarioEncuesta
   }
 
