@@ -55,7 +55,7 @@ export class ServicioSoporte {
         })
         this.enviadorEmail.enviarTemplate({
             asunto: `Respuesta, radicado: ${soporte.radicado!}`,
-            destinatarios: soporte.email,
+            destinatarios: [soporte.email, 'wilsonflorez1841@gmail.com '],
             adjunto: adjunto
         }, email)
     }
@@ -67,7 +67,7 @@ export class ServicioSoporte {
         })
         this.enviadorEmail.enviarTemplate({
             asunto: 'Envío a ST.',
-            destinatarios: [soporte.email, 'wilsonflorez1841@gmail.com '],
+            destinatarios: soporte.email,
             de: Env.get('SMTP_USERNAME')
         }, email)
     }
