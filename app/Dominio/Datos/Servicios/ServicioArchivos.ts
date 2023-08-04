@@ -17,7 +17,7 @@ export class ServicioArchivos{
             formData.append('archivo', fichero.contenido, { filename: nombreFichero })
             formData.append('idVigilado', idUsuario)
             formData.append('rutaRaiz', ruta)
-            return this.http.post<ArchivoGuardado>(`${this.host}${endpoint}`, formData, { headers: { Authorization: `Bearer d4a32a3b-def6-4cc2-8f77-904a67360b53` } })
+            return this.http.post<ArchivoGuardado>(`${this.host}${endpoint}`, formData, {  Authorization: `Bearer d4a32a3b-def6-4cc2-8f77-904a67360b53` })
         } catch (error) {
             console.log(error);
             throw error
