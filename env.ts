@@ -32,5 +32,7 @@ export default Env.rules({
 
   JWT_SECRET_KEY: Env.schema.string(),
 
-  RUTA_FICHEROS: Env.schema.string()
+  RUTA_FICHEROS: Env.schema.string(),
+
+  URL_SERVICIO_ARCHIVOS: Env.schema.string({ format: 'url' })
 })
