@@ -13,6 +13,8 @@ import { crearRespuesta } from "./Validadores/CrearRespuesta";
 import { RepositorioMotivoSoporte } from "App/Dominio/Repositorios/RepositorioMotivoSoporte";
 import { RepositorioMotivoSoporteDB } from "App/Infraestructura/Implementacion/Lucid/RepositorioMotivoSoporteDB";
 import { EnviadorEmailAdonis } from "App/Infraestructura/Email/EnviadorEmailAdonis";
+import { ServicioArchivos } from "App/Dominio/Datos/Servicios/ServicioArchivos";
+import { ClienteHttpAxios } from "App/Infraestructura/ClientesHttp/ClienteHttpAxios";
 
 export default class ControladorSoporte{
     private servicio: ServicioSoporte
@@ -22,6 +24,7 @@ export default class ControladorSoporte{
             new RepositorioSoporteDB(),
             new RepositorioFicheroLocal(),
             new ServicioUsuario( new RepositorioUsuariosDB() ),
+            new ServicioArchivos(new ClienteHttpAxios()),
             new EnviadorEmailAdonis()
         )
         this.repositorioMotivos = new RepositorioMotivoSoporteDB()
