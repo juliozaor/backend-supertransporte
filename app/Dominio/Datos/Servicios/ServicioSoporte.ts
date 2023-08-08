@@ -48,11 +48,13 @@ export class ServicioSoporte {
 
     private enviarEmailRespuesta(soporte: Soporte, adjunto?: Fichero) {
         const email = new EmailRespuestaSoporte({
-            descripcion: soporte.descripcion,
+          //  descripcion: soporte.descripcion,
+            descripcion: `De conformidad a lo solicitado en el radicado No ${soporte.radicado!} nos permitimos informar:`,
             nombre: soporte.razonSocial,
             respuesta: soporte.respuesta!,
             titulo: soporte.radicado!,
-            logo: Env.get('LOGO')
+            logo: Env.get('LOGO'),
+            nit:soporte.nit
         })
         this.enviadorEmail.enviarTemplate({
             asunto: `Respuesta, radicado: ${soporte.radicado!}`,
@@ -63,9 +65,10 @@ export class ServicioSoporte {
 
     private enviarEmailNotificacion(soporte: Soporte) {
         const email = new EmailnotificacionCorreo({
-            nombre: soporte.razonSocial,
-            mensaje: `soporte con el radicado: ${soporte.radicado},` , 
-            logo: Env.get('LOGO')
+            nombre: soporte.razonSocial, 
+            mensaje: `Por medio de la presente me permito informarle que su solicitud fue radicada con el No ${soporte.radicado}, en el aplicativo de PESV.` , 
+            logo: Env.get('LOGO'),
+            nit:soporte.nit
         })
         this.enviadorEmail.enviarTemplate({
             asunto: 'Envío a ST.',

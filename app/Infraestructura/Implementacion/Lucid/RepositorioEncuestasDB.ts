@@ -335,8 +335,9 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
               de: Env.get('SMTP_USERNAME')
             }, new EmailnotificacionCorreo({
               nombre: usuario?.nombre!,
-              mensaje: 'formulario',
-              logo: Env.get('LOGO')
+              mensaje: 'De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue enviado de manera correcta a la Superintendencia de Transporte.',
+              logo: Env.get('LOGO'),
+              nit:usuario?.identificacion!
             }))
       } catch (error) {
         console.log(error);      

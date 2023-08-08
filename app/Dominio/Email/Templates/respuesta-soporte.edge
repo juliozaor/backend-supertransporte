@@ -1,4 +1,4 @@
-<html>
+{{--  <html>
     <head></head>
     <body>
         <h3 class="secundario">Estimado(a): <small>{{ nombre }}</small></h3>
@@ -8,5 +8,76 @@
         <hr>
         <h2>Respuesta</h2>
         <p>{{ respuesta }}</p>
+    </body>
+</html>
+  --}}
+<html>
+    <head>
+        <style>
+            .contenedor{
+                display: block;
+                width: 90%;
+                max-width: 700px;
+                margin: 0 auto;
+            }
+            .cabecera{
+                width: 100%;
+                padding: 17px 20px;
+            }
+            .logo{
+                display: block;
+                width: 200px;
+                margin: 0 auto;
+            }
+            .cuerpo{
+                display: block;
+                width: 100%;
+                padding: 17px 20px;
+                font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            }
+            .pie-de-pagina{
+                display: block;
+                width: 100%;
+                padding: 30px 20px;
+            }
+            .pie-de-pagina table td{
+                vertical-align: middle;
+                padding: 10px;
+            }
+            .informacion{
+                
+            }
+
+            /* fuentes */
+            .primario{
+                color: #00a3dd;
+            }
+            .secundario{
+                color: #39316b;
+            }
+            .gris{
+                color: #666465;
+            }
+            .negrita{
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="contenedor">
+            <div class="cabecera">
+                <div class="logo" style="width: 300px;">
+                    <img width="140px" src="{{ logo }}" alt="supertransporte">
+                </div>
+            </div>
+            <div class="cuerpo">
+                <h2 class="primario">Estimado(a):</h2>
+                <p><span class="secundario negrita"></span>Nombre:</p> {{ nombre }}</p>
+                <p><span class="secundario negrita"></span>Nit:</p> {{ nit }}</p>
+                <p class="gris">{{ descripcion }}</p>
+                <h3 class="primario">Respuesta dada.</h3>                
+            </div>
+           
+        </div>
     </body>
 </html>
