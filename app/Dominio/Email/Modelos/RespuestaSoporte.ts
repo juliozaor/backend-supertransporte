@@ -3,4 +3,5 @@ export interface RespuestaSoporte{
     titulo: string
     descripcion: string
     respuesta: string
+    logo?:string
 }

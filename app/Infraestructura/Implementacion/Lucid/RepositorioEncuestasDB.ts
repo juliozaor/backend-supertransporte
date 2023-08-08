@@ -335,7 +335,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
               de: Env.get('SMTP_USERNAME')
             }, new EmailnotificacionCorreo({
               nombre: usuario?.nombre!,
-              mensaje: 'formulario'
+              mensaje: 'formulario',
+              logo: Env.get('LOGO')
             }))
       } catch (error) {
         console.log(error);      

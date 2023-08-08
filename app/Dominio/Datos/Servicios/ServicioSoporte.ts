@@ -51,7 +51,8 @@ export class ServicioSoporte {
             descripcion: soporte.descripcion,
             nombre: soporte.razonSocial,
             respuesta: soporte.respuesta!,
-            titulo: soporte.radicado!
+            titulo: soporte.radicado!,
+            logo: Env.get('LOGO')
         })
         this.enviadorEmail.enviarTemplate({
             asunto: `Respuesta, radicado: ${soporte.radicado!}`,
@@ -63,7 +64,8 @@ export class ServicioSoporte {
     private enviarEmailNotificacion(soporte: Soporte) {
         const email = new EmailnotificacionCorreo({
             nombre: soporte.razonSocial,
-            mensaje: `soporte con el radicado: ${soporte.radicado},` 
+            mensaje: `soporte con el radicado: ${soporte.radicado},` , 
+            logo: Env.get('LOGO')
         })
         this.enviadorEmail.enviarTemplate({
             asunto: 'Envío a ST.',

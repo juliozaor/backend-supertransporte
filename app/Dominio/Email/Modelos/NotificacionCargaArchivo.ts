@@ -6,4 +6,5 @@ export interface NotificacionCargaArchivo {
     nombreArchivo: string
     numeroRadicado: string
     resultado: string
+    logo?:string
 }

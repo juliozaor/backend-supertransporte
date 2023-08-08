@@ -47,7 +47,8 @@ export class ServicioEmail{
     }, new EmailRecuperacionContrasena({
       nombre: usuarioVerificado.nombre,
       clave: clave,
-      usuario: usuarioVerificado.identificacion
+      usuario: usuarioVerificado.identificacion,
+      logo: Env.get('LOGO')
     }))
   }
 

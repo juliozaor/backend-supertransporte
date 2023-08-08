@@ -25,7 +25,7 @@ if(params.termino){
 }
     
 
-    const usuariosDB = await consulta.orderBy('id', 'desc').paginate(params.pagina, params.limite)
+    const usuariosDB = await consulta.orderBy('usn_nombre', 'asc').paginate(params.pagina, params.limite)
 
     usuariosDB.forEach(usuariosDB => {
       usuarios.push(usuariosDB.obtenerUsuario())
