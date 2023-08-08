@@ -71,7 +71,7 @@ export class ServicioSoporte {
             nit:soporte.nit
         })
         this.enviadorEmail.enviarTemplate({
-            asunto: 'Envío a ST.',
+            asunto: 'Creación de soporte.',
             destinatarios: soporte.email,
             de: Env.get('SMTP_USERNAME')
         }, email)
