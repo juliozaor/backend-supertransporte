@@ -72,7 +72,7 @@ if(params.termino){
     return usuarioDB
   }
 
-  async actualizarUsuario (id: string, usuario: Usuario, payload:PayloadJWT): Promise<Usuario> {
+  async actualizarUsuario (id: string, usuario: Usuario, payload?:PayloadJWT): Promise<Usuario> {
     let usuarioRetorno = await TblUsuarios.findOrFail(id)
     const usuarioAnterior = usuarioRetorno;
     usuarioRetorno.estableceUsuarioConId(usuario)
@@ -83,7 +83,7 @@ if(params.termino){
       modulo: "Usuarios",
       jsonAnterior: JSON.stringify(usuarioAnterior),
       jsonNuevo: JSON.stringify(usuarioRetorno),
-      usuario: payload.documento ?? '',
+      usuario: payload?.documento ?? '',
       descripcion: 'Usuario actualizado'
     })
 
