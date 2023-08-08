@@ -62,9 +62,9 @@ export class ServicioUsuarios {
     return user
   }
 
-  async actualizarUsuario(id: string, usuario: Usuario, payload:PayloadJWT): Promise<Usuario> {
+  async actualizarUsuario(id: string, usuario: Usuario, payload?:PayloadJWT): Promise<Usuario> {
     usuario.clave = await this.encriptador.encriptar(usuario.clave)
-    return this.repositorio.actualizarUsuario(id, usuario, payload;
+    return this.repositorio.actualizarUsuario(id, usuario, payload);
   }
 
   async cambiarEstado(id: string): Promise<Usuario> {

@@ -7,7 +7,7 @@ export interface RepositorioUsuario {
   obtenerUsuarioPorId(id: string): Promise<Usuario>
   obtenerUsuarioPorRol(rol: string): Promise<Usuario[]>
   guardarUsuario(usuario: Usuario): Promise<Usuario>
-  actualizarUsuario(id: string, usuario: Usuario, payload:PayloadJWT): Promise<Usuario>
+  actualizarUsuario(id: string, usuario: Usuario, payload?:PayloadJWT): Promise<Usuario>
   obtenerUsuarioPorUsuario(nombreUsuario: string): Promise<Usuario | null>
   caracterizacion(idUsuario:string,idRol:string, idEncuesta?:number): Promise<any>
 }
