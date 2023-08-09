@@ -54,11 +54,11 @@ export class ServicioSoporte {
             respuesta: soporte.respuesta!,
             titulo: soporte.radicado!,
             logo: Env.get('LOGO'),
-            nit:soporte.nit
+            nit:soporte.nit              
         })
         this.enviadorEmail.enviarTemplate({
             asunto: `Respuesta, radicado: ${soporte.radicado!}`,
-            destinatarios: [soporte.email, 'wilsonflorez1841@gmail.com '],
+            destinatarios: [soporte.email],
             adjunto: adjunto
         }, email)
     }
