@@ -57,7 +57,7 @@ export class ServicioAutenticacion {
       registroDeBloqueo = await this.crearRegistroDeBloqueo(usuarioVerificado.identificacion)
     }
     if (registroDeBloqueo.elUsuarioEstaBloqueado()) {
-      throw new Exception('El usuario se encuentra bloqueado por exceder el número de intentos de inicio de sesión', 423)
+      throw new Exception('El usuario se encuentra bloqueado por exceder el número de intentos de inicio de sesión, intente recuperar contraseña', 423)
     }
     if (!usuarioVerificado) {
       this.manejarIntentoFallido(registroDeBloqueo)
