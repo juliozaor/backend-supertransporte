@@ -12,7 +12,6 @@ import { DetalleEvidencia } from 'App/Dominio/Datos/Entidades/DetalleEvidencias'
 import { TblArchivosTemporales } from 'App/Infraestructura/Datos/Entidad/Archivo';
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 
-
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
@@ -90,6 +89,20 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     const formulariosBD = await consulta
 
+   /*  const mensajes = [{
+      id:1,
+      mensaje: await this.validarFormulario(1)
+    },{
+      id:2,
+      mensaje: await this.validarFormulario(2)
+    },{
+      id:3,
+      mensaje: await this.validarFormulario(3)
+    },{
+      id:4,
+      mensaje: await this.validarFormulario(4)
+    }]; */
+
     formulariosBD.forEach(formulario => {
       const nombre = formulario.nombre
       const subIndicador: any = [];
@@ -124,10 +137,21 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
         subIndicador.push({
           nombreSubIndicador: subInd.nombre,
           codigo: subInd.codigo,
-          preguntas
+          preguntas,
+          mensaje:''
         })
       }
       });
+
+      /* if(subIndicador.length <=0 ){
+
+        const mensaje = mensajes.find(msj => msj.id > formulario.id!)?.mensaje;
+        
+               
+        subIndicador.push({
+          mensaje
+        })
+      } */
 
       const evidencias: any = [];
       formulario.evidencias.forEach(evidencia => {
@@ -326,6 +350,15 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       mensaje: "Formulario guardado correctamente"
     }
 
+
+  }
+
+  validarFormulario = async(id)=>{
+      const sqlform = await TblFormulariosIndicadores.query().preload('subIndicadores',sqlSub=>{
+          sqlSub.preload('periodo').first()
+        }).where('fmi_id',id).first()
+
+        return sqlform?.subIndicadores[0].periodo.mensaje
 
   }
 

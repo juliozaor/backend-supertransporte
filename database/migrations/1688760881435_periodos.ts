@@ -9,6 +9,7 @@ export default class extends BaseSchema {
       table.string('per_nombre', 150)
       table.string('per_tipo').comment('modeda, entero, porcentaje, real')
       table.integer('per_decimal')
+      table.string('per_mensaje')
       table.boolean('per_estado').defaultTo(true)
     })
   }
