@@ -89,22 +89,9 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     const formulariosBD = await consulta
 
-   /*  const mensajes = [{
-      id:1,
-      mensaje: await this.validarFormulario(1)
-    },{
-      id:2,
-      mensaje: await this.validarFormulario(2)
-    },{
-      id:3,
-      mensaje: await this.validarFormulario(3)
-    },{
-      id:4,
-      mensaje: await this.validarFormulario(4)
-    }]; */
-
-    formulariosBD.forEach(formulario => {
+     formulariosBD.forEach(formulario => {
       const nombre = formulario.nombre
+      const mensaje = formulario.mensaje
       const subIndicador: any = [];
       formulario.subIndicadores.forEach(subInd => {
         const preguntas: any = []
@@ -138,20 +125,9 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
           nombreSubIndicador: subInd.nombre,
           codigo: subInd.codigo,
           preguntas,
-          mensaje:''
         })
       }
       });
-
-      /* if(subIndicador.length <=0 ){
-
-        const mensaje = mensajes.find(msj => msj.id > formulario.id!)?.mensaje;
-        
-               
-        subIndicador.push({
-          mensaje
-        })
-      } */
 
       const evidencias: any = [];
       formulario.evidencias.forEach(evidencia => {
@@ -178,6 +154,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
       formularios.push({
         nombre,
+        mensaje,
         subIndicador,
         evidencias
       })
@@ -353,13 +330,5 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
   }
 
-  validarFormulario = async(id)=>{
-      const sqlform = await TblFormulariosIndicadores.query().preload('subIndicadores',sqlSub=>{
-          sqlSub.preload('periodo').first()
-        }).where('fmi_id',id).first()
-
-        return sqlform?.subIndicadores[0].periodo.mensaje
-
-  }
 
 }

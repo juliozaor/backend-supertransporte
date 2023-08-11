@@ -10,7 +10,5 @@ export class TblPeriodos extends BaseModel {
   public decimal: number; 
   @column({ columnName: 'per_estado' })
   public estado: boolean; 
-  @column({ columnName: 'per_mensaje' })
-  public mensaje: string; 
 }
 

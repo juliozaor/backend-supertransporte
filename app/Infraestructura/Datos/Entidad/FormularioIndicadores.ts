@@ -8,6 +8,8 @@ export class TblFormulariosIndicadores extends BaseModel {
   public nombre: string; 
   @column({ columnName: 'fri_estado' })
   public estado: boolean; 
+  @column({ columnName: 'fri_mensaje' })
+  public mensaje: string; 
 
   @hasMany(() => TblSubIndicadores, {
     localKey: 'id',
