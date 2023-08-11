@@ -21,6 +21,7 @@ export class Soportes extends BaseModel {
     @column({ columnName: 'respuesta' }) respuesta?: string
     @column({ columnName: 'id_estado' }) idEstado: number
     @column({ columnName: 'problema_acceso' }) problemaAcceso: boolean
+    @column({ columnName: 'error_acceso' }) errorAcceso?: string
     @column({ columnName: 'motivo' }) motivo?: number
     @column.dateTime({ columnName: 'fecha_creacion', autoCreate: true }) fechaCreacion: DateTime
     @column({ columnName: 'fecha_respuesta' }) fechaRespuesta?: DateTime
@@ -46,7 +47,8 @@ export class Soportes extends BaseModel {
             usuarioRespuesta: this.usuarioRespuesta,
             motivo: this.motivo,
             respuesta: this.respuesta,
-            problemaAcceso: this.problemaAcceso
+            problemaAcceso: this.problemaAcceso,
+            errorAcceso: this.errorAcceso
         })
     }
 
@@ -72,5 +74,6 @@ export class Soportes extends BaseModel {
         this.motivo = soporte.motivo
         this.respuesta = soporte.respuesta
         this.problemaAcceso = soporte.problemaAcceso
+        this.errorAcceso = soporte.errorAcceso
     }
 }

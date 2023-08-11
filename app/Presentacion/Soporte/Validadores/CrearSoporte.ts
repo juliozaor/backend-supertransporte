@@ -4,6 +4,7 @@ export const crearSoporteSchema = schema.create({
     descripcion: schema.string(),
     adjunto: schema.file.optional(),
     motivo: schema.number.optional(),
+    errorAcceso: schema.number.optional(),
     //parametros opcionales
     telefono: schema.string.optional({ trim: true }),
     correo: schema.string.optional({ trim: true }),
