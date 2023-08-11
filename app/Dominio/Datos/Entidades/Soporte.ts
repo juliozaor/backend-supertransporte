@@ -21,6 +21,7 @@ export class Soporte{
     ruta: string
     usuarioRespuesta?: string
     motivo?: number
+    errorAcceso?: string
     idEstado: number 
     fechaCreacion: DateTime
     fechaRespuesta?: DateTime
@@ -47,6 +48,7 @@ export class Soporte{
         this.fechaRespuesta = parametros.fechaRespuesta
         this.problemaAcceso = parametros.problemaAcceso
         this.motivo = parametros.motivo
+        this.errorAcceso = parametros.errorAcceso
     }
 
     public static crear(parametros: ParametrosCrearSoporte){
@@ -61,7 +63,8 @@ export class Soporte{
             ruta: parametros.ruta,
             telefono: parametros.telefono,
             problemaAcceso: parametros.problemaAcceso,
-            motivo: parametros.motivo
+            motivo: parametros.motivo,
+            errorAcceso: parametros.errorAcesso
         })
     }
 

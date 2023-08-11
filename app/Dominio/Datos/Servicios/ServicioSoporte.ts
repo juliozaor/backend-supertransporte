@@ -147,8 +147,10 @@ export class ServicioSoporte {
             ruta: 'RUTA PENDIENTE',
             documento: peticion.adjunto ? peticion.adjunto.nombre : undefined,
             telefono: peticion.telefono ?? '',
-            problemaAcceso: true
+            problemaAcceso: true,
+            errorAcesso: peticion.errorAcceso
         })
+        
         soporte = await this.repositorio.guardar(soporte)
         if (peticion.adjunto) {
             try{

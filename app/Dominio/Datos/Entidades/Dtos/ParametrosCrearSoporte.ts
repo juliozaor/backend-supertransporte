@@ -8,5 +8,6 @@ export interface ParametrosCrearSoporte {
     documento?: string // nombre original
     identificadorDocumento?: string //nombre en sistema de ficheros
     motivo?: number
+    errorAcesso?: string
     problemaAcceso: boolean
 }

@@ -19,5 +19,6 @@ export interface ParametrosInstanciaSoporte {
     fechaCreacion: DateTime
     fechaRespuesta?: DateTime
     respuesta?: string
+    errorAcceso?: string
     problemaAcceso: boolean
 }
