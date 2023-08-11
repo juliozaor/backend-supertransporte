@@ -36,10 +36,15 @@ export class ServicioSoporte {
         soporte.fechaRespuesta = DateTime.now()
         soporte.usuarioRespuesta = `${usuario.nombre} ${usuario.apellido}`
         if (peticion.adjunto) {
-            const archivo = await this.servicioArchivos.guardarArchivo(peticion.adjunto, 'soportes', usuario.usuario)
-            soporte.documentoRespuesta = archivo.nombreOriginalArchivo
-            soporte.identificadorDocumentoRespuesta = archivo.nombreAlmacenado
-            soporte.ruta = archivo.ruta
+            try{
+                const archivo = await this.servicioArchivos.guardarArchivo(peticion.adjunto, 'soportes', usuario.usuario)
+                soporte.documentoRespuesta = archivo.nombreOriginalArchivo
+                soporte.identificadorDocumentoRespuesta = archivo.nombreAlmacenado
+                soporte.ruta = archivo.ruta
+            }catch(e){
+                this.repositorio.eliminarSoporte(soporte)
+                throw new Exception('Falló la carga del archivo, intentalo nuevamente.', 500)
+            }
         }
         soporte.idEstado = EstadosSoportes.CERRADO;
         this.enviarEmailRespuesta(soporte, peticion.adjunto);
@@ -107,10 +112,15 @@ export class ServicioSoporte {
         })
         soporte = await this.repositorio.guardar(soporte)
         if (peticion.adjunto) {
-            const archivo = await this.servicioArchivos.guardarArchivo(peticion.adjunto, 'soportes', usuario.usuario)
-            soporte.documento = archivo.nombreOriginalArchivo
-            soporte.identificadorDocumento = archivo.nombreAlmacenado
-            soporte.ruta = archivo.ruta
+            try{
+                const archivo = await this.servicioArchivos.guardarArchivo(peticion.adjunto, 'soportes', usuario.usuario)
+                soporte.documento = archivo.nombreOriginalArchivo
+                soporte.identificadorDocumento = archivo.nombreAlmacenado
+                soporte.ruta = archivo.ruta
+            }catch(e){
+                this.repositorio.eliminarSoporte(soporte)
+                throw new Exception('Falló la carga del archivo, intentalo nuevamente.', 500)
+            }
         }
         soporte.generarRadicado()
         this.enviarEmailNotificacion(soporte);
@@ -136,10 +146,15 @@ export class ServicioSoporte {
         })
         soporte = await this.repositorio.guardar(soporte)
         if (peticion.adjunto) {
-            const archivo = await this.servicioArchivos.guardarArchivo(peticion.adjunto, 'soportes', soporte.nit)
-            soporte.documento = archivo.nombreOriginalArchivo
-            soporte.identificadorDocumento = archivo.nombreAlmacenado
-            soporte.ruta = archivo.ruta
+            try{
+                const archivo = await this.servicioArchivos.guardarArchivo(peticion.adjunto, 'soportes', soporte.nit)
+                soporte.documento = archivo.nombreOriginalArchivo
+                soporte.identificadorDocumento = archivo.nombreAlmacenado
+                soporte.ruta = archivo.ruta
+            }catch(e){
+                this.repositorio.eliminarSoporte(soporte)
+                throw new Exception('Falló la carga del archivo, intentalo nuevamente.', 500)
+            }
         }
         soporte.generarRadicado()
         this.enviarEmailNotificacion(soporte);

@@ -8,4 +8,5 @@ export interface RepositorioSoporte{
     obtenerSoportes(pagina: number, limite: number, filtros: FiltrosSoporte): Promise<Paginable<Soporte>>
     actualizarSoporte(soporte: Soporte): Promise<Soporte>
     obtenerProximoId(): Promise<number>
+    eliminarSoporte(soporte: Soporte): Promise<void>
 }

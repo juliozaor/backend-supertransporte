@@ -9,8 +9,7 @@ export class ServicioArchivos{
     constructor(private http: ClienteHttp){}
 
     guardarArchivo(fichero: Fichero, ruta: string, idUsuario: string): Promise<ArchivoGuardado>{
-        try {
-            
+        try {   
             const endpoint = '/api/v1/archivos'
             const formData = new FormData()
             const nombreFichero = `${fichero.nombre}`
@@ -21,9 +20,6 @@ export class ServicioArchivos{
         } catch (error) {
             console.log(error);
             throw error
-            
         }
-
-
     }
 }
