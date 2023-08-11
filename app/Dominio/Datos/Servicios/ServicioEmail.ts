@@ -21,9 +21,8 @@ export class ServicioEmail{
       throw new Exception('usuario no encontrado y/o correo incorrecto (error: 001)', 400)
     //  throw new Exception('No se encuentra usuario registrado', 400)
     }
-    if (usuarioVerificado.correo !== correo) {
-      console.log(usuarioVerificado.correo, 'ingresado = ', correo)
-      //throw new Exception('El email ingresado no coincide con el del usuario', 400)
+    if (usuarioVerificado.correo.toLowerCase() !== correo.toLowerCase()) {
+     //throw new Exception('El email ingresado no coincide con el del usuario', 400)
       throw new Exception('usuario no encontrado y/o correo incorrecto, (error: 002)', 400)
     }
     const clave = await this.generarContrasena.generar()
