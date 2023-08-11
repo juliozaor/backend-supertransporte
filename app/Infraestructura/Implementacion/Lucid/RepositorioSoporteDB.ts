@@ -4,6 +4,7 @@ import { RepositorioSoporte } from "App/Dominio/Repositorios/RepositorioSoporte"
 import { Paginable } from "App/Dominio/Tipos/Tipos";
 import { Soportes } from "App/Infraestructura/Datos/Entidad/Soporte";
 import { MapeadorPaginacionDB } from "./MapeadorPaginacionDB";
+import { Exception } from "@adonisjs/core/build/standalone";
 
 export class RepositorioSoporteDB implements RepositorioSoporte{
 
@@ -55,6 +56,13 @@ export class RepositorioSoporteDB implements RepositorioSoporte{
     async obtenerProximoId(): Promise<number>{
         const resultados = await Soportes.query().max('id_soporte').as('max')
         return +resultados[0].$extras['max'] + 1;
+    }
+
+    async eliminarSoporte(soporte: Soporte): Promise<void> {
+        if(!soporte.id){
+            return;
+        }
+        await Soportes.query().delete().where('id_soporte', soporte.id)
     }
 
 }
