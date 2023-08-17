@@ -96,7 +96,10 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       formulario.subIndicadores.forEach(subInd => {
         const preguntas: any = []
         subInd.datosIndicadores.forEach(datos => {
-          preguntas.push({
+          subIndicador.push({
+         //   preguntas.push({
+          nombreSubIndicador: subInd.nombre,
+          codigo: subInd.codigo,
             idPregunta: datos.id,
             pregunta: datos.nombre,
             obligatoria: subInd.obligatorio,
@@ -120,13 +123,13 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
             observacionCorresponde: ""
           })
         });        
-        if(preguntas.length >= 1){
+       /*  if(preguntas.length >= 1){
         subIndicador.push({
           nombreSubIndicador: subInd.nombre,
           codigo: subInd.codigo,
-          preguntas,
+         // preguntas,
         })
-      }
+      } */
       });
 
       const evidencias: any = [];
