@@ -16,40 +16,40 @@ export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado()
   private servicioAcciones = new ServicioAcciones();
   async obtenerAsignadas(params: any): Promise<{ asignadas: Reportadas[], paginacion: Paginador }> {
-    const { idVerificador, pagina, limite, rol} = params;
+    const { idVerificador, pagina, limite, rol } = params;
 
     const asignadas: any[] = []
     const consulta = TblReporte.query().preload('usuario');
     consulta.preload('encuesta')
     consulta.preload('estadoVerificado')
     consulta.preload('estadoVigilado')
-   /*  consulta.preload('reporteEstadoVerificado', sqlEstado =>{
-      sqlEstado.orderBy('rev_creacion', 'desc').first()
-    }) */
+    /*  consulta.preload('reporteEstadoVerificado', sqlEstado =>{
+       sqlEstado.orderBy('rev_creacion', 'desc').first()
+     }) */
 
-    if(rol === '001'){
-      
+    if (rol === '001') {
+
       consulta.where('asignado', true);
-      if(idVerificador){
+      if (idVerificador) {
         consulta.andWhere('ultimo_usuario_asignado', idVerificador)
       }
     }
-    
-    if(rol === '002'){      
+
+    if (rol === '002') {
       consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador });
     }
 
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
-    
+
     reportadasBD.map(reportada => {
       let estadoValidacion = '';
-      estadoValidacion = reportada.estadoVerificado?.nombre??estadoValidacion;
-      estadoValidacion = reportada.estadoVigilado?.nombre??estadoValidacion;
+      estadoValidacion = reportada.estadoVerificado?.nombre ?? estadoValidacion;
+      estadoValidacion = reportada.estadoVigilado?.nombre ?? estadoValidacion;
       asignadas.push({
         idReporte: reportada.id!,
         nit: reportada.nitRues,
-        idEncuesta:reportada.idEncuesta,
+        idEncuesta: reportada.idEncuesta,
         razonSocial: reportada.razonSocialRues,
         asignador: reportada.asignador,
         fechaAsignacion: reportada.fechaAsignacion,
@@ -78,7 +78,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       reporteDb?.establecerVerificador(true, verificador, asignador)
       reporteDb?.save()
 
-      this.servicioEstadoVerificado.Log(reporte,1,verificador)
+      this.servicioEstadoVerificado.Log(reporte, 1, verificador)
 
     }
     return { mensaje: 'Reportes asignados' }
@@ -98,45 +98,51 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
   }
 
-  
+
 
   async obtenerEnviadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
-    const { pagina, limite, filtro} = params;
+    const { pagina, limite, filtro } = params;
 
     let usuarioCreacion: string = "";
 
     const reportadas: Reportadas[] = []
     const consulta = TblReporte.query().preload('usuario');
 
-  if(filtro){
-    consulta.andWhere(subquery => {
-      subquery.orWhere('razon_social_rues', 'ilike', `%${filtro}%`)
-      subquery.orWhere('nit_rues', 'ilike', `%${filtro}%`)
-      subquery.orWhere('login_vigilado', 'ilike', `%${filtro}%`)
-      subquery.orWhere('usuario_creacion', 'ilike', `%${filtro}%`)
-      if (Number.isInteger(parseInt(filtro))) {
-        subquery.orWhere('id_reporte', `${filtro}`)
-      }
+    if (filtro) {
+      consulta.andWhere(subquery => {
+        subquery.orWhere('razon_social_rues', 'ilike', `%${filtro}%`)
+        subquery.orWhere('nit_rues', 'ilike', `%${filtro}%`)
+        subquery.orWhere('login_vigilado', 'ilike', `%${filtro}%`)
+        subquery.orWhere('usuario_creacion', 'ilike', `%${filtro}%`)
+        if (Number.isInteger(parseInt(filtro))) {
+          subquery.orWhere('id_reporte', `${filtro}`)
+        }
+      })
+    }
+    consulta.preload('encuesta', sqlEncuesta => {
+      sqlEncuesta.where('id_encuesta', '1');
     })
-  }
-      consulta.preload('encuesta')
 
-      consulta.preload('estadoVerificado')
+    consulta.whereHas('encuesta', sqlEncuesta => {
+      sqlEncuesta.where('id_encuesta', '1');
+    })
+
+    consulta.preload('estadoVerificado')
     consulta.preload('estadoVigilado')
 
 
 
-      consulta.whereNotNull('fecha_enviost').andWhere('envio_st','>',0)
+    consulta.whereNotNull('fecha_enviost').andWhere('envio_st', '>', 0)
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
     reportadasBD.map(reportada => {
       let estado = 'FORMULARIO EN BORRADOR';
-      estado = reportada.estadoVerificado?.nombre??estado;
-      estado = reportada.estadoVigilado?.nombre??estado;
+      estado = reportada.estadoVerificado?.nombre ?? estado;
+      estado = reportada.estadoVigilado?.nombre ?? estado;
       reportadas.push({
         idEncuestaDiligenciada: reportada.encuesta.id,
         idVigilado: reportada.loginVigilado,
-        clasificacion:'',
+        clasificacion: '',
         numeroReporte: reportada.id!,
         encuesta: reportada.encuesta.nombre,
         descripcion: reportada.encuesta.descripcion,
@@ -150,7 +156,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
         estado
-       // estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
+        // estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
       });
     })
 
@@ -162,9 +168,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
   async visualizar(params: any): Promise<any> {
 
     const { idEncuesta, idUsuario, idVigilado, idReporte, rol } = params;
- //   const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
+    //   const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
 
- const tipoAccion = (rol === '006') ? 2 : 1;
+    const tipoAccion = (rol === '006') ? 2 : 1;
 
     let clasificacionesArr: any = [];
 
@@ -179,25 +185,26 @@ export class RepositorioReporteDB implements RepositorioReporte {
       })
       sql.where('estado', 1)
     })
-    consulta.preload('reportes', sqlReporte =>{
+    consulta.preload('reportes', sqlReporte => {
       sqlReporte.preload('estadoVerificado')
       sqlReporte.preload('estadoVigilado')
       sqlReporte.where('id_reporte', idReporte)
     })
 
-    
+
 
     consulta.where({ 'id_encuesta': idEncuesta })
     const encuestaSql = await consulta.first();
 
 
-//BUscar la clasificacion del usuario
-const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
-  sqlClasC.preload('clasificacion')
-  sqlClasC.has('clasificacion')}).where('identificacion', idVigilado).first()
+    //BUscar la clasificacion del usuario
+    const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
+      sqlClasC.preload('clasificacion')
+      sqlClasC.has('clasificacion')
+    }).where('identificacion', idVigilado).first()
 
-  const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
-  const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
+    const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
+    const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
 
 
     const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
@@ -207,11 +214,11 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
       clasificacion = clasificacionSql.nombre;
 
       //validar si el paso es obligatorio
-      
-      const obligatorio = pasos?.find(paso => paso.id === clasificacionSql.id)?true:false;
 
-     
-      
+      const obligatorio = pasos?.find(paso => paso.id === clasificacionSql.id) ? true : false;
+
+
+
 
 
       encuestaSql?.pregunta.forEach(pregunta => {
@@ -260,23 +267,23 @@ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlCl
 
     //const estadoActual = encuestaSql?.reportes[0].reporteEstadoVerificado[0]?.nombre??''
     let estadoActual = '';
-    
-    estadoActual = encuestaSql?.reportes[0].estadoVerificado?.nombre??estadoActual
-    estadoActual = encuestaSql?.reportes[0].estadoVigilado?.nombre??estadoActual
 
-    const {encuestaEditable,verificacionVisible,verificacionEditable} = await this.servicioAcciones.obtenerAccion(encuestaSql?.reportes[0]?.estadoVerificacionId??0, rol);
-    
+    estadoActual = encuestaSql?.reportes[0].estadoVerificado?.nombre ?? estadoActual
+    estadoActual = encuestaSql?.reportes[0].estadoVigilado?.nombre ?? estadoActual
+
+    const { encuestaEditable, verificacionVisible, verificacionEditable } = await this.servicioAcciones.obtenerAccion(encuestaSql?.reportes[0]?.estadoVerificacionId ?? 0, rol);
+
     const encuesta = {
       tipoAccion,
       razonSocila: usuario?.nombre,
       idVigilado,
       idEncuesta,
       estadoActual,
-      nombreEncuesta:encuestaSql?.nombre,
+      nombreEncuesta: encuestaSql?.nombre,
       clasificaion: nombreClasificaion,
-      observacion:encuestaSql?.observacion,
+      observacion: encuestaSql?.observacion,
       clasificaciones: clasificacionesArr,
-      encuestaEditable,verificacionVisible,verificacionEditable
+      encuestaEditable, verificacionVisible, verificacionEditable
     }
 
     return encuesta
