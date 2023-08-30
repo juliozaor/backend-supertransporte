@@ -224,7 +224,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
   async guardar(datos: string, documento: string): Promise<any> {
     const { respuestas, reporteId, evidencias, mesId } = JSON.parse(datos);
 
-    //const { usuarioCreacion, loginVigilado, idEncuesta } = await TblReporte.findByOrFail('id', idReporte)
+    const { anioVigencia} = await TblReporte.findByOrFail('id', reporteId)
 
     this.servicioEstado.Log(documento, 1003, undefined, reporteId)
     /* this.servicioAuditoria.Auditar({
@@ -248,7 +248,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
         valor: respuesta.valor,
         reporteId: reporteId,
         fechaActualizacion: DateTime.fromJSDate(new Date),
-        anioActivoId: 2023
+        anioActivoId: anioVigencia??2023
       }
 
       if (respuesta.documento) {
@@ -289,7 +289,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
         valor: evidencia.valor,
         reporteId: reporteId,
         fechaActualizacion: DateTime.fromJSDate(new Date),
-        anioActivoId: 2023
+        anioActivoId: anioVigencia??2023
       }
 
       if (evidencia.documento) {
