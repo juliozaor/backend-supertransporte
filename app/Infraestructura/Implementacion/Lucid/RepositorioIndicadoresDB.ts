@@ -166,6 +166,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       idReporte,
       idEncuesta: reporte.idEncuesta,
       vigencia,
+      mensaje:'Cumplimiento del paso #20 de la metodología definida en la Res. 40595 de 2022.',
       formularios
     }
   }
