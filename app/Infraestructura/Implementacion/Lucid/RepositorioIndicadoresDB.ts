@@ -84,6 +84,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
           sqlSubTipoDato.preload('tipoDato')
         })
       }
+      sqlEvidencia.where('evi_estado', true);
+      sqlEvidencia.orderBy('evi_orden', 'asc');
     })
 
 
