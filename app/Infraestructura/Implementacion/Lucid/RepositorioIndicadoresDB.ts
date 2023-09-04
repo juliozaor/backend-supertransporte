@@ -51,8 +51,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
 
       }
-      subIndicador.preload('periodo')
-
+      subIndicador.preload('periodo');
+      subIndicador.orderBy('sub_orden','asc');
     })
 
     //Evidencias
@@ -87,7 +87,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     })
 
 
-    const formulariosBD = await consulta
+    const formulariosBD = await consulta.orderBy('fri_orden','asc');
 
      formulariosBD.forEach(formulario => {
       const nombre = formulario.nombre
