@@ -17,9 +17,11 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioEstado = new ServicioEstados();
 
   async visualizar(params: any): Promise<any> {
-    const { idUsuario, idVigilado, idReporte, idMes } = params;
+    const { idUsuario, idVigilado, idReporte, idMes, historico } = params;
 
-    //let tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
+    const soloLectura = (historico && historico == 'true')??false;
+    console.log(soloLectura);
+    
     const formularios: any = [];
     const reporte = await TblReporte.findOrFail(idReporte)
 
@@ -164,6 +166,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     });
 
     return {
+      soloLectura,
       idVigilado,
       idReporte,
       idEncuesta: reporte.idEncuesta,
