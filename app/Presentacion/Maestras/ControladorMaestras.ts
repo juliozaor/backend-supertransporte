@@ -15,9 +15,10 @@ export default class ControladorReporte {
 
   public async listarMeses({ request, response }: HttpContextContract) {
     const { historico } = request.only(['historico']);
-    const h = !!historico;
+    
     let meses;
-    if (h) {
+    
+    if (historico && historico == 'true') {
       const vigencia = await TblAnioVigencias.query().where('anv_estado', true).first();
       console.log(vigencia?.anio);
       if (vigencia?.anio == 2023) {
