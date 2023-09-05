@@ -6,6 +6,8 @@ export class TblMeses extends BaseModel {
   public nombre: string; 
   @column({ columnName: 'mes_estado' })
   public estado: boolean; 
+  @column({ columnName: 'mes_habilitado' })
+  public habilitado: boolean; 
 }
 
 
