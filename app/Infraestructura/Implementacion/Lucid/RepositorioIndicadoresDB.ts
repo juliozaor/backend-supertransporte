@@ -20,8 +20,6 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     const { idUsuario, idVigilado, idReporte, idMes, historico } = params;
 
     const soloLectura = (historico && historico == 'true')??false;
-    console.log(soloLectura);
-    
     const formularios: any = [];
     const reporte = await TblReporte.findOrFail(idReporte)
 

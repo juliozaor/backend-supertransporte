@@ -20,7 +20,6 @@ export default class ControladorReporte {
     
     if (historico && historico == 'true') {
       const vigencia = await TblAnioVigencias.query().where('anv_estado', true).first();
-      console.log(vigencia?.anio);
       if (vigencia?.anio == 2023) {
         mesesSql = await TblMeses.query().where('mes_habilitado', true);
       } else {
