@@ -21,13 +21,15 @@ export default class ControladorReporte {
     if (historico && historico == 'true') {
       const vigencia = await TblAnioVigencias.query().where('anv_estado', true).first();
       if (vigencia?.anio == 2023) {
-        mesesSql = await TblMeses.query().where('mes_habilitado', true);
+        mesesSql = await TblMeses.query().where('mes_habilitado', true).orderBy('mes_id', 'asc');
       } else {
-        mesesSql = await TblMeses.query();
+        mesesSql = await TblMeses.query().orderBy('mes_id', 'asc');
       }
     } else {
-      mesesSql = await TblMeses.query().where('mes_estado', true);
+      mesesSql = await TblMeses.query().where('mes_estado', true).orderBy('mes_id', 'asc');
     }
+
+
    const meses = mesesSql.map(m =>{
     return {
       idMes : m.id,
