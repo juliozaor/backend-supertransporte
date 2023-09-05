@@ -16,19 +16,25 @@ export default class ControladorReporte {
   public async listarMeses({ request, response }: HttpContextContract) {
     const { historico } = request.only(['historico']);
     
-    let meses;
+    let mesesSql;
     
     if (historico && historico == 'true') {
       const vigencia = await TblAnioVigencias.query().where('anv_estado', true).first();
       console.log(vigencia?.anio);
       if (vigencia?.anio == 2023) {
-        meses = await TblMeses.query().where('mes_habilitado', true);
+        mesesSql = await TblMeses.query().where('mes_habilitado', true);
       } else {
-        meses = await TblMeses.query();
+        mesesSql = await TblMeses.query();
       }
     } else {
-      meses = await TblMeses.query().where('mes_estado', true);
+      mesesSql = await TblMeses.query().where('mes_estado', true);
     }
+   const meses = mesesSql.map(m =>{
+    return {
+      idMes : m.id,
+      nombreMes:m.nombre
+    }
+   })
     response.status(200).send({ meses })
   }
 
