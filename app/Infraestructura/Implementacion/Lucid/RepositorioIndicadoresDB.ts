@@ -132,9 +132,11 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       });
 
       const evidencias: any = [];
+      let consecutivo: number = 1;
       formulario.evidencias.forEach(evidencia => {
         evidencia.datosEvidencias.forEach(datoEvidencia => {
           evidencias.push({
+            consecutivo,
             idEvidencia: datoEvidencia.id,
             nombre: evidencia.nombre,
             tamanio: evidencia.tamanio,
@@ -151,6 +153,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
             nombreOriginal: datoEvidencia.detalleEvidencias[0]?.nombredocOriginal ?? '',
             ruta: datoEvidencia.detalleEvidencias[0]?.ruta ?? ''
           })
+          consecutivo++;
         });
       })
 
