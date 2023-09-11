@@ -27,6 +27,8 @@ export default class Preguntas extends BaseModel {
   @column({ columnName: 'obligatoria' }) public obligatoria: boolean
   @column({ columnName: 'orden' }) public orden: number;
   @column({ columnName: 'tamanio' }) public tamanio?: number;
+  @column({ columnName: 'padre' }) public padre?: number;
+  @column({ columnName: 'respuesta_padre' }) public respuestaPadre?: JSON;
 
   public establecerPreguntaDb(pregunta: Pregunta) {
     this.id = pregunta.id
@@ -44,6 +46,8 @@ export default class Preguntas extends BaseModel {
     this.obligatoria = pregunta.obligatoria
     this.orden = pregunta.orden
     this.tamanio = pregunta.tamanio
+    this.padre = pregunta.padre
+    this.respuestaPadre = pregunta.respuestaPadre
   }
 
   public establecePreguntaConId(pregunta: Pregunta) {
@@ -61,6 +65,8 @@ export default class Preguntas extends BaseModel {
     this.obligatoria = pregunta.obligatoria
     this.orden = pregunta.orden
     this.tamanio = pregunta.tamanio
+    this.padre = pregunta.padre
+    this.respuestaPadre = pregunta.respuestaPadre
   }
 
   public obtenerPregunta(): Pregunta {
@@ -80,6 +86,8 @@ export default class Preguntas extends BaseModel {
     pregunta.obligatoria = this.obligatoria 
     pregunta.orden = this.orden 
     pregunta.tamanio = this.tamanio 
+    pregunta.padre = this.padre 
+    pregunta.respuestaPadre = this.respuestaPadre 
     return pregunta
   }
 

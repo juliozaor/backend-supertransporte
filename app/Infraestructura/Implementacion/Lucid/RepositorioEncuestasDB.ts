@@ -204,12 +204,13 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             tamanio: pregunta.tamanio,
             valoresPregunta: pregunta.tiposPregunta.opciones,
             validaciones: pregunta.tiposPregunta.validaciones,
-
             observacion: pregunta.respuesta[0]?.observacion ?? '',
             cumple: pregunta.respuesta[0]?.cumple ?? '',
             observacionCumple: pregunta.respuesta[0]?.observacionCumple ?? '',
             corresponde: pregunta.respuesta[0]?.corresponde ?? '',
             observacionCorresponde: pregunta.respuesta[0]?.observacionCorresponde ?? '',
+            padre: pregunta.padre,
+            respuestaPadre: pregunta.respuestaPadre,
           });
           consecutivo++;
         }

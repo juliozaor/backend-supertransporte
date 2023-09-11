@@ -15,4 +15,6 @@ export class Pregunta {
   obligatoria: boolean;
   orden: number;
   tamanio?: number;
+  padre?: number;
+  respuestaPadre?: JSON;
 }
