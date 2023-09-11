@@ -209,8 +209,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             observacionCumple: pregunta.respuesta[0]?.observacionCumple ?? '',
             corresponde: pregunta.respuesta[0]?.corresponde ?? '',
             observacionCorresponde: pregunta.respuesta[0]?.observacionCorresponde ?? '',
-            padre: pregunta.padre,
-            respuestaPadre: pregunta.respuestaPadre,
           });
           consecutivo++;
         }

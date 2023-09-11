@@ -86,8 +86,6 @@ export default class Preguntas extends BaseModel {
     pregunta.obligatoria = this.obligatoria 
     pregunta.orden = this.orden 
     pregunta.tamanio = this.tamanio 
-    pregunta.padre = this.padre 
-    pregunta.respuestaPadre = this.respuestaPadre 
     return pregunta
   }
 
