@@ -46,8 +46,6 @@ export default class Preguntas extends BaseModel {
     this.obligatoria = pregunta.obligatoria
     this.orden = pregunta.orden
     this.tamanio = pregunta.tamanio
-    this.padre = pregunta.padre
-    this.respuestaPadre = pregunta.respuestaPadre
   }
 
   public establecePreguntaConId(pregunta: Pregunta) {
@@ -65,8 +63,6 @@ export default class Preguntas extends BaseModel {
     this.obligatoria = pregunta.obligatoria
     this.orden = pregunta.orden
     this.tamanio = pregunta.tamanio
-    this.padre = pregunta.padre
-    this.respuestaPadre = pregunta.respuestaPadre
   }
 
   public obtenerPregunta(): Pregunta {
