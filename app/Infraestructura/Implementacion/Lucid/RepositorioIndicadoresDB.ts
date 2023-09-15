@@ -11,18 +11,24 @@ import { TblDetalleDatosEvidencias } from 'App/Infraestructura/Datos/Entidad/Det
 import { DetalleEvidencia } from 'App/Dominio/Datos/Entidades/DetalleEvidencias';
 import { TblArchivosTemporales } from 'App/Infraestructura/Datos/Entidad/Archivo';
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
+import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
-
+  private servicioAcciones = new ServicioAcciones();
   async visualizar(params: any): Promise<any> {
-    const { idUsuario, idVigilado, idReporte, idMes, historico } = params;
+    const { idUsuario, idVigilado, idReporte, idMes, historico, idRol } = params;
 
-    const soloLectura = (historico && historico == 'true')??false;
     const formularios: any = [];
     const reporte = await TblReporte.findOrFail(idReporte)
 
+    
+    const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId ?? 0, idRol);
+
+
+    const soloLectura = (historico && historico == 'true' ||  encuestaEditable)??false;
+    
     const consulta = TblFormulariosIndicadores.query()
     const vigencia = reporte.anioVigencia??undefined
 
