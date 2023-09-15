@@ -27,7 +27,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId ?? 0, idRol);
 
 
-    const soloLectura = (historico && historico == 'true' ||  encuestaEditable)??false;
+    const soloLectura = (historico && historico == 'true' ||  !encuestaEditable)??false;
     
     const consulta = TblFormulariosIndicadores.query()
     const vigencia = reporte.anioVigencia??undefined
