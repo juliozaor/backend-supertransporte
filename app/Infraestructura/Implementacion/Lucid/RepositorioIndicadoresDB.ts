@@ -12,6 +12,7 @@ import { DetalleEvidencia } from 'App/Dominio/Datos/Entidades/DetalleEvidencias'
 import { TblArchivosTemporales } from 'App/Infraestructura/Datos/Entidad/Archivo';
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
+import { TblEstadosReportes } from 'App/Infraestructura/Datos/Entidad/EstadosReportes';
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
@@ -23,9 +24,26 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     const formularios: any = [];
     const reporte = await TblReporte.findOrFail(idReporte)
 
-    
-    const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId ?? 0, idRol);
 
+
+
+    //Buscar el estado por la nueva tabla
+    const estadoreportes = await TblEstadosReportes.query()
+    .where({'reporte':idReporte, 'vigencia':reporte.anioVigencia, 'mes':idMes})
+    .orderBy('created_at', 'desc')
+    .first();
+
+    if(!estadoreportes){
+      const newEstadoReporte = new TblEstadosReportes()
+      newEstadoReporte.reporte = idReporte
+      newEstadoReporte.vigencia = reporte.anioVigencia!
+      newEstadoReporte.mes = idMes
+      newEstadoReporte.estado = 1002
+      newEstadoReporte.save()
+    }
+    
+   // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId ?? 0, idRol);
+   const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
 
     const soloLectura = (historico && historico == 'true' ||  !encuestaEditable)??false;
     
@@ -184,7 +202,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
   }
 
   async enviarSt(params: any): Promise<any> {
-    const { idEncuesta, idReporte, idVigilado, idUsuario } = params
+    const { idReporte, idMes } = params
     let aprobado = true;
     const faltantesIndicadores = new Array();
     const faltantesEvidencias = new Array();
@@ -220,7 +238,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     });
 
     if (aprobado) {
-      this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
+     // this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
+     this.servicioEstado.estadoReporte(idReporte, indicadores.vigencia,idMes,1004, DateTime.fromJSDate(new Date()))
       const reporte = await TblReporte.findOrFail(idReporte)
       reporte.fechaEnviost = DateTime.fromJSDate(new Date())
       reporte.envioSt = '1'
@@ -239,7 +258,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     const { anioVigencia} = await TblReporte.findByOrFail('id', reporteId)
 
-    this.servicioEstado.Log(documento, 1003, undefined, reporteId)
+    this.servicioEstado.estadoReporte(reporteId,anioVigencia??2023,mesId,1003)
+    //this.servicioEstado.Log(documento, 1003, undefined, reporteId)
     /* this.servicioAuditoria.Auditar({
       accion: "Guardar Respuesta",
       modulo: "Encuesta",

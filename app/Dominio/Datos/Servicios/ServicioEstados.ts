@@ -1,6 +1,7 @@
 import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 import TblUsuarioEncuesta from 'App/Infraestructura/Datos/Entidad/UsuarioEncuesta';
 import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
+import { TblEstadosReportes } from 'App/Infraestructura/Datos/Entidad/EstadosReportes';
 export class ServicioEstados {
 
   public async Log(usuario: string, estado: number, idEncuesta?: number, idReporte?: number, confirmar?: boolean) {
@@ -40,6 +41,23 @@ export class ServicioEstados {
       usuarioEncuesta.save()
 
 
+    }
+  }
+
+  public async estadoReporte(idReporte: number, anioVigencia: number, idMes: number, estado: number, enviost?:any) {
+    
+    const estadoreportes = await TblEstadosReportes.query()
+    .where({'reporte':idReporte, 'vigencia':anioVigencia, 'mes':idMes, 'estado': estado})
+    .first();
+
+    if(!estadoreportes){
+      const newEstadoReporte = new TblEstadosReportes()
+      newEstadoReporte.reporte = idReporte
+      newEstadoReporte.vigencia = anioVigencia
+      newEstadoReporte.mes = idMes
+      newEstadoReporte.estado = estado
+      newEstadoReporte.fechaEnviost = enviost
+      newEstadoReporte.save()
     }
   }
 
