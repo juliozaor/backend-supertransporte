@@ -238,7 +238,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     });
 
     if (aprobado) {
-     // this.servicioEstado.Log(idUsuario, 1004, idEncuesta)
+     this.servicioEstado.Log(indicadores.idVigilado, 1004, indicadores.idEncuesta)
      this.servicioEstado.estadoReporte(idReporte, indicadores.vigencia,idMes,1004, DateTime.fromJSDate(new Date()))
       const reporte = await TblReporte.findOrFail(idReporte)
       reporte.fechaEnviost = DateTime.fromJSDate(new Date())
@@ -259,7 +259,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     const { anioVigencia} = await TblReporte.findByOrFail('id', reporteId)
 
     this.servicioEstado.estadoReporte(reporteId,anioVigencia??2023,mesId,1003)
-    //this.servicioEstado.Log(documento, 1003, undefined, reporteId)
+    this.servicioEstado.Log(documento, 1003, undefined, reporteId)
     /* this.servicioAuditoria.Auditar({
       accion: "Guardar Respuesta",
       modulo: "Encuesta",
