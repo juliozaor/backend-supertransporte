@@ -23,4 +23,8 @@ export class ServicioIndicadores {
     return this.repositorio.guardar(datos, documento);
   }
 
+  async finalizarFaseDos(mes): Promise<any> {
+    return this.repositorio.finalizarFaseDos(mes);
+  }
+
 }
