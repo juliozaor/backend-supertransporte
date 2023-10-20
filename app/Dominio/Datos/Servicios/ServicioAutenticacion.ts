@@ -57,15 +57,18 @@ export class ServicioAutenticacion {
       registroDeBloqueo = await this.crearRegistroDeBloqueo(usuarioVerificado.identificacion)
     }
     if (registroDeBloqueo.elUsuarioEstaBloqueado()) {
+      this.servicioEstado.Log(usuario, 1011)
       throw new Exception('El usuario se encuentra bloqueado por exceder el número de intentos de inicio de sesión, intente recuperar contraseña', 423)
     }
     if (!usuarioVerificado) {
       this.manejarIntentoFallido(registroDeBloqueo)
+      this.servicioEstado.Log(usuario, 1011)
       throw new Exception('Credenciales incorrectas, por favor intente recuperar contraseña con su correo registrado en Vigia', 400)
     }
 
     if (!await this.encriptador.comparar(contrasena, usuarioVerificado.clave)) {
       this.manejarIntentoFallido(registroDeBloqueo)
+      this.servicioEstado.Log(usuario, 1011)
       throw new Exception('Credenciales incorrectas, por favor intente recuperar contraseña con su correo registrado en Vigia', 400)
     }
 
@@ -74,6 +77,8 @@ export class ServicioAutenticacion {
       documento: usuarioVerificado.identificacion,
       idRol: usuarioVerificado.idRol
     })
+
+    this.servicioEstado.Log(usuario, 1010)
 
     if (usuarioVerificado.idRol === '003') {
       this.servicioEstado.Log(usuarioVerificado.identificacion, 1001)

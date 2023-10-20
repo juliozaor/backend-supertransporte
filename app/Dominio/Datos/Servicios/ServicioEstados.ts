@@ -12,6 +12,12 @@ export class ServicioEstados {
         });
 
       })
+    } else if(estado === 1010 || estado === 1011){
+      const usuarioEncuesta = new TblUsuarioEncuesta()
+      usuarioEncuesta.nitVigilado = usuario
+      usuarioEncuesta.encuestaId = 0
+      usuarioEncuesta.estadoVigiladoId = estado
+      usuarioEncuesta.save()
     } else {
       this.valdarEstado(usuario, estado, idEncuesta, confirmar)
     }
