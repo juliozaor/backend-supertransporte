@@ -14,29 +14,32 @@ export default class ControladorReporte {
 
 
   public async listarMeses({ request, response }: HttpContextContract) {
-    const { historico } = request.only(['historico']);
-    
+    const { historico, vigencia = 2023 } = request.all();
+
+
+    if(!vigencia){
+      return response.status(400).send({ error: 'La vigencia es obligatoria' })
+    }
     let mesesSql;
     
     if (historico && historico == 'true') {
-      const vigencia = await TblAnioVigencias.query().where('anv_estado', true).first();
-      if (vigencia?.anio == 2023) {
-        mesesSql = await TblMeses.query().where('mes_habilitado', true).orderBy('mes_id', 'asc');
-      } else {
-        mesesSql = await TblMeses.query().orderBy('mes_id', 'asc');
+       if (vigencia == 2023) {
+        mesesSql = await TblMeses.query().where('mes_habilitado', true).where('mes_vigencia', vigencia).orderBy('mes_id', 'asc');
+      } else { 
+        mesesSql = await TblMeses.query().where('mes_vigencia', vigencia).orderBy('mes_id', 'asc');
       }
     } else {
-      mesesSql = await TblMeses.query().where('mes_estado', true).orderBy('mes_id', 'asc');
+      mesesSql = await TblMeses.query().where('mes_estado', true).where('mes_vigencia', vigencia).orderBy('mes_id', 'asc');
     }
 
 
    const meses = mesesSql.map(m =>{
     return {
-      idMes : m.id,
+      idMes : m.visual,
       nombreMes:m.nombre
     }
    })
-    response.status(200).send({ meses })
+   return response.status(200).send({ meses })
   }
 
 
