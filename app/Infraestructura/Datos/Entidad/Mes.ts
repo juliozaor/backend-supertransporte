@@ -8,6 +8,10 @@ export class TblMeses extends BaseModel {
   public estado: boolean; 
   @column({ columnName: 'mes_habilitado' })
   public habilitado: boolean; 
+  @column({ columnName: 'mes_visual' })
+  public visual: number; 
+  @column({ columnName: 'mes_vigencia' })
+  public vigencia: number; 
 }
 
 
