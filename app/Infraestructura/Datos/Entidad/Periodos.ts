@@ -8,7 +8,7 @@ export class TblPeriodos extends BaseModel {
   public tipo: string; 
   @column({ columnName: 'per_decimal' })
   public decimal: number; 
-  @column({ columnName: 'anv_estado' })
+  @column({ columnName: 'per_estado' })
   public estado: boolean; 
 }
 

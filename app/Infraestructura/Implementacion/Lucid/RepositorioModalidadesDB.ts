@@ -226,34 +226,38 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
 
   clasificar = async (totalConductores: number, totalVehiculos: number, idUsuario: string) => {
 
-    let idClasificado: number = 4;
+    let idClasificado;
     let clasificado: boolean = true;
-    let nombre = 'Sin clasificar';
-    /*  if ((totalVehiculos >= 11 && totalVehiculos <= 19) || (totalConductores >= 2 && totalConductores <= 19)) {
-       console.log("entro 1");
- 
-       idClasificado = 1;
-       nombre = 'Básico';
-     } else */
-     if (totalVehiculos > 50 || totalConductores > 50) {
-      console.log("entro 3");
-      idClasificado = 3;
-      nombre = 'Avanzado';
-    }else
+    let nombre = '';
 
-    if ((totalVehiculos >= 20 && totalVehiculos <= 50) || (totalConductores >= 20 && totalConductores <= 50)) {
-      console.log("entro 2");
-      idClasificado = 2;
-      nombre = 'Estándar';
-    } else {
+    const modalidad = await TblModalidadesRadios.query().whereIn('tmr_modalidad_id', [1, 2, 3, 4]).andWhere('tmr_usuario_id', idUsuario);
+
+    if (modalidad.length >= 1) {
+
+      if (totalVehiculos > 50 || totalConductores > 50) {
+        idClasificado = 3;
+        nombre = 'Avanzado';
+      } else if ((totalVehiculos >= 20 && totalVehiculos <= 50) || (totalConductores >= 20 && totalConductores <= 50)) {
+        idClasificado = 2;
+        nombre = 'Estándar';
+      } else {
         idClasificado = 1;
         nombre = 'Básico';
       }
+    } else {
 
-    /*     if (totalVehiculos <= 10 || totalConductores <= 1) {
-          console.log("entro 4");
-          clasificado = false;
-        } */
+      if (totalVehiculos > 100 || totalConductores > 100) {
+        idClasificado = 3;
+        nombre = 'Avanzado';
+      } else if ((totalVehiculos >= 50 && totalVehiculos <= 100) || (totalConductores >= 50 && totalConductores <= 100)) {
+        idClasificado = 2;
+        nombre = 'Estándar';
+      } else {
+        idClasificado = 1;
+        nombre = 'Básico';
+      }
+    }
+
 
     const estaClasificado = await TblClasificacionesUsuario.query().where('clu_usuario_id', idUsuario).first();
     if (!estaClasificado) {
@@ -261,7 +265,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
       clasificacionUsuario.estableceClasificacionesUsuarioConId({
         usuarioId: idUsuario,
         clasificacionId: idClasificado,
-        estado: clasificado, 
+        estado: clasificado,
         vehiculos: totalVehiculos,
         conductores: totalConductores
       })
@@ -272,7 +276,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
       estaClasificado.estableceClasificacionesUsuarioConId({
         usuarioId: idUsuario,
         clasificacionId: idClasificado,
-        estado: clasificado, 
+        estado: clasificado,
         vehiculos: totalVehiculos,
         conductores: totalConductores
       })

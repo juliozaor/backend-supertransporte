@@ -27,6 +27,8 @@ export default class Preguntas extends BaseModel {
   @column({ columnName: 'obligatoria' }) public obligatoria: boolean
   @column({ columnName: 'orden' }) public orden: number;
   @column({ columnName: 'tamanio' }) public tamanio?: number;
+  @column({ columnName: 'padre' }) public padre?: number;
+  @column({ columnName: 'respuesta_padre' }) public respuestaPadre?: JSON;
 
   public establecerPreguntaDb(pregunta: Pregunta) {
     this.id = pregunta.id

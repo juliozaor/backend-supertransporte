@@ -55,7 +55,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     consulta.preload('estadoVigilado')
 
     if (idEncuesta == 2) {
-      consulta.where('anio_vigencia', anioVigencia?.anio!)
+     // consulta.where('anio_vigencia', anioVigencia?.anio!)
     }
     if (termino) {
       consulta.andWhere(subquery => {
@@ -204,7 +204,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             tamanio: pregunta.tamanio,
             valoresPregunta: pregunta.tiposPregunta.opciones,
             validaciones: pregunta.tiposPregunta.validaciones,
-
             observacion: pregunta.respuesta[0]?.observacion ?? '',
             cumple: pregunta.respuesta[0]?.cumple ?? '',
             observacionCumple: pregunta.respuesta[0]?.observacionCumple ?? '',
@@ -335,7 +334,9 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
               de: Env.get('SMTP_USERNAME')
             }, new EmailnotificacionCorreo({
               nombre: usuario?.nombre!,
-              mensaje: 'formulario'
+              mensaje: 'De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue enviado de manera correcta a la Superintendencia de Transporte.',
+              logo: Env.get('LOGO'),
+              nit:usuario?.identificacion!
             }))
       } catch (error) {
         console.log(error);      

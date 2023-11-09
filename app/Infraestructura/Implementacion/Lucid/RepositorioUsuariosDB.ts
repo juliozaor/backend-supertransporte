@@ -7,7 +7,10 @@ import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TblDetallesClasificaciones from 'App/Infraestructura/Datos/Entidad/detalleClasificacion';
 import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 import TblClasificacionesUsuario from 'App/Infraestructura/Datos/Entidad/ClasificacionesUsuario';
+import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria';
+import { PayloadJWT } from '../../../Dominio/Dto/PayloadJWT';
 export class RepositorioUsuariosDB implements RepositorioUsuario {
+  private servicioAuditoria = new ServicioAuditoria();
   async obtenerUsuarios (params: any): Promise<{usuarios: Usuario[], paginacion: Paginador}> {
     const usuarios: Usuario[] = []
 
@@ -25,7 +28,7 @@ if(params.termino){
 }
     
 
-    const usuariosDB = await consulta.orderBy('id', 'desc').paginate(params.pagina, params.limite)
+    const usuariosDB = await consulta.orderBy('usn_nombre', 'asc').paginate(params.pagina, params.limite)
 
     usuariosDB.forEach(usuariosDB => {
       usuarios.push(usuariosDB.obtenerUsuario())
@@ -69,10 +72,21 @@ if(params.termino){
     return usuarioDB
   }
 
-  async actualizarUsuario (id: string, usuario: Usuario): Promise<Usuario> {
+  async actualizarUsuario (id: string, usuario: Usuario, payload?:PayloadJWT): Promise<Usuario> {
     let usuarioRetorno = await TblUsuarios.findOrFail(id)
+    const usuarioAnterior = usuarioRetorno;
     usuarioRetorno.estableceUsuarioConId(usuario)
     await usuarioRetorno.save()
+    
+    this.servicioAuditoria.Auditar({
+      accion: "Actualizar Usuario",
+      modulo: "Usuarios",
+      jsonAnterior: JSON.stringify(usuarioAnterior),
+      jsonNuevo: JSON.stringify(usuarioRetorno),
+      usuario: payload?.documento ?? '',
+      descripcion: 'Usuario actualizado'
+    })
+
     return usuarioRetorno
   }
 

@@ -47,7 +47,7 @@ export default class extends BaseSeeder {
         tamanio:5
       },{
         id: 6,
-        nombre: 'Evidencia de los controles implementados para minizar los riesgos identificados al incio del año',
+        nombre: 'Evidencia de los controles implementados para minimizar los riesgos identificados al incio del año',
         orden: 1,
         formularioId: 2,
         subTipoId: 3,
@@ -55,7 +55,7 @@ export default class extends BaseSeeder {
         tamanio:5
       },{
         id: 7,
-        nombre: 'Evidencia de los controles implementados para minizar los riesgos identificados al final del año',
+        nombre: 'Evidencia de los controles implementados para minimizar los riesgos identificados al final del año',
         orden: 1,
         formularioId: 2,
         subTipoId: 3,
@@ -134,7 +134,7 @@ export default class extends BaseSeeder {
         nombre: 'Listado de rutas de desplazamientos laborales (origen, destino), número de kilometros por ruta',
         orden: 1,
         formularioId: 3,
-        subTipoId: 6,
+        subTipoId: 4,
         periodoId: 3,
         tamanio:5
       }

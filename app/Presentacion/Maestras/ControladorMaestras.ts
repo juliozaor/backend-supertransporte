@@ -1,57 +1,45 @@
 /* eslint-disable max-len */
 /* eslint-disable @typescript-eslint/naming-convention */
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { TblAnioVigencias } from 'App/Infraestructura/Datos/Entidad/AnioVigencia';
+import { TblMeses } from 'App/Infraestructura/Datos/Entidad/Mes'
 
 export default class ControladorReporte {
   //private service: ServicioIndicadores
-  constructor () {
+  constructor() {
     /* this.service = new ServicioIndicadores(
       new RepositorioIndicadoresDB()
     ) */
   }
 
 
-  public async listarMeses ({ request, response }:HttpContextContract) {
+  public async listarMeses({ request, response }: HttpContextContract) {
+    const { historico, vigencia = 2023 } = request.all();
 
-     response.status(200).send({
-      "meses": [{
-        idMes : 1,
-        nombreMes:"Enero"
-      },{
-        idMes : 2,
-        nombreMes:"Febrero"
-      },{
-        idMes : 3,
-        nombreMes:"Marzo"
-      },{
-        idMes : 4,
-        nombreMes:"Abril"
-      },{
-        idMes : 5,
-        nombreMes:"Mayo"
-      },{
-        idMes : 6,
-        nombreMes:"Junio"
-      },{
-        idMes : 7,
-        nombreMes:"Julio"
-      },{
-        idMes : 8,
-        nombreMes:"Agosto"
-      },{
-        idMes : 9,
-        nombreMes:"Septiembre"
-      },{
-        idMes : 10,
-        nombreMes:"Octubre"
-      },{
-        idMes : 11,
-        nombreMes:"Noviembre"
-      },{
-        idMes : 12,
-        nombreMes:"Diciembre"
-      }]
-  }) 
+
+    if(!vigencia){
+      return response.status(400).send({ error: 'La vigencia es obligatoria' })
+    }
+    let mesesSql;
+    
+    if (historico && historico == 'true') {
+       if (vigencia == 2023) {
+        mesesSql = await TblMeses.query().where('mes_habilitado', true).where('mes_vigencia', vigencia).orderBy('mes_id', 'asc');
+      } else { 
+        mesesSql = await TblMeses.query().where('mes_vigencia', vigencia).orderBy('mes_id', 'asc');
+      }
+    } else {
+      mesesSql = await TblMeses.query().where('mes_estado', true).where('mes_vigencia', vigencia).orderBy('mes_id', 'asc');
+    }
+
+
+   const meses = mesesSql.map(m =>{
+    return {
+      idMes : m.visual,
+      nombreMes:m.nombre
+    }
+   })
+   return response.status(200).send({ meses })
   }
 
 

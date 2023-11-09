@@ -40,14 +40,14 @@ export class ServicioAutenticacion {
     const usuario = await this.verificarUsuario(identificacion)
     if (usuario instanceof Usuario) {
       if (!(await this.encriptador.comparar(clave, usuario.clave))) {
-        throw new Exception('Credenciales incorrectas', 400)
+        throw new Exception('Credenciales incorrectas, por favor intente recuperar contraseña con su correo registrado en Vigia', 400)
       }
       usuario.clave = nuevaClave
       usuario.claveTemporal = false;
       this.servicioUsuario.actualizarUsuario(usuario.id, usuario)
       return;
     }
-    throw new Exception('Credenciales incorrectas', 400)
+    throw new Exception('Credenciales incorrectas, por favor intente recuperar contraseña con su correo registrado en Vigia', 400)
   }
 
   public async iniciarSesion(usuario: string, contrasena: string): Promise<RespuestaInicioSesion> {
@@ -57,16 +57,19 @@ export class ServicioAutenticacion {
       registroDeBloqueo = await this.crearRegistroDeBloqueo(usuarioVerificado.identificacion)
     }
     if (registroDeBloqueo.elUsuarioEstaBloqueado()) {
-      throw new Exception('El usuario se encuentra bloqueado por exceder el número de intentos de inicio de sesión', 423)
+      this.servicioEstado.Log(usuario, 1011)
+      throw new Exception('El usuario se encuentra bloqueado por exceder el número de intentos de inicio de sesión, intente recuperar contraseña', 423)
     }
     if (!usuarioVerificado) {
       this.manejarIntentoFallido(registroDeBloqueo)
-      throw new Exception('Credenciales incorrectas', 400)
+      this.servicioEstado.Log(usuario, 1011)
+      throw new Exception('Credenciales incorrectas, por favor intente recuperar contraseña con su correo registrado en Vigia', 400)
     }
 
     if (!await this.encriptador.comparar(contrasena, usuarioVerificado.clave)) {
       this.manejarIntentoFallido(registroDeBloqueo)
-      throw new Exception('Credenciales incorrectas', 400)
+      this.servicioEstado.Log(usuario, 1011)
+      throw new Exception('Credenciales incorrectas, por favor intente recuperar contraseña con su correo registrado en Vigia', 400)
     }
 
     const rolUsuario = await this.repositorioAutorizacion.obtenerRolConModulosYPermisos(usuarioVerificado.idRol)
@@ -74,6 +77,8 @@ export class ServicioAutenticacion {
       documento: usuarioVerificado.identificacion,
       idRol: usuarioVerificado.idRol
     })
+
+    this.servicioEstado.Log(usuario, 1010)
 
     if (usuarioVerificado.idRol === '003') {
       this.servicioEstado.Log(usuarioVerificado.identificacion, 1001)
@@ -105,7 +110,7 @@ export class ServicioAutenticacion {
   public async verificarUsuario(usuario: string): Promise<Usuario> {
     const usuarioDB = await this.servicioUsuario.obtenerUsuarioPorUsuario(usuario)
     if (!usuarioDB) {
-      throw new Exception('Credenciales incorrectas', 400)
+      throw new Exception('Credenciales incorrectas, por favor intente recuperar contraseña con su correo registrado en Vigia', 400)
     }
     return usuarioDB
   }

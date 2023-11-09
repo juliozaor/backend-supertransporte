@@ -7,3 +7,5 @@ Route.group(() => {
   Route.post('/respuestas', accion_path + '.respuestas')
   Route.post('/enviar', accion_path + '.enviar')
 }).prefix('api/v1/inidicador').middleware('autenticacionJwt')
+
+Route.get('api/v1/inidicador/finalizar-fase-dos/:mes', accion_path + '.finalizarFaseDos')

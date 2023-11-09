@@ -54,12 +54,14 @@
         <div class="contenedor">
             <div class="cabecera">
                 <div class="logo" style="width: 300px;">
-                    <img width="140px" src="https://aplicaciones.supertransporte.gov.co:8443/sisi-pesv/assets/img/iconos/supertransporte.png" alt="novafianza">
+                    <img width="140px" src="{{ logo }}" alt="supertransporte">
                 </div>
             </div>
             <div class="cuerpo">
-                <h2 class="primario">Estimado(a): <small>{{ nombre }}</small></h2>
-                <p class="gris">Usted ha enviado un {{ mensaje }} a Super Transporte</p>
+                <h2 class="primario">Estimado usuario</h2>
+                <p><span class="secundario negrita">Nombre: </span>{{ nombre }}</p>
+                <p><span class="secundario negrita">Nit: </span>{{ nit }}</p>
+                <p class="gris">{{ mensaje }}</p>
                 <h3 class="primario">Atentamente.</h3>                
             </div>
            

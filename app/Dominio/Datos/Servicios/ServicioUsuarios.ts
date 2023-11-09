@@ -13,13 +13,17 @@ import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
 import { PayloadJWT } from "App/Dominio/Dto/PayloadJWT";
 import { EmailBienvenida } from "App/Dominio/Email/Emails/EmailBienvenida";
 import { Credenciales } from "App/Dominio/Email/Modelos/Credenciales";
+import Env from '@ioc:Adonis/Core/Env';
+import { ServicioAuditoria } from "./ServicioAuditoria";
 
-export class ServicioUsuarios {
+export class ServicioUsuarios {  
+  private servicioAuditoria = new ServicioAuditoria();
   constructor(
     private repositorio: RepositorioUsuario,
     private generarContraseña: GeneradorContrasena,
     private encriptador: Encriptador,
-    private enviadorEmail: EnviadorEmail) { }
+    private enviadorEmail: EnviadorEmail
+    ) { }
 
   async obtenerUsuarios(params: any): Promise<{ usuarios: Usuario[], paginacion: Paginador }> {
     return this.repositorio.obtenerUsuarios(params);
@@ -45,13 +49,22 @@ export class ServicioUsuarios {
     await this.enviadorEmail.enviarTemplate<Credenciales>({ 
       asunto: `Bienvenido(a) ${usuario.nombre}`, 
       destinatarios: usuario.correo,
-    }, new EmailBienvenida({ clave: clave, nombre: usuario.nombre, usuario: usuario.usuario }))
+    }, new EmailBienvenida({ clave: clave, nombre: usuario.nombre, usuario: usuario.usuario, logo: Env.get('LOGO') }))
+    
+    this.servicioAuditoria.Auditar({
+      accion: "Creación de usuarios",
+      modulo: "Usuarios",
+      jsonNuevo: JSON.stringify(user),
+      usuario: payload.documento,
+      descripcion: 'Se creo un usuario'
+    })
+
     return user
   }
 
-  async actualizarUsuario(id: string, usuario: Usuario): Promise<Usuario> {
+  async actualizarUsuario(id: string, usuario: Usuario, payload?:PayloadJWT): Promise<Usuario> {
     usuario.clave = await this.encriptador.encriptar(usuario.clave)
-    return this.repositorio.actualizarUsuario(id, usuario);
+    return this.repositorio.actualizarUsuario(id, usuario, payload);
   }
 
   async cambiarEstado(id: string): Promise<Usuario> {
