@@ -9,8 +9,17 @@ export default class ControladorMes {
         this.servicio = new ServicioMes(new RepositorioMesDB());
     }
 
-    async listar({ response }: HttpContextContract) {
-        const meses = await this.servicio.obtenerMeses()
+    async listar({ request, response }: HttpContextContract) {
+        let vigencia = request.qs()["vigencia"]
+        if(!vigencia){
+            response.status(400).send({
+                mensaje: 'Vigencia requerida',
+                estado: 400
+            })
+            return;
+        }
+        vigencia = Number(vigencia)
+        const meses = await this.servicio.obtenerMeses(vigencia)
         response.status(200).send(meses)
     }
 

@@ -5,8 +5,8 @@ import { Exception } from "@adonisjs/core/build/standalone";
 export class ServicioMes{
     constructor(private repositorio: RepositorioMes){}
 
-    obtenerMeses(): Promise<Mes[]>{
-        return this.repositorio.obtenerMeses()
+    obtenerMeses(vigencia: number): Promise<Mes[]>{
+        return this.repositorio.obtenerMesesPorVigencia(vigencia)
     }
 
     async cambiarEstadoMes(idMes: number): Promise<Mes>{

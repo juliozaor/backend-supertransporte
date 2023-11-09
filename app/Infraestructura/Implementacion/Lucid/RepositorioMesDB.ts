@@ -5,8 +5,11 @@ import { TblMeses } from "App/Infraestructura/Datos/Entidad/Mes";
 
 export class RepositorioMesDB implements RepositorioMes{
 
-    async obtenerMeses(): Promise<Mes[]> {
-        return (await TblMeses.all()).map(mesDb => mesDb.obtenerMes())
+    async obtenerMesesPorVigencia(vigencia: number): Promise<Mes[]> {
+        return (await TblMeses.query()
+        .where('mes_vigencia', vigencia)
+        .orderBy('mes_visual', 'asc'))
+        .map(mesDb => mesDb.obtenerMes())
     }
 
     async actualizarMes(mes: Mes): Promise<Mes> {
