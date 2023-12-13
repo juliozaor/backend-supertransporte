@@ -175,9 +175,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     const modalidadesradio = usuario?.modalidadesRadio;
     if (modalidadesradio) {
       for (const key in modalidadesradio) {
-
         if (parseInt(key) === 0) {
-
           modalidad += modalidadesradio[key].modalidades.nombre
         } else {
           modalidad += ', ' + modalidadesradio[key].modalidades.nombre
@@ -199,14 +197,21 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
     let consecutivo: number = 1;
+    let pasosCompletados = 0;
+    let preguntasTotales = 0;
+    let preguntasCompletadas = 0;
+    const pasosObligatorios = usuario?.clasificacionUsuario[0].pasos;
     claficiacionesSql.forEach(clasificacionSql => {
       let preguntasArr: any = [];
       clasificacion = clasificacionSql.nombre;
       //validar si el paso es obligatorio      
       const obligatorio = pasos?.find(paso => paso.id === clasificacionSql.id) ? true : false;
+      let preguntasPasos = 0;
+      let PreguntasPasosCompletadas = 0;
       encuestaSql?.pregunta.forEach(pregunta => {
 
         if (clasificacionSql.id === pregunta.clasificacion.id) {
+
           preguntasArr.push({
             idPregunta: pregunta.id,
             numeroPregunta: consecutivo,
@@ -230,9 +235,30 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             observacionCorresponde: pregunta.respuesta[0]?.observacionCorresponde ?? '',
           });
           consecutivo++;
+
+          const resp = pregunta.respuesta[0]?.valor ?? '';
+          const adj = pregunta.respuesta[0]?.documento ?? '';
+          const obs = pregunta.respuesta[0]?.observacion ?? '';
+          if (obligatorio) {
+            preguntasTotales += 1;
+            preguntasPasos += 1;
+            if (resp == 'S' && adj != '') {
+              preguntasCompletadas += 1;
+              PreguntasPasosCompletadas += 1;
+            }else if (resp == 'N' && obs != '') {
+              preguntasCompletadas += 1;
+              PreguntasPasosCompletadas += 1;
+            }
+
+          }
+
+
         }
 
       });
+      if (obligatorio && preguntasPasos == PreguntasPasosCompletadas) {
+        pasosCompletados += 1;
+      }
       if (preguntasArr.length >= 1) {
         clasificacionesArr.push(
           {
@@ -246,6 +272,10 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     });
 
+
+const porcentajePasos = (pasosCompletados/pasosObligatorios!)*100;
+const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
+
     const encuesta = {
       tipoAccion,
       estadoActual: estado,
@@ -255,7 +285,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       observacion: encuestaSql?.observacion,
       clasificaciones: clasificacionesArr,
       encuestaEditable, verificacionVisible, verificacionEditable,
-      modalidad, totalConductores, totalVehiculos
+      modalidad, totalConductores, totalVehiculos,
+      porcentajePasos, porcentajePreguntas
     }
 
     return encuesta
