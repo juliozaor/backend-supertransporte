@@ -176,7 +176,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     if (modalidadesradio) {
       for (const key in modalidadesradio) {
 
-        if (key == 0) {
+        if (parseInt(key) === 0) {
 
           modalidad += modalidadesradio[key].modalidades.nombre
         } else {
