@@ -55,7 +55,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     consulta.preload('estadoVigilado')
 
     if (idEncuesta == 2) {
-     // consulta.where('anio_vigencia', anioVigencia?.anio!)
+      // consulta.where('anio_vigencia', anioVigencia?.anio!)
     }
     if (termino) {
       consulta.andWhere(subquery => {
@@ -151,8 +151,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     let clasificacion = '';
 
 
-
-
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
       sql.preload('clasificacion')
       sql.preload('tiposPregunta')
@@ -168,7 +166,28 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion')
       sqlClasC.has('clasificacion')
+    }).preload('modalidadesRadio', sqlModal => {
+      sqlModal.preload('modalidades')
     }).where('identificacion', idVigilado).first()
+
+
+    let modalidad = '';
+    const modalidadesradio = usuario?.modalidadesRadio;
+    if (modalidadesradio) {
+      for (const key in modalidadesradio) {
+
+        if (key == 0) {
+
+          modalidad += modalidadesradio[key].modalidades.nombre
+        } else {
+          modalidad += ', ' + modalidadesradio[key].modalidades.nombre
+        }
+
+      }
+    }
+
+    const totalConductores = usuario?.clasificacionUsuario[0].$extras.pivot_clu_conductores ?? ''
+    const totalVehiculos = usuario?.clasificacionUsuario[0].$extras.pivot_clu_vehiculos ?? ''
 
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
     const descripcionClasificacion = usuario?.clasificacionUsuario[0]?.descripcion;
@@ -235,14 +254,15 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       descripcionClasificacion,
       observacion: encuestaSql?.observacion,
       clasificaciones: clasificacionesArr,
-      encuestaEditable, verificacionVisible, verificacionEditable
+      encuestaEditable, verificacionVisible, verificacionEditable,
+      modalidad, totalConductores, totalVehiculos
     }
 
     return encuesta
   }
 
   async enviarSt(params: any): Promise<any> {
-    const { idEncuesta, idReporte, idVigilado, idUsuario, confirmar =false } = params
+    const { idEncuesta, idReporte, idVigilado, idUsuario, confirmar = false } = params
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion', (sqlCla) => {
         sqlCla.preload('pregunta', (sqlPre) => {
@@ -300,7 +320,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     });
 
-    if(confirmar) aprobado= true;
+    if (confirmar) aprobado = true;
 
     if (aprobado) {
       this.servicioEstado.Log(idUsuario, 1004, idEncuesta, undefined, confirmar)
@@ -324,27 +344,27 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
       })
 
-      
-      
-      try {      
+
+
+      try {
         this.enviadorEmail = new EnviadorEmailAdonis()
-            await this.enviadorEmail.enviarTemplate({
-              asunto: 'Envío a ST.',
-              destinatarios: usuario?.correo!,
-              de: Env.get('SMTP_USERNAME')
-            }, new EmailnotificacionCorreo({
-              nombre: usuario?.nombre!,
-              mensaje: 'De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue enviado de manera correcta a la Superintendencia de Transporte.',
-              logo: Env.get('LOGO'),
-              nit:usuario?.identificacion!
-            }))
+        await this.enviadorEmail.enviarTemplate({
+          asunto: 'Envío a ST.',
+          destinatarios: usuario?.correo!,
+          de: Env.get('SMTP_USERNAME')
+        }, new EmailnotificacionCorreo({
+          nombre: usuario?.nombre!,
+          mensaje: 'De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue enviado de manera correcta a la Superintendencia de Transporte.',
+          logo: Env.get('LOGO'),
+          nit: usuario?.identificacion!
+        }))
       } catch (error) {
-        console.log(error);      
+        console.log(error);
       }
-      
+
     }
 
-    return {  aprobado, faltantes  }
+    return { aprobado, faltantes }
 
   }
 
