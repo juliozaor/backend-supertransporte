@@ -200,7 +200,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     let pasosCompletados = 0;
     let preguntasTotales = 0;
     let preguntasCompletadas = 0;
-    const pasosObligatorios = usuario?.clasificacionUsuario[0].pasos;
+    const pasosObligatorios = usuario?.clasificacionUsuario[0].pasos??24;
     claficiacionesSql.forEach(clasificacionSql => {
       let preguntasArr: any = [];
       clasificacion = clasificacionSql.nombre;
@@ -273,7 +273,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     });
 
 
-const porcentajePasos = (pasosCompletados/pasosObligatorios!)*100;
+const porcentajePasos = (pasosCompletados/pasosObligatorios)*100;
 const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
 
     const encuesta = {
