@@ -11,6 +11,7 @@ import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
+import { TblAnioVigencias } from 'App/Infraestructura/Datos/Entidad/AnioVigencia';
 
 export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado()
@@ -37,16 +38,37 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     if (rol === '002') {
       consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador });
+
     }
 
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
 
+    const anioVigencia = await TblAnioVigencias.query().where('anv_estado', true);
+    const anios = anioVigencia.length >=2
+    
+    for await (const reportada of reportadasBD) {
+    
 
-    reportadasBD.map(reportada => {
+  //  reportadasBD.map(async reportada => {
       let estadoValidacion = '';
       estadoValidacion = reportada.estadoVerificado?.nombre ?? estadoValidacion;
       estadoValidacion = reportada.estadoVigilado?.nombre ?? estadoValidacion;
+
+      //buscar reportes fase 2
+      const sqlf2 = await TblReporte.query().where({'nit_rues':reportada.nitRues, 'id_encuesta':2});
+      const fase_dos: any[] = []
+      sqlf2.forEach(f2 => {
+        fase_dos.push({
+       titulo:"fase 2 " + (anios?f2.anioVigencia:'')?.toString(), 
+        idReporte: f2.id!,
+        idVigilado: reportada.nitRues,
+        idEncuesta: f2.idEncuesta,
+        vigencia:f2.anioVigencia
+        });
+        
+      });
       asignadas.push({
+        titulo:"fase 1",
         idReporte: reportada.id!,
         nit: reportada.nitRues,
         idEncuesta: reportada.idEncuesta,
@@ -56,12 +78,14 @@ export class RepositorioReporteDB implements RepositorioReporte {
         fechaEnvioST: reportada.fechaEnviost!,
         asignado: reportada.asignado,
         email: reportada.usuario?.correo,
-        estadoValidacion
+        estadoValidacion,
+        fase_dos
         //estadoValidacion: reportada.reporteEstadoVerificado[0]?.nombre  
       });
-    })
+  //  })
 
-
+  
+}
 
 
     const paginacion = MapeadorPaginacionDB.obtenerPaginacion(reportadasBD)
@@ -120,11 +144,11 @@ export class RepositorioReporteDB implements RepositorioReporte {
       })
     }
     consulta.preload('encuesta', sqlEncuesta => {
-      sqlEncuesta.where('id_encuesta', '1');
+      /* sqlEncuesta.where('id_encuesta', '1'); */
     })
 
     consulta.whereHas('encuesta', sqlEncuesta => {
-      sqlEncuesta.where('id_encuesta', '1');
+      /* sqlEncuesta.where('id_encuesta', '1'); */
     })
 
     consulta.preload('estadoVerificado')
