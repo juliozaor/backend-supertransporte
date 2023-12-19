@@ -55,7 +55,11 @@ export class RepositorioReporteDB implements RepositorioReporte {
       estadoValidacion = reportada.estadoVigilado?.nombre ?? estadoValidacion;
 
       //buscar reportes fase 2
-      const sqlf2 = await TblReporte.query().where({'nit_rues':reportada.nitRues, 'id_encuesta':2});
+      const consultaSqlf2 = TblReporte.query().where({'nit_rues':reportada.nitRues, 'id_encuesta':2});
+      if (!anios) {
+        consultaSqlf2.where('anio_vigencia',anioVigencia[0].anio);
+      }
+      const sqlf2 = await consultaSqlf2;
       const fase_dos: any[] = []
       sqlf2.forEach(f2 => {
         fase_dos.push({
@@ -225,7 +229,25 @@ export class RepositorioReporteDB implements RepositorioReporte {
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion')
       sqlClasC.has('clasificacion')
+    }).preload('modalidadesRadio', sqlModal => {
+      sqlModal.preload('modalidades')
     }).where('identificacion', idVigilado).first()
+
+    let modalidad = '';
+    const modalidadesradio = usuario?.modalidadesRadio;
+    if (modalidadesradio) {
+      for (const key in modalidadesradio) {
+        if (parseInt(key) === 0) {
+          modalidad += modalidadesradio[key].modalidades.nombre
+        } else {
+          modalidad += ', ' + modalidadesradio[key].modalidades.nombre
+        }
+
+      }
+    }
+
+    const totalConductores = usuario?.clasificacionUsuario[0].$extras.pivot_clu_conductores ?? ''
+    const totalVehiculos = usuario?.clasificacionUsuario[0].$extras.pivot_clu_vehiculos ?? ''
 
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
     const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
@@ -233,6 +255,10 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
     let consecutivo: number = 1;
+    let pasosCompletados = 0;
+    let preguntasTotales = 0;
+    let preguntasCompletadas = 0;
+    const pasosObligatorios = usuario?.clasificacionUsuario[0].pasos??24;
     claficiacionesSql.forEach(clasificacionSql => {
       let preguntasArr: any = [];
       clasificacion = clasificacionSql.nombre;
@@ -240,11 +266,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
       //validar si el paso es obligatorio
 
       const obligatorio = pasos?.find(paso => paso.id === clasificacionSql.id) ? true : false;
-
-
-
-
-
+      let preguntasPasos = 0;
+      let PreguntasPasosCompletadas = 0;
       encuestaSql?.pregunta.forEach(pregunta => {
 
         if (clasificacionSql.id === pregunta.clasificacion.id) {
@@ -272,9 +295,27 @@ export class RepositorioReporteDB implements RepositorioReporte {
             observacionCorresponde: pregunta.respuesta[0]?.observacionCorresponde ?? '',
           });
           consecutivo++;
+          const resp = pregunta.respuesta[0]?.valor ?? '';
+          const adj = pregunta.respuesta[0]?.documento ?? '';
+          const obs = pregunta.respuesta[0]?.observacion ?? '';
+          if (obligatorio) {
+            preguntasTotales += 1;
+            preguntasPasos += 1;
+            if (resp == 'S' && adj != '') {
+              preguntasCompletadas += 1;
+              PreguntasPasosCompletadas += 1;
+            }else if (resp == 'N' && obs != '') {
+              preguntasCompletadas += 1;
+              PreguntasPasosCompletadas += 1;
+            }
+
+          }
         }
 
       });
+      if (obligatorio && preguntasPasos == PreguntasPasosCompletadas) {
+        pasosCompletados += 1;
+      }
       if (preguntasArr.length >= 1) {
         clasificacionesArr.push(
           {
@@ -297,6 +338,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     const { encuestaEditable, verificacionVisible, verificacionEditable } = await this.servicioAcciones.obtenerAccion(encuestaSql?.reportes[0]?.estadoVerificacionId ?? 0, rol);
 
+    const porcentajePasos = (pasosCompletados/pasosObligatorios)*100;
+const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
+
     const encuesta = {
       tipoAccion,
       razonSocila: usuario?.nombre,
@@ -307,7 +351,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
       clasificaion: nombreClasificaion,
       observacion: encuestaSql?.observacion,
       clasificaciones: clasificacionesArr,
-      encuestaEditable, verificacionVisible, verificacionEditable
+      encuestaEditable, verificacionVisible, verificacionEditable,
+      modalidad, totalConductores, totalVehiculos,
+      porcentajePasos, porcentajePreguntas
     }
 
     return encuesta
