@@ -67,4 +67,10 @@ export default class ControladorArchivo {
     return encuestas
   }
 
+  public async formularios({ request, response }: HttpContextContract) {    
+    const payload = await request.obtenerPayloadJWT()
+    const encuestas = await this.service.formularios(request.all(), payload)
+    return encuestas
+  }
+
 }

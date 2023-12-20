@@ -102,6 +102,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
   }
 
+  //verificar fase 1
   async verificar(datos: string, payload: PayloadJWT): Promise<any> {
     const { idReporte, respuestas } = JSON.parse(datos)
 
@@ -116,6 +117,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
   }
 
+  //finalizar verificacion fase 1
   async finalizar(params: any): Promise<any> {
 
 

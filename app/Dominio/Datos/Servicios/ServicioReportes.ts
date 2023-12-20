@@ -56,5 +56,10 @@ export class ServicioReportes {
     params.rol = payload.idRol
     return this.repositorio.visualizar(params);
   }
+  async formularios(params: any, payload:PayloadJWT): Promise<any> {
+    params.idUsuario = payload.documento;
+    params.rol = payload.idRol;
+    return this.repositorio.formularios(params);
+  }
 
 }

@@ -1,4 +1,4 @@
-import { BaseModel, column} from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, column } from '@ioc:Adonis/Lucid/Orm'
 import { DateTime } from 'luxon';
 import { DetalleEvidencia } from '../../../Dominio/Datos/Entidades/DetalleEvidencias';
 export class TblDetalleDatosEvidencias extends BaseModel {
@@ -12,6 +12,11 @@ export class TblDetalleDatosEvidencias extends BaseModel {
   @column({ columnName: 'dde_nombredoc_original' }) public nombredocOriginal?: string;
   @column({ columnName: 'dde_valor' }) public valor?: string;
   @column({ columnName: 'dde_estado' }) public estado?: boolean;
+  @column({ columnName: 'dde_cumple' }) public cumple?: number;
+  @column({ columnName: 'dde_observacion_cumple' }) public observacionCumple?: string;
+  @column({ columnName: 'dde_corresponde' }) public corresponde?: number;
+  @column({ columnName: 'dde_observacion_corresponde' }) public observacionCorresponde?: string;
+
 
 
 
@@ -24,8 +29,12 @@ export class TblDetalleDatosEvidencias extends BaseModel {
     this.fechaActualizacion = detalleEvidencia.fechaActualizacion
     this.documento = detalleEvidencia.documento
     this.ruta = detalleEvidencia.ruta
-    this.valor= detalleEvidencia.valor
+    this.valor = detalleEvidencia.valor
     this.nombredocOriginal = detalleEvidencia.nombredocOriginal
+    this.cumple = detalleEvidencia.cumple
+    this.observacionCumple = detalleEvidencia.observacionCumple
+    this.corresponde = detalleEvidencia.corresponde
+    this.observacionCorresponde = detalleEvidencia.observacionCorresponde
 
   }
 
@@ -37,27 +46,39 @@ export class TblDetalleDatosEvidencias extends BaseModel {
     this.fechaActualizacion = detalleEvidencia.fechaActualizacion
     this.documento = detalleEvidencia.documento
     this.ruta = detalleEvidencia.ruta
-    this.valor= detalleEvidencia.valor
+    this.valor = detalleEvidencia.valor
     this.nombredocOriginal = detalleEvidencia.nombredocOriginal
-
+    this.cumple = detalleEvidencia.cumple
+    this.observacionCumple = detalleEvidencia.observacionCumple
+    this.corresponde = detalleEvidencia.corresponde
+    this.observacionCorresponde = detalleEvidencia.observacionCorresponde
   }
 
 
   public obtenerDetalleEvidencia(): DetalleEvidencia {
     const detalleEvidencia = new DetalleEvidencia()
-    detalleEvidencia.datoEvidenciaId = this.datoEvidenciaId 
-    detalleEvidencia.estado = this.estado 
-    detalleEvidencia.anioActivoId = this.anioActivoId 
-    detalleEvidencia.reporteId = this.reporteId 
-    detalleEvidencia.fechaActualizacion = this.fechaActualizacion 
-    detalleEvidencia.documento = this.documento 
-    detalleEvidencia.ruta = this.ruta 
+    detalleEvidencia.datoEvidenciaId = this.datoEvidenciaId
+    detalleEvidencia.estado = this.estado
+    detalleEvidencia.anioActivoId = this.anioActivoId
+    detalleEvidencia.reporteId = this.reporteId
+    detalleEvidencia.fechaActualizacion = this.fechaActualizacion
+    detalleEvidencia.documento = this.documento
+    detalleEvidencia.ruta = this.ruta
     detalleEvidencia.valor = this.valor
-    detalleEvidencia.nombredocOriginal = this.nombredocOriginal 
+    detalleEvidencia.nombredocOriginal = this.nombredocOriginal
+    detalleEvidencia.cumple = this.cumple
+    detalleEvidencia.observacionCumple = this.observacionCumple
+    detalleEvidencia.corresponde = this.corresponde
+    detalleEvidencia.observacionCorresponde = this.observacionCorresponde
     return detalleEvidencia
   }
 
-
+  public estableceVerificacion(detalleEvidencia: DetalleEvidencia) {
+    this.cumple= detalleEvidencia.cumple
+    this.observacionCumple= detalleEvidencia.observacionCumple
+    this.corresponde= detalleEvidencia.corresponde
+    this.observacionCorresponde= detalleEvidencia.observacionCorresponde
+  }
 
 }
 

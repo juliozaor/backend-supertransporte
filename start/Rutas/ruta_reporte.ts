@@ -9,4 +9,5 @@ Route.group(() => {
   Route.get('/asignados', accion_path + '.asignados')
   Route.get('/enviadas', accion_path + '.enviadas')
   Route.get('/visualizar', `${accion_path}.visualizar`)
+  Route.get('/formularios', accion_path + '.formularios')
 }).prefix('api/v1/reportes').middleware('autenticacionJwt')

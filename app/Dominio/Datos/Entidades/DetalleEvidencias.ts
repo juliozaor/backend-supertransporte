@@ -10,4 +10,8 @@ export class DetalleEvidencia {
   ruta?: string;
   valor?:string;
   nombredocOriginal?: string;
+  cumple?: number;
+  observacionCumple?: string;
+  corresponde?: number;
+  observacionCorresponde?: string;
 }

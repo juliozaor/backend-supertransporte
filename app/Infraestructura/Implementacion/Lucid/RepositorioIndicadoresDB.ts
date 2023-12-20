@@ -15,6 +15,7 @@ import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
 import { TblEstadosReportes } from 'App/Infraestructura/Datos/Entidad/EstadosReportes';
 import Reporte from 'App/Infraestructura/Datos/Entidad/Reporte';
 import Respuestas from 'App/Infraestructura/Datos/Entidad/Respuesta';
+import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
@@ -406,6 +407,24 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
   //  return { finalizados, enProceso }
 
   }
+
+
+    //verificar fase 2
+    async verificar(datos: string, payload: PayloadJWT): Promise<any> {
+      const { idReporte, evidencias, anio } = JSON.parse(datos)
+  
+   /*    this.servicioEstadoVerificado.Log(idReporte, 2, payload.documento) */
+  
+      evidencias.forEach(async evidencia => {
+  
+        const existeRespuesta = await TblDetalleDatosEvidencias.query()
+        .where({ 'dde_dato_evidencia_id': evidencia.evidenciaId, 'dde_reporte_id': idReporte, 'dde_anio_activo_id':anio }).first()
+        existeRespuesta?.estableceVerificacion(evidencia)
+        existeRespuesta?.save()
+      });
+  
+    }
+  
 
 
 }

@@ -49,5 +49,8 @@ export default class ControladorReporte {
    return await this.service.finalizarFaseDos(mes)
   }
 
-
+  public async verificar({ request }:HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    return this.service.verificar(JSON.stringify(request.all()), payload);
+  }
 }

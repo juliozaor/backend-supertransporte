@@ -12,6 +12,8 @@ import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
 import { TblAnioVigencias } from 'App/Infraestructura/Datos/Entidad/AnioVigencia';
+import { TblFormulariosIndicadores } from 'App/Infraestructura/Datos/Entidad/FormularioIndicadores';
+import { TblEstadosReportes } from 'App/Infraestructura/Datos/Entidad/EstadosReportes';
 
 export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado()
@@ -196,8 +198,6 @@ export class RepositorioReporteDB implements RepositorioReporte {
   async visualizar(params: any): Promise<any> {
 
     const { idEncuesta, idUsuario, idVigilado, idReporte, rol } = params;
-    //   const tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
-
     const tipoAccion = (rol === '006') ? 2 : 1;
 
     let clasificacionesArr: any = [];
@@ -357,6 +357,212 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
     }
 
     return encuesta
+  }
+
+
+  //visualizar fase2
+  async formularios(params: any): Promise<any> {
+    const { idUsuario, idVigilado, idReporte, idMes, historico = true, rol } = params;
+    const tipoAccion = (rol === '006') ? 2 : 1;
+    const formularios: any = [];
+    const reporte = await TblReporte.findOrFail(idReporte)
+
+ //BUscar la clasificacion del usuario
+ const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
+  sqlClasC.preload('clasificacion')
+  sqlClasC.has('clasificacion')
+}).preload('modalidadesRadio', sqlModal => {
+  sqlModal.preload('modalidades')
+}).where('identificacion', idVigilado).first()
+
+let modalidad = '';
+const modalidadesradio = usuario?.modalidadesRadio;
+if (modalidadesradio) {
+  for (const key in modalidadesradio) {
+    if (parseInt(key) === 0) {
+      modalidad += modalidadesradio[key].modalidades.nombre
+    } else {
+      modalidad += ', ' + modalidadesradio[key].modalidades.nombre
+    }
+
+  }
+}
+
+const totalConductores = usuario?.clasificacionUsuario[0].$extras.pivot_clu_conductores ?? ''
+const totalVehiculos = usuario?.clasificacionUsuario[0].$extras.pivot_clu_vehiculos ?? ''
+
+const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
+
+  // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
+   const encuestaEditable = true
+    const soloLectura = true /* (historico && historico == 'true' || !encuestaEditable) ?? false; */
+
+    const consulta = TblFormulariosIndicadores.query()
+    const vigencia = reporte.anioVigencia ?? undefined
+
+    consulta.preload('subIndicadores', subIndicador => {
+      if (reporte && reporte.anioVigencia == 2023) {
+        subIndicador.preload('datosIndicadores', datos => {
+          datos.preload('detalleDatos', detalle => {
+            detalle.where('ddt_reporte_id', idReporte)
+          })
+          datos.where('dai_visible', true)
+          datos.where('dai_meses', idMes)
+        }).whereHas('datosIndicadores', datos => {
+          datos.where('dai_meses', idMes)
+        })
+
+
+      } else {
+        subIndicador.preload('datosIndicadores', datos => {
+          datos.preload('detalleDatos', detalle => {
+            detalle.where('ddt_reporte_id', idReporte)
+          })
+          datos.where('dai_meses', idMes)
+        }).whereHas('datosIndicadores', datos => {
+          datos.where('dai_meses', idMes)
+        })
+
+
+      }
+      subIndicador.preload('periodo');
+      subIndicador.orderBy('sub_orden', 'asc');
+    })
+
+    //Evidencias
+    consulta.preload('evidencias', sqlEvidencia => {
+
+      if (reporte && reporte.anioVigencia == 2023) {
+        sqlEvidencia.preload('datosEvidencias', sqlDatosE => {
+          sqlDatosE.preload('detalleEvidencias', detalleV => {
+            detalleV.where('dde_reporte_id', idReporte)
+          })
+          sqlDatosE.where('dae_visible', true)
+          sqlDatosE.where('dae_meses', idMes)
+
+        }).whereHas('datosEvidencias', sqlDatosE => {
+          sqlDatosE.where('dae_meses', idMes)
+        }).preload('subTipoDato', sqlSubTipoDato => {
+          sqlSubTipoDato.preload('tipoDato')
+        })
+
+      } else {
+        sqlEvidencia.preload('datosEvidencias', sqlDatosE => {
+          sqlDatosE.preload('detalleEvidencias', detalleV => {
+            detalleV.where('dde_reporte_id', idReporte)
+          })
+          sqlDatosE.where('dae_meses', idMes)
+        }).whereHas('datosEvidencias', sqlDatosE => {
+          sqlDatosE.where('dae_meses', idMes)
+        }).preload('subTipoDato', sqlSubTipoDato => {
+          sqlSubTipoDato.preload('tipoDato')
+        })
+      }
+      sqlEvidencia.where('evi_estado', true);
+      sqlEvidencia.orderBy('evi_orden', 'asc');
+    })
+
+
+    const formulariosBD = await consulta.orderBy('fri_orden', 'asc');
+
+    formulariosBD.forEach(formulario => {
+      const nombre = formulario.nombre
+      const mensaje = formulario.mensaje
+      const subIndicador: any = [];
+      formulario.subIndicadores.forEach(subInd => {
+        const preguntas: any = []
+        subInd.datosIndicadores.forEach(datos => {
+          preguntas.push({
+            idPregunta: datos.id,
+            pregunta: datos.nombre,
+            obligatoria: subInd.obligatorio,
+            respuesta: datos.detalleDatos[0]?.valor ?? '',
+            tipoDeEvidencia: "",
+            documento: "",
+            nombreOriginal: "",
+            ruta: "",
+            adjuntable: false,
+            adjuntableObligatorio: false,
+            tipoPregunta: "NUMBER",
+            valoresPregunta: [],
+            validaciones: {
+              tipoDato: subInd.periodo.tipo,
+              cantDecimal: subInd.periodo.decimal
+            },
+            observacion: "",
+            cumple: "",
+            observacionCumple: "",
+            corresponde: "",
+            observacionCorresponde: ""
+          })
+        });
+        if (preguntas.length >= 1) {
+          subIndicador.push({
+            nombreSubIndicador: subInd.nombre,
+            codigo: subInd.codigo,
+            preguntas,
+          })
+        }
+      });
+
+      const evidencias: any = [];
+      let consecutivo: number = 1;
+      formulario.evidencias.forEach(evidencia => {
+        evidencia.datosEvidencias.forEach(datoEvidencia => {
+          evidencias.push({
+            consecutivo,
+            idEvidencia: datoEvidencia.id,
+            nombre: evidencia.nombre,
+            tamanio: evidencia.tamanio,
+            obligatoria: evidencia.obligatorio,
+            tipoEvidencia: evidencia.subTipoDato.tipoDato.nombre,
+            validaciones: {
+              tipoDato: evidencia.subTipoDato.nombre,
+              cantDecimal: evidencia.subTipoDato.decimales ?? 0,
+              tamanio: evidencia.tamanio,
+              extension: evidencia.subTipoDato.extension ?? ''
+            },
+            respuesta: datoEvidencia.detalleEvidencias[0]?.valor ?? '',
+            documento: datoEvidencia.detalleEvidencias[0]?.documento ?? '',
+            nombreOriginal: datoEvidencia.detalleEvidencias[0]?.nombredocOriginal ?? '',
+            ruta: datoEvidencia.detalleEvidencias[0]?.ruta ?? '',
+            cumple: datoEvidencia.detalleEvidencias[0]?.cumple ?? '',
+            observacionCumple: datoEvidencia.detalleEvidencias[0]?.observacionCumple ?? '',
+            corresponde: datoEvidencia.detalleEvidencias[0]?.corresponde ?? '',
+            observacionCorresponde: datoEvidencia.detalleEvidencias[0]?.observacionCorresponde ?? '',
+          })
+          consecutivo++;
+        });
+      })
+
+      formularios.push({
+        nombre,
+        mensaje,
+        subIndicador,
+        evidencias
+      })
+
+    });
+    const variablesEntregadas = 40
+    const evidenciasEntregadas = 60
+
+    return {
+      soloLectura,
+      tipoAccion,
+      idVigilado,
+      razonSocila: usuario?.nombre,
+      idReporte,
+      idEncuesta: reporte.idEncuesta,
+      vigencia,
+      mensaje: 'Cumplimiento del paso #20 de la metodología definida en la Res. 40595 de 2022.',
+      formularios,
+      clasificaion: nombreClasificaion,
+      modalidad, totalConductores, totalVehiculos,
+      variablesEntregadas, evidenciasEntregadas,
+      estadoActual: "Pendiente de validar"
+    }
+
+ 
   }
 
 }

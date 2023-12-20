@@ -9,4 +9,5 @@ export interface RepositorioReporte {
   obtenerEstadosVerificado(): Promise<EstadosVerificado[]>
   obtenerEnviadas(param: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }>
   visualizar(param: any): Promise<any>  
+  formularios(param: any): Promise<any>
 }
