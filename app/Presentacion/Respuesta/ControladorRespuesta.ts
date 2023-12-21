@@ -39,4 +39,13 @@ export default class ControladorRespuesta {
       return enviado
   }
 
+  public async finalizarF2 ({ request, response }:HttpContextContract) {   
+    const payload = await request.obtenerPayloadJWT()
+    const enviado = await this.service.finalizarF2(request.all(), payload)
+    if(enviado && !enviado.aprobado){
+      return response.status(400).send(enviado)
+      }
+      return enviado
+  }
+
 }

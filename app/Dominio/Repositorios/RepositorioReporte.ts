@@ -4,6 +4,7 @@ import { Paginador } from "../Paginador";
 
 export interface RepositorioReporte {
   obtenerAsignadas(param: any): Promise<{asignadas: Reportadas[], paginacion: Paginador}>
+  obtenerAsignadasF2(param: any): Promise<{asignadas: Reportadas[], paginacion: Paginador}>
   asignar(datos: string, asignador: string): Promise<any>
   eliminar(reporte: string, asignador: string): Promise<any>
   obtenerEstadosVerificado(): Promise<EstadosVerificado[]>

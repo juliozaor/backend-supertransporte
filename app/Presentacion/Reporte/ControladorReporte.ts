@@ -44,10 +44,23 @@ export default class ControladorArchivo {
       parametros.idVerificador = payload.documento
     }
     parametros.rol = payload.idRol
-
-    console.log(parametros);
     
     const encuestas = await this.service.obtenerAsignadas(parametros)
+    return encuestas
+  }
+
+  public async asignadosF2({ request, params, response }: HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    const parametros = request.all()
+    if (payload.idRol !== '006' && payload.idRol !== '002' && payload.idRol !== '001') {      
+      return response.status(401).send('No tiene perminos para acceder a esta consulta')
+    }
+    if(payload.idRol === '002'){
+      parametros.idVerificador = payload.documento
+    }
+    parametros.rol = payload.idRol
+    
+    const encuestas = await this.service.obtenerAsignadasF2(parametros)
     return encuestas
   }
 

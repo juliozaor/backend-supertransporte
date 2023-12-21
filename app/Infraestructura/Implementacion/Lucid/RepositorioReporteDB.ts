@@ -26,9 +26,6 @@ export class RepositorioReporteDB implements RepositorioReporte {
     consulta.preload('encuesta')
     consulta.preload('estadoVerificado')
     consulta.preload('estadoVigilado')
-    /*  consulta.preload('reporteEstadoVerificado', sqlEstado =>{
-       sqlEstado.orderBy('rev_creacion', 'desc').first()
-     }) */
 
     if (rol === '001') {
 
@@ -42,39 +39,20 @@ export class RepositorioReporteDB implements RepositorioReporte {
       consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador });
 
     }
+    consulta.preload('encuesta', sqlEncuesta => {
+      sqlEncuesta.where('id_encuesta', '1');
+    })
+
+    consulta.whereHas('encuesta', sqlEncuesta => {
+      sqlEncuesta.where('id_encuesta', '1');
+    })
 
     let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
-
-    const anioVigencia = await TblAnioVigencias.query().where('anv_estado', true);
-    const anios = anioVigencia.length >=2
-    
     for await (const reportada of reportadasBD) {
-    
-
-  //  reportadasBD.map(async reportada => {
       let estadoValidacion = '';
       estadoValidacion = reportada.estadoVerificado?.nombre ?? estadoValidacion;
       estadoValidacion = reportada.estadoVigilado?.nombre ?? estadoValidacion;
-
-      //buscar reportes fase 2
-      const consultaSqlf2 = TblReporte.query().where({'nit_rues':reportada.nitRues, 'id_encuesta':2});
-      if (!anios) {
-        consultaSqlf2.where('anio_vigencia',anioVigencia[0].anio);
-      }
-      const sqlf2 = await consultaSqlf2;
-      const fase_dos: any[] = []
-      sqlf2.forEach(f2 => {
-        fase_dos.push({
-       titulo:"fase 2 " + (anios?f2.anioVigencia:'')?.toString(), 
-        idReporte: f2.id!,
-        idVigilado: reportada.nitRues,
-        idEncuesta: f2.idEncuesta,
-        vigencia:f2.anioVigencia
-        });
-        
-      });
       asignadas.push({
-        titulo:"fase 1",
         idReporte: reportada.id!,
         nit: reportada.nitRues,
         idEncuesta: reportada.idEncuesta,
@@ -84,11 +62,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
         fechaEnvioST: reportada.fechaEnviost!,
         asignado: reportada.asignado,
         email: reportada.usuario?.correo,
-        estadoValidacion,
-        fase_dos
-        //estadoValidacion: reportada.reporteEstadoVerificado[0]?.nombre  
+        estadoValidacion
       });
-  //  })
 
   
 }
@@ -359,13 +334,75 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
     return encuesta
   }
 
-
+  //Obtener asignadas f2
+  async obtenerAsignadasF2(params: any): Promise<{ asignadas: Reportadas[], paginacion: Paginador }> {
+    const { idVerificador, pagina, limite, rol } = params;
+  
+    const asignadas: any[] = []
+    const consulta = TblReporte.query().preload('usuario');
+    consulta.preload('encuesta')
+    consulta.preload('estadoVerificado')
+    consulta.preload('estadoVigilado')
+  
+    if (rol === '001') {
+  
+      consulta.where('asignado', true);
+      if (idVerificador) {
+        consulta.andWhere('ultimo_usuario_asignado', idVerificador)
+      }
+    }
+  
+    if (rol === '002') {
+      consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador });
+  
+    }
+    consulta.preload('encuesta', sqlEncuesta => {
+      sqlEncuesta.where('id_encuesta', '2');
+    })
+  
+    consulta.whereHas('encuesta', sqlEncuesta => {
+      sqlEncuesta.where('id_encuesta', '2');
+    })
+  
+    let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
+  
+    for await (const reportada of reportadasBD) {
+    
+  
+      let estadoValidacion = '';
+      estadoValidacion = reportada.estadoVerificado?.nombre ?? estadoValidacion;
+      estadoValidacion = reportada.estadoVigilado?.nombre ?? estadoValidacion;
+    
+      asignadas.push({
+        idReporte: reportada.id!,
+        nit: reportada.nitRues,
+        idEncuesta: reportada.idEncuesta,
+        razonSocial: reportada.razonSocialRues,
+        asignador: reportada.asignador,
+        fechaAsignacion: reportada.fechaAsignacion,
+        fechaEnvioST: reportada.fechaEnviost!,
+        asignado: reportada.asignado,
+        email: reportada.usuario?.correo,
+        estadoValidacion
+      });
+  
+  
+  }
+  
+  
+    const paginacion = MapeadorPaginacionDB.obtenerPaginacion(reportadasBD)
+    return { asignadas, paginacion }
+  }
   //visualizar fase2
   async formularios(params: any): Promise<any> {
     const { idUsuario, idVigilado, idReporte, idMes, historico = true, rol } = params;
     const tipoAccion = (rol === '006') ? 2 : 1;
     const formularios: any = [];
-    const reporte = await TblReporte.findOrFail(idReporte)
+    const reporte = await TblReporte.query()
+                    .preload('estadoVerificado')
+                    .preload('estadoVigilado')
+                    .where('id_reporte', idReporte)
+                    .first()
 
  //BUscar la clasificacion del usuario
  const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
@@ -398,7 +435,7 @@ const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
     const soloLectura = true /* (historico && historico == 'true' || !encuestaEditable) ?? false; */
 
     const consulta = TblFormulariosIndicadores.query()
-    const vigencia = reporte.anioVigencia ?? undefined
+    const vigencia = reporte?.anioVigencia ?? undefined
 
     consulta.preload('subIndicadores', subIndicador => {
       if (reporte && reporte.anioVigencia == 2023) {
@@ -465,6 +502,9 @@ const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
 
     const formulariosBD = await consulta.orderBy('fri_orden', 'asc');
 
+    let variablesCompletadas = 0
+    let evidenciasCompletadas = 0
+
     formulariosBD.forEach(formulario => {
       const nombre = formulario.nombre
       const mensaje = formulario.mensaje
@@ -472,6 +512,10 @@ const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
       formulario.subIndicadores.forEach(subInd => {
         const preguntas: any = []
         subInd.datosIndicadores.forEach(datos => {
+          const r = (datos.detalleDatos[0]?.valor ?? '').toString();
+          if(r !== ''){
+            variablesCompletadas +=1;
+          }
           preguntas.push({
             idPregunta: datos.id,
             pregunta: datos.nombre,
@@ -509,6 +553,17 @@ const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
       let consecutivo: number = 1;
       formulario.evidencias.forEach(evidencia => {
         evidencia.datosEvidencias.forEach(datoEvidencia => {
+          if(evidencia.subTipoDato.tipoDato.nombre === 'FILE'){
+            const doc = datoEvidencia.detalleEvidencias[0]?.documento ?? '';
+            if (doc !== '') {
+              evidenciasCompletadas += 1;
+            }
+          }else{
+            const res = (datoEvidencia.detalleEvidencias[0]?.valor ?? '').toString();
+            if (res !== '') {
+              evidenciasCompletadas += 1;
+            }
+          }
           evidencias.push({
             consecutivo,
             idEvidencia: datoEvidencia.id,
@@ -543,8 +598,14 @@ const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
       })
 
     });
-    const variablesEntregadas = 40
-    const evidenciasEntregadas = 60
+
+    let estadoActual = '';
+
+    estadoActual = reporte?.estadoVerificado?.nombre ?? estadoActual
+    estadoActual = reporte?.estadoVigilado?.nombre ?? estadoActual
+
+    const variablesEntregadas = (variablesCompletadas/41)*100;
+    const evidenciasEntregadas = (evidenciasCompletadas/28)*100;
 
     return {
       soloLectura,
@@ -552,17 +613,18 @@ const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
       idVigilado,
       razonSocila: usuario?.nombre,
       idReporte,
-      idEncuesta: reporte.idEncuesta,
+      idEncuesta: reporte?.idEncuesta,
       vigencia,
       mensaje: 'Cumplimiento del paso #20 de la metodología definida en la Res. 40595 de 2022.',
       formularios,
       clasificaion: nombreClasificaion,
       modalidad, totalConductores, totalVehiculos,
       variablesEntregadas, evidenciasEntregadas,
-      estadoActual: "Pendiente de validar"
+      estadoActual
     }
 
  
   }
+
 
 }

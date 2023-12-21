@@ -10,6 +10,7 @@ import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
 import { ServicioEstadosVerificado } from 'App/Dominio/Datos/Servicios/ServicioEstadosVerificado';
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
+import { TblFormulariosIndicadores } from 'App/Infraestructura/Datos/Entidad/FormularioIndicadores';
 export class RepositorioRespuestasDB implements RepositorioRespuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
@@ -200,6 +201,105 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       }
     });
 
+
+
+    //guardar log de intento si falla 
+
+    if (aprobado) {
+      let estado = 7;
+      if (cumple) {
+        estado = 6;
+      }
+      this.servicioEstadoVerificado.Log(idReporte, estado, idUsuario)
+    }
+
+
+
+    return { aprobado, faltantes }
+
+  }
+
+
+  //finalizar verificacion fase 2
+  async finalizarF2(params: any): Promise<any> {
+
+
+    const { idEncuesta=2, idReporte, idUsuario, idVigilado, idMes } = params
+    const reporte = await TblReporte.findOrFail(idReporte)
+
+    let aprobado = true;
+    let cumple = true;
+    const faltantes = new Array();
+
+
+    const consulta = TblFormulariosIndicadores.query()
+    const vigencia = reporte?.anioVigencia ?? undefined
+
+    //Evidencias
+    consulta.preload('evidencias', sqlEvidencia => {
+
+      if (reporte && reporte.anioVigencia == 2023) {
+        sqlEvidencia.preload('datosEvidencias', sqlDatosE => {
+          sqlDatosE.preload('detalleEvidencias', detalleV => {
+            detalleV.where('dde_reporte_id', idReporte)
+          })
+          sqlDatosE.where('dae_visible', true)
+          sqlDatosE.where('dae_meses', idMes)
+
+        }).whereHas('datosEvidencias', sqlDatosE => {
+          sqlDatosE.where('dae_meses', idMes)
+        }).preload('subTipoDato', sqlSubTipoDato => {
+          sqlSubTipoDato.preload('tipoDato')
+        })
+
+      } else {
+        sqlEvidencia.preload('datosEvidencias', sqlDatosE => {
+          sqlDatosE.preload('detalleEvidencias', detalleV => {
+            detalleV.where('dde_reporte_id', idReporte)
+          })
+          sqlDatosE.where('dae_meses', idMes)
+        }).whereHas('datosEvidencias', sqlDatosE => {
+          sqlDatosE.where('dae_meses', idMes)
+        }).preload('subTipoDato', sqlSubTipoDato => {
+          sqlSubTipoDato.preload('tipoDato')
+        })
+      }
+      sqlEvidencia.where('evi_estado', true);
+      sqlEvidencia.orderBy('evi_orden', 'asc');
+    })
+
+    const formulariosBD = await consulta.orderBy('fri_orden', 'asc');
+
+formulariosBD.forEach(formulario => {      
+      const evidencias: any = [];
+      let consecutivo: number = 1;
+      formulario.evidencias.forEach(evidencia => {
+        evidencia.datosEvidencias.forEach(datoEvidencia => {
+          const respuesta = datoEvidencia.detalleEvidencias[0];
+          if (!respuesta.cumple || respuesta.cumple == 0 || !respuesta.corresponde || respuesta.corresponde == 0) {
+            faltantes.push(datoEvidencia.id)
+            aprobado = false
+          }
+
+
+          if (respuesta.cumple && respuesta.cumple == 2 && (!respuesta.observacionCumple || respuesta.observacionCumple == '')) {
+            faltantes.push(datoEvidencia.id)
+            aprobado = false
+          }
+
+          if (respuesta.corresponde && respuesta.corresponde == 2 && (!respuesta.observacionCorresponde || respuesta.observacionCorresponde == '')) {
+            faltantes.push(datoEvidencia.id)
+            aprobado = false
+          }
+
+          if (respuesta.corresponde == 2 || respuesta.cumple == 2) {
+            cumple = false;
+          }
+
+        });
+      })
+
+    });
 
 
     //guardar log de intento si falla 
