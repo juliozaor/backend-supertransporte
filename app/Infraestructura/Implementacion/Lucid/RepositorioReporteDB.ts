@@ -607,6 +607,30 @@ const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
     const variablesEntregadas = (variablesCompletadas/41)*100;
     const evidenciasEntregadas = (evidenciasCompletadas/28)*100;
 
+    // Tabla de envios a st
+    const enviados = await TblEstadosReportes.query()
+                      .where({'vigencia':vigencia, 'reporte':idReporte, 'estado':'1004'})
+                      .orderBy('created_at', 'desc');
+
+   const enviadosSt: any = [];
+   const meses =[{id:1,mes:'Enero'},{id:2,mes:'Febrero'},{id:3,mes:'Marzo'},{id:4,mes:'Abril'},{id:5,mes:'Mayo'},{id:6,mes:'Junio'},{id:7,mes:'Julio'},{id:8,mes:'Agosto'},{id:9,mes:'Septiembre'},{id:10,mes:
+    'Octubre'},{id:11,mes:'Noviembre'},{id:12,mes:' Diciembre'}];
+   for (let i = 1; i <= 12; i++) {
+    const env = enviados.find(e =>e.mes == i);
+    const mes = meses.find(m =>m.id == i)?.mes
+    if(env){
+      enviadosSt.push({
+        mes,
+        envioSt:'SI'
+      })
+    }else{
+      enviadosSt.push({
+        mes,
+        envioSt:'NO'
+      })
+    }
+   }
+
     return {
       soloLectura,
       tipoAccion,
@@ -620,7 +644,8 @@ const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
       clasificaion: nombreClasificaion,
       modalidad, totalConductores, totalVehiculos,
       variablesEntregadas, evidenciasEntregadas,
-      estadoActual
+      estadoActual,
+      enviadosSt
     }
 
  
