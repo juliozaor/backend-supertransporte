@@ -372,6 +372,7 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
       let estadoValidacion = '';
       estadoValidacion = reportada.estadoVerificado?.nombre ?? estadoValidacion;
       estadoValidacion = reportada.estadoVigilado?.nombre ?? estadoValidacion;
+      const vigencia = reportada?.anioVigencia ?? 2023
     
       asignadas.push({
         idReporte: reportada.id!,
@@ -384,7 +385,7 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
         asignado: reportada.asignado,
         email: reportada.usuario?.correo,
         estadoValidacion,
-        vigengia : reportada.anioVigencia
+        vigencia
       });
   
   
