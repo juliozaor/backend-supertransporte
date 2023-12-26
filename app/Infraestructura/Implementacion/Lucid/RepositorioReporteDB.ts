@@ -383,7 +383,8 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
         fechaEnvioST: reportada.fechaEnviost!,
         asignado: reportada.asignado,
         email: reportada.usuario?.correo,
-        estadoValidacion
+        estadoValidacion,
+        vigengia : reportada.anioVigencia
       });
   
   
