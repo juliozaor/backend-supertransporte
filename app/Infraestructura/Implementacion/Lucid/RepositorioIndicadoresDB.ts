@@ -45,8 +45,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       newEstadoReporte.save()
     }
 
-  // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
-   const encuestaEditable = true
+    // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
+    const encuestaEditable = true
     const soloLectura = (historico && historico == 'true' || !encuestaEditable) ?? false;
 
     const consulta = TblFormulariosIndicadores.query()
@@ -242,13 +242,13 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     if (aprobado) {
 
 
-       this.servicioEstado.Log(indicadores.idVigilado, 1004, indicadores.idEncuesta)
-       this.servicioEstado.estadoReporte(idReporte, indicadores.vigencia, idMes, 1004, DateTime.fromJSDate(new Date()))
-       const reporte = await TblReporte.findOrFail(idReporte)
-       reporte.fechaEnviost = DateTime.fromJSDate(new Date())
-       reporte.envioSt = '1'
-       reporte.estadoVerificacionId = 1004
-       reporte.save();
+      this.servicioEstado.Log(indicadores.idVigilado, 1004, indicadores.idEncuesta)
+      this.servicioEstado.estadoReporte(idReporte, indicadores.vigencia, idMes, 1004, DateTime.fromJSDate(new Date()))
+      const reporte = await TblReporte.findOrFail(idReporte)
+      reporte.fechaEnviost = DateTime.fromJSDate(new Date())
+      reporte.envioSt = '1'
+      reporte.estadoVerificacionId = 1004
+      reporte.save();
     }
 
     //return indicadores
@@ -370,9 +370,9 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
   async finalizarFaseDos(mes) {
     const sql = await Reporte.query().where('id_encuesta', 2)
-  
+
     sql.forEach(async reporte => {
-    //for await (const reporte of sql) {
+      //for await (const reporte of sql) {
       const respuestaEnviado = await this.enviarSt({
         "idEncuesta": 2,
         "idReporte": reporte.id,
@@ -381,13 +381,13 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       })
       if (respuestaEnviado.aprobado) {
         console.log("Finalizado : ", reporte.id);
-      }else{
-        const respuesta = await TblDetalleDatos.query().where('ddt_reporte_id',reporte.id!).first()
-              
-        if(respuesta){
+      } else {
+        const respuesta = await TblDetalleDatos.query().where('ddt_reporte_id', reporte.id!).first()
+
+        if (respuesta) {
           console.log("En Proceso : ", reporte.id);
           this.servicioEstado.estadoReporte(reporte.id!, reporte.anioVigencia!, mes, 1003, null)
-        
+
 
         }/* else{
           console.log("Inicio : ", reporte.id);
@@ -396,48 +396,58 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
          reporteBD.estadoVerificacionId = 1003
          reporteBD.save();
         } */
-       
+
       }
-    
-      
-    //}
-    
+
+
+      //}
+
     });
 
-  //  return { finalizados, enProceso }
+    //  return { finalizados, enProceso }
 
   }
 
 
-    //verificar fase 2
-    async verificar(datos: string, payload: PayloadJWT): Promise<any> {
-      const { idReporte, evidencias, anio } = JSON.parse(datos)
-  
-   /*    this.servicioEstadoVerificado.Log(idReporte, 2, payload.documento) */
-  
-      evidencias.forEach(async evidencia => {
-  
-        const existeRespuesta = await TblDetalleDatosEvidencias.query()
-        .where({ 'dde_dato_evidencia_id': evidencia.evidenciaId, 'dde_reporte_id': idReporte, 'dde_anio_activo_id':anio }).first()
+  //verificar fase 2
+  async verificar(datos: string, payload: PayloadJWT): Promise<any> {
+    const { idReporte, evidencias, anio } = JSON.parse(datos)
 
-        if (existeRespuesta) {
-          existeRespuesta.estableceVerificacion(evidencia)
-          existeRespuesta.save();
-  
-  
-        } else {
-          const evidenciaDB = new TblDetalleDatosEvidencias();
-          evidenciaDB.establecerDetalleEvidenciaDb(evidencia)
-          evidenciaDB.save();
+    /*    this.servicioEstadoVerificado.Log(idReporte, 2, payload.documento) */
+
+    evidencias.forEach(async evidencia => {
+
+      const existeRespuesta = await TblDetalleDatosEvidencias.query()
+        .where({ 'dde_dato_evidencia_id': evidencia.evidenciaId, 'dde_reporte_id': idReporte, 'dde_anio_activo_id': anio }).first()
+
+      if (existeRespuesta) {
+        existeRespuesta.estableceVerificacion(evidencia)
+        existeRespuesta.save();
+
+
+      } else {
+        let data: DetalleEvidencia = {
+          datoEvidenciaId: evidencia.evidenciaId,
+          reporteId: idReporte,
+          fechaActualizacion: DateTime.fromJSDate(new Date),
+          anioActivoId: anio,
+          cumple: evidencia.cumple,
+          observacionCumple: evidencia.observacionCumple,
+          corresponde: evidencia.corresponde,
+          observacionCorresponde: evidencia.observacionCorresponde
         }
+        const evidenciaDB = new TblDetalleDatosEvidencias();
+        evidenciaDB.establecerDetalleEvidenciaDb(data)
+        evidenciaDB.save();
+      }
 
 
 
-       
-      });
-  
-    }
-  
+
+    });
+
+  }
+
 
 
 }
