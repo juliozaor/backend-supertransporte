@@ -419,8 +419,21 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
   
         const existeRespuesta = await TblDetalleDatosEvidencias.query()
         .where({ 'dde_dato_evidencia_id': evidencia.evidenciaId, 'dde_reporte_id': idReporte, 'dde_anio_activo_id':anio }).first()
-        existeRespuesta?.estableceVerificacion(evidencia)
-        existeRespuesta?.save()
+
+        if (existeRespuesta) {
+          existeRespuesta.estableceVerificacion(evidencia)
+          existeRespuesta.save();
+  
+  
+        } else {
+          const evidenciaDB = new TblDetalleDatosEvidencias();
+          evidenciaDB.establecerDetalleEvidenciaDb(evidencia)
+          evidenciaDB.save();
+        }
+
+
+
+       
       });
   
     }
