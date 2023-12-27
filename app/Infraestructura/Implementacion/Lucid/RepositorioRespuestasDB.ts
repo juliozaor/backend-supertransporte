@@ -276,6 +276,7 @@ formulariosBD.forEach(formulario => {
       formulario.evidencias.forEach(evidencia => {
         evidencia.datosEvidencias.forEach(datoEvidencia => {
           const respuesta = datoEvidencia.detalleEvidencias[0];
+          if(respuesta){
           if (!respuesta.cumple || respuesta.cumple == 0 || !respuesta.corresponde || respuesta.corresponde == 0) {
             faltantes.push(datoEvidencia.id)
             aprobado = false
@@ -295,7 +296,11 @@ formulariosBD.forEach(formulario => {
           if (respuesta.corresponde == 2 || respuesta.cumple == 2) {
             cumple = false;
           }
-
+        }else{
+          faltantes.push(datoEvidencia.id)
+          aprobado = false
+          cumple = false;
+        }
         });
       })
 
