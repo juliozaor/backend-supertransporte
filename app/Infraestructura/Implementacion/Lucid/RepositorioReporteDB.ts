@@ -110,7 +110,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     let usuarioCreacion: string = "";
 
-    const reportadas: Reportadas[] = []
+    const reportadas: any[] = []
     const consulta = TblReporte.query().preload('usuario');
 
     if (filtro) {
@@ -144,6 +144,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       let estado = 'FORMULARIO EN BORRADOR';
       estado = reportada.estadoVerificado?.nombre ?? estado;
       estado = reportada.estadoVigilado?.nombre ?? estado;
+      const vigencia = (reportada.idEncuesta === 2) ? (reportada.anioVigencia??'').toString():'';
       reportadas.push({
         idEncuestaDiligenciada: reportada.encuesta.id,
         idVigilado: reportada.loginVigilado,
@@ -160,7 +161,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
         usuarioCreacion: reportada.usuarioCreacion,
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
-        estado
+        estado,
+        vigencia
         // estado: (reportada.envioSt == "1") ? "FORMULARIO ENVIADO ST" : "FORMULARIO EN BORRADOR",
       });
     })
