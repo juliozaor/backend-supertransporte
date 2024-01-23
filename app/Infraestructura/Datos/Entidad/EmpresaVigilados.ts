@@ -1,6 +1,7 @@
-import { BaseModel, HasMany, column, hasMany } from '@ioc:Adonis/Lucid/Orm'
+import { BaseModel, HasMany, HasOne, column, hasMany, hasOne } from '@ioc:Adonis/Lucid/Orm'
 import { EmpresaVigilado } from 'App/Dominio/Datos/Entidades/EmpresaVigilado';
 import { DateTime } from 'luxon';
+import TblUsuarios from './Usuario';
 export class TblEmpresaVigilados extends BaseModel {
   @column({ columnName: 'tev_id' }) public id?: number;
   @column({ columnName: 'tev_empresa' }) public idEmpresa: string;
@@ -56,6 +57,12 @@ export class TblEmpresaVigilados extends BaseModel {
     return empresaVigilado
   }
 
+
+  @hasOne(() => TblUsuarios, {
+    localKey: 'idEmpresa',
+    foreignKey: 'usuario',
+  })
+  public empresaTecno: HasOne<typeof TblUsuarios>
 
 
 }

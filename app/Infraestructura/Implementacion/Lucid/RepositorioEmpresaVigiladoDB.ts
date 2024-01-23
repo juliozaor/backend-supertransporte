@@ -26,14 +26,24 @@ export class RepositorioEmpresaVigiladoDB
 
   async obtenerSeleccionadas(documento: string): Promise<any[]> {
     try {
-      const empresasSeleccionadas = await TblEmpresaVigilados.query()
+        const empresas:any[]= [];
+      const empresasSeleccionadas = await TblEmpresaVigilados.query().preload('empresaTecno')
         .where("tev_vigilado", documento)
         .orderBy("tev_id", "desc");
-      return empresasSeleccionadas.map((empresa) => {
-        return empresa.obtenerEmpresaVigilado();
-      });
+      empresasSeleccionadas.map((empresa) => {
+        empresas.push({
+        idEmpresa: empresa.idEmpresa,
+        nombre: empresa.empresaTecno.nombre,
+        token: empresa.token,
+        estado: empresa.estado,
+        fechaInicial: empresa.fechaInicial,
+        fechaFinal: empresa.fechaInicial
+        })
+        
+    });
+    return empresas;
     } catch (error) {
-      throw new Error(`Se presento un error durante la consulta`);
+      throw new Error(`Se presento un error durante la consulta  ${error}`);
     }
   }
 
