@@ -6,7 +6,7 @@ import { RepositorioIndicadoresDB } from 'App/Infraestructura/Implementacion/Luc
 /* import { ServicioRespuestas } from 'App/Dominio/Datos/Servicios/ServicioRespuestas'
 import { RepositorioRespuestasDB } from '../../Infraestructura/Implementacion/Lucid/RepositorioRespuestasDB' */
 
-export default class ControladorReporte {
+export default class ControladorIndicador {
   private service: ServicioIndicadores
   constructor() {
     this.service = new ServicioIndicadores(
