@@ -11,10 +11,13 @@ import { ServicioEstadosVerificado } from 'App/Dominio/Datos/Servicios/ServicioE
 import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 import { TblFormulariosIndicadores } from 'App/Infraestructura/Datos/Entidad/FormularioIndicadores';
+import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
+import { ServicioEstadosEmpresas } from 'App/Dominio/Datos/Servicios/ServicioEstadosEmpresas';
 export class RepositorioRespuestasDB implements RepositorioRespuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   private servicioEstadoVerificado = new ServicioEstadosVerificado()
+  private servicioEstadosEmpresas = new ServicioEstadosEmpresas();
 
   async guardar(datos: string, idReporte: number, documento: string): Promise<any> {
     const { respuestas } = JSON.parse(datos);
@@ -33,6 +36,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       encuestaId: idEncuesta,
       tipoLog: 4
     })
+
     for await (const respuesta of respuestas) {
       //validar si existe
       const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
@@ -99,6 +103,23 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
     return {
       mensaje: "Encuesta guardada correctamente"
     }
+
+  }
+
+
+  async guardarReporte(datos: string, idReporte: number, documento: string): Promise<any> {
+    const { idVigilado } = JSON.parse(datos);
+    const reporte = await TblReporte.findOrFail(idReporte)
+ 
+    if (!reporte) {
+     throw new ErroresEmpresa('El reporte no existe.',400)
+    }
+ 
+    if(reporte.envioSt == '1'){
+     throw new ErroresEmpresa('El reporte ya fue enviado a ST.',400)
+    }
+ 
+    return await this.guardar(datos, idReporte, idVigilado);
 
 
   }

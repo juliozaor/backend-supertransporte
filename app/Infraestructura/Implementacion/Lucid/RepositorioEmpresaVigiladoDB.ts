@@ -37,7 +37,7 @@ export class RepositorioEmpresaVigiladoDB
         token: empresa.token,
         estado: empresa.estado,
         fechaInicial: empresa.fechaInicial,
-        fechaFinal: empresa.fechaInicial
+        fechaFinal: empresa.fechaFinal
         })
         
     });
@@ -85,6 +85,9 @@ export class RepositorioEmpresaVigiladoDB
 
   async editar(documento: string, params: any): Promise<any[]> {
     const { idEmpresa, fechaInicial, fechaFinal } = params;
+
+    
+    
     try {
       //Verificar si exite la relacion
       const empresaVigilado = await TblEmpresaVigilados.query().where({
@@ -103,7 +106,7 @@ export class RepositorioEmpresaVigiladoDB
         .where("tev_empresa","<>",idEmpresa)
         .update({ tev_updated_at: new Date(), tev_estado: false });
 
-        // Crear el nuevo registro
+        // actualizar el registro
       empresaVigilado.establecerEmpresaVigilado({
         id: empresaVigilado.id,
         idEmpresa: idEmpresa,
@@ -113,7 +116,7 @@ export class RepositorioEmpresaVigiladoDB
         fechaInicial,
         fechaFinal,
       });
-
+      
       await empresaVigilado.save();
 
       return this.obtenerSeleccionadas(documento);
@@ -123,7 +126,7 @@ export class RepositorioEmpresaVigiladoDB
   }
 
   async activar(documento: string, params: any): Promise<any[]> {
-    const { idEmpresa, fechaInicial, fechaFinal } = params;
+    const { idEmpresa } = params;
     try {
       //Verificar si exite la relacion
       const empresaVigilado = await TblEmpresaVigilados.query().where({
@@ -142,7 +145,7 @@ export class RepositorioEmpresaVigiladoDB
         .where("tev_empresa","<>",idEmpresa)
         .update({ tev_updated_at: new Date(), tev_estado: false });
 
-        // Crear el nuevo registro
+        // Cambiar estado del registro
       empresaVigilado.establecerEstado();
 
       await empresaVigilado.save();

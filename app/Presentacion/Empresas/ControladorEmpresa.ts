@@ -23,7 +23,12 @@ export default class ControladorEmpresa {
 
   public async asignar({request, response}: HttpContextContract) {
     const payload = await request.obtenerPayloadJWT()
-    const empresas = await this.service.asignar(payload.documento, request.all());
+    const {idEmpresa,fechaInicial,fechaFinal} = request.all()
+    if (!idEmpresa || !fechaInicial || !fechaFinal) {
+      return response.status(400).send("Todos los campos son necesarios");
+    }
+
+      const empresas = await this.service.asignar(payload.documento, request.all());
     return response.status(200).send(empresas);
   }
 

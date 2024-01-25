@@ -20,10 +20,13 @@ import { EnviadorEmail } from 'App/Dominio/Email/EnviadorEmail'
 import { EmailnotificacionCorreo } from 'App/Dominio/Email/Emails/EmailNotificacionCorreo';
 import Env from '@ioc:Adonis/Core/Env';
 import { EnviadorEmailAdonis } from 'App/Infraestructura/Email/EnviadorEmailAdonis';
+import { ServicioEstadosEmpresas } from '../../../Dominio/Datos/Servicios/ServicioEstadosEmpresas';
+import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   private servicioAcciones = new ServicioAcciones();
+  private servicioEstadosEmpresas = new ServicioEstadosEmpresas();
   private enviadorEmail: EnviadorEmail
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
     const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol, termino } = params;
@@ -102,6 +105,11 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         encuestaId: idEncuesta,
         tipoLog: 3
       })
+
+      if(idRol === '007'){
+        this.servicioEstadosEmpresas.Log(idVigilado,idUsuario,1,3000);
+      }
+
     }
 
 
@@ -302,7 +310,7 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
           sqlE.where('id_encuesta', idEncuesta);
         })
       })
-    }).where('identificacion', idUsuario).first()
+    }).where('identificacion', idVigilado).first()
 
     let aprobado = true;
     const faltantes = new Array();
@@ -354,7 +362,7 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
     if (confirmar) aprobado = true;
 
     if (aprobado) {
-      this.servicioEstado.Log(idUsuario, 1004, idEncuesta, undefined, confirmar)
+      this.servicioEstado.Log(idVigilado, 1004, idEncuesta, undefined, confirmar)
       const reporte = await TblReporte.findOrFail(idReporte)
       const estado = (reporte.estadoVerificacionId === 7 || reporte.estadoVerificacionId === 1005) ? 4 : 1004
       reporte.fechaEnviost = DateTime.fromJSDate(new Date())
@@ -396,6 +404,31 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
     }
 
     return { aprobado, faltantes }
+
+  }
+
+
+  async enviarInformacion(params: any): Promise<any> {
+    const { idEncuesta, idReporte, idVigilado, idUsuario, confirmar = false } = params
+   /*  const parametrosDeEnvio = { idEncuesta, idReporte, idVigilado, idUsuario : idVigilado, confirmar } */
+
+   const reporte = await TblReporte.findOrFail(idReporte)
+
+   if (!reporte) {
+    throw new ErroresEmpresa('El reporte no existe.',400)
+   }
+
+   if(reporte.envioSt == '1'){
+    throw new ErroresEmpresa('El reporte ya fue enviado a ST.',400)
+   }
+
+    const { aprobado, faltantes } = await this.enviarSt(params);
+   if(aprobado){
+    this.servicioEstadosEmpresas.Log(idVigilado,idUsuario,1,3004, DateTime.fromJSDate(new Date()))
+   }
+
+   return{ aprobado, faltantes } 
+    
 
   }
 

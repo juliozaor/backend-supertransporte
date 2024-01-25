@@ -25,9 +25,18 @@ export default class ControladorEncuesta {
     return encuestas
   }
 
-  public async enviarSt ({ request, response }:HttpContextContract) {
+   public async enviarSt ({ request, response }:HttpContextContract) {
     const payload = await request.obtenerPayloadJWT()
     const enviado = await this.service.enviarSt(request.all(), payload)
+    if(enviado && !enviado.aprobado){
+    return response.status(400). send(enviado)
+    }
+    return enviado
+  }
+
+  public async enviarInformacion ({ request, response }:HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    const enviado = await this.service.enviarInformacion(request.all(), payload)
     if(enviado && !enviado.aprobado){
     return response.status(400). send(enviado)
     }

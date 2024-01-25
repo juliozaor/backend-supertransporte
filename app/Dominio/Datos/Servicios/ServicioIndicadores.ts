@@ -18,9 +18,20 @@ export class ServicioIndicadores {
     return this.repositorio.enviarSt(params);
   }
 
+  async enviarInformacion(params: any, payload:PayloadJWT): Promise<any> {
+    params.idUsuario = payload.documento;
+    params.idRol = payload.idRol
+    return this.repositorio.enviarInformacion(params);
+  }
+
   async guardar(datos: string, payload:PayloadJWT): Promise<any> {
     const {documento} = payload;
     return this.repositorio.guardar(datos, documento);
+  }
+
+  async guardarRespuestas(datos: string, payload:PayloadJWT): Promise<any> {
+    const {documento} = payload;
+    return this.repositorio.guardarRespuestas(datos, documento);
   }
 
   async finalizarFaseDos(mes): Promise<any> {
