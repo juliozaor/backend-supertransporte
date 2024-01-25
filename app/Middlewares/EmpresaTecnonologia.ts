@@ -5,9 +5,13 @@ import { TblEmpresaVigilados } from 'App/Infraestructura/Datos/Entidad/EmpresaVi
 export default class EmpresaTecnonologia {
   public async handle({request}: HttpContextContract, next: () => Promise<void>) {
     const {documento, idRol} = await request.obtenerPayloadJWT()
+    
     const {idVigilado, token} = request.all();
 
-    
+    if(!idVigilado || !token){
+     throw new ErroresEmpresa('El token de autorización y el idVigilado son necesarios.',401)
+
+    }
 
     if (idRol !== '007') {
       throw new ErroresEmpresa('No tiene autorización, consulte con el vigilado.',401)
@@ -16,7 +20,7 @@ export default class EmpresaTecnonologia {
     const empresaVigilado = await TblEmpresaVigilados.query().where({'tev_empresa': documento, 'tev_vigilado': idVigilado}).first()
 
      
-    if(!empresaVigilado || !empresaVigilado.estado || empresaVigilado.token !== token){
+    if(!empresaVigilado?.estado || empresaVigilado?.token !== token){
       throw new ErroresEmpresa('No tiene autorización, consulte con el vigilado',401)
       
     }

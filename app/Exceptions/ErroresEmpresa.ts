@@ -6,7 +6,8 @@ export default class ErroresEmpresa extends Exception {
       
         ctx.response.status(error.status).send({
             mensaje: error.message,
-            estado: error.status
+            estado: error.status,
+            acceso:false
         })
     }
 }

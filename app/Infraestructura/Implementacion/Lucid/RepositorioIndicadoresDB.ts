@@ -401,7 +401,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
 
   async finalizarFaseDos(mes) {
-    const sql = await Reporte.query().where('id_encuesta', 2)
+    const sql = await TblReporte.query().where('id_encuesta', 2)
 
     sql.forEach(async reporte => {
       //for await (const reporte of sql) {

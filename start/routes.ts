@@ -22,5 +22,5 @@ Route.get('/recursos/*', async ({request, response}:HttpContextContract) => {
 })
 
 Route.get('api/v1/validador-empresa', async ({ response }: HttpContextContract) => {
-  response.status(200).send({estado:true})
+  response.status(200).send({acceso:true})
 }).middleware('empresatecnologica')
