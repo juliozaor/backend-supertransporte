@@ -36,8 +36,10 @@ export class RepositorioEmpresaVigiladoDB
         nombre: empresa.empresaTecno.nombre,
         token: empresa.token,
         estado: empresa.estado,
-        fechaInicial: new Date(empresa.fechaInicial).toLocaleDateString(),
-    fechaFinal: new Date(empresa.fechaFinal).toLocaleDateString()
+        fechaInicialMostrar: new Date(empresa.fechaInicial).toLocaleDateString(),
+        fechaFinalMostrar: new Date(empresa.fechaFinal).toLocaleDateString(),
+        fechaInicial: empresa.fechaInicial,
+        fechaFinal: empresa.fechaFinal
         })
         
     });
@@ -56,7 +58,7 @@ export class RepositorioEmpresaVigiladoDB
         tev_vigilado: documento,
       });
       if (existe.length >= 1) {
-        return [{ mensaje: "ya existe un registro con esta empresa" }];
+        return [{ mensaje: "ya existe un registro con esta empresa" , estado:false}];
       }
       
       //Actualizar el estado a false de los demas registros

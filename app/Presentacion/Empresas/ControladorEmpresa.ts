@@ -28,7 +28,13 @@ export default class ControladorEmpresa {
       return response.status(400).send("Todos los campos son necesarios");
     }
 
+    //devolver 
+
       const empresas = await this.service.asignar(payload.documento, request.all());
+
+      if(!empresas[0]?.estado){
+        return response.status(400).send({mensaje:empresas[0].mensaje});
+      }
     return response.status(200).send(empresas);
   }
 
