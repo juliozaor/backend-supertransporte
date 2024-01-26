@@ -310,6 +310,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     if (clasificado) {
       return { nombre, clasificado };
     }
+
     this.servicioEmpresa.Log(idUsuario, idEmpresa,1, 3001);
     return this.filtros(idUsuario);
   }

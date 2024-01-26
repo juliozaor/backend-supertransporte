@@ -11,10 +11,10 @@ export class TblLogEmpresas extends BaseModel {
 
   
 
-  @column.dateTime({ autoCreate: true, columnName: 'tev_created_at' })
+  @column.dateTime({ autoCreate: true, columnName: 'tle_created_at' })
   public creacion: DateTime
 
-  @column.dateTime({ autoCreate: true, autoUpdate: true, columnName: 'tev_updated_at' })
+  @column.dateTime({ autoCreate: true, autoUpdate: true, columnName: 'tle_updated_at' })
   public actualizacion: DateTime
   
 
