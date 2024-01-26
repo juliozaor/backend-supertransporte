@@ -36,8 +36,8 @@ export class RepositorioEmpresaVigiladoDB
         nombre: empresa.empresaTecno.nombre,
         token: empresa.token,
         estado: empresa.estado,
-        fechaInicial: empresa.fechaInicial,
-        fechaFinal: empresa.fechaFinal
+        fechaInicial: new Date(empresa.fechaInicial).toLocaleDateString(),
+    fechaFinal: new Date(empresa.fechaFinal).toLocaleDateString()
         })
         
     });

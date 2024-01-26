@@ -16,11 +16,15 @@ export default class EmpresaTecnonologia {
     if (idRol !== '007') {
       throw new ErroresEmpresa('No tiene autorización, consulte con el vigilado.',401)
     }
-    
+    const fechaActual = new Date();
     const empresaVigilado = await TblEmpresaVigilados.query().where({'tev_empresa': documento, 'tev_vigilado': idVigilado}).first()
 
      
-    if(!empresaVigilado?.estado || empresaVigilado?.token !== token){
+    if(
+      !empresaVigilado?.estado || 
+      empresaVigilado?.token !== token ||
+      !(fechaActual >= new Date(empresaVigilado.fechaInicial) && fechaActual <= new Date(empresaVigilado.fechaFinal))
+      ){
       throw new ErroresEmpresa('No tiene autorización, consulte con el vigilado',401)
       
     }
