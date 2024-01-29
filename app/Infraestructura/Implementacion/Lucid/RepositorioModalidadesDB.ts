@@ -322,25 +322,31 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     datosIn: string,
     idEmpresa: string
   ): Promise<{}> {
-     const { nombre, clasificado } = await this.verificarClasificacion(
+     /* const { nombre, clasificado } = await this.verificarClasificacion(
       idUsuario
     );
     if (clasificado) {
       return { nombre, clasificado };
-    }
+    } */
 
     
     const { modalidadesRadio } = JSON.parse(datosIn);
+    if(!modalidadesRadio){
+      throw new ErroresEmpresa('Es necesario cargar minimo una modalidad',400)
+    }
     for await (const modalidadRadio of modalidadesRadio) {
-      const modalidad = await TblModalidades.find(modalidadRadio.idModalidad);
-      if (!modalidad) {
-        throw new ErroresEmpresa('error al cargar la modalidad, verifique los IDs',400)
+      if(modalidadRadio.idModalidad === '' || modalidadRadio.idRadio === ''){
+        throw new ErroresEmpresa('Es necesario cargar minimo una modalidad',400)
       }
-
-      const radio = await TblRadioAccion.find(modalidadRadio.idRadio);
-      if (!radio) {
-        throw new ErroresEmpresa('error al cargar la modalidad, verifique los IDs',400)
-      }
+        const modalidad = await TblModalidades.find(modalidadRadio.idModalidad);
+        if (!modalidad) {
+          throw new ErroresEmpresa('error al cargar la modalidad, verifique los IDs',400)
+        }
+  
+        const radio = await TblRadioAccion.find(modalidadRadio.idRadio);
+        if (!radio) {
+          throw new ErroresEmpresa('error al cargar la modalidad, verifique los IDs',400)
+        }
     }
 
     this.servicioEmpresa.Log(idUsuario, idEmpresa, 1, 3002);

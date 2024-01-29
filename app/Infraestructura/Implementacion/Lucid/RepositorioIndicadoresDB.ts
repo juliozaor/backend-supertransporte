@@ -386,6 +386,9 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
   async guardarRespuestas(datos: string, documento: string): Promise<any> {
     const { reporteId, idVigilado, mesId  } = JSON.parse(datos);
+    if(!reporteId || !idVigilado || !mesId ){
+      throw new ErroresEmpresa('Faltan datos obligatorios por cargar.',400)
+    }
     const reporte = await TblReporte.findOrFail(reporteId)
    
     if (!reporte) {
