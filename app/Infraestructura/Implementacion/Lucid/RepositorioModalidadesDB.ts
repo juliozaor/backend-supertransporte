@@ -10,6 +10,8 @@ import TblFilasColumnas from "App/Infraestructura/Datos/Entidad/FilasColumnas";
 import TblDetallesClasificaciones from "App/Infraestructura/Datos/Entidad/detalleClasificacion";
 import TblClasificacionesUsuario from "App/Infraestructura/Datos/Entidad/ClasificacionesUsuario";
 import { ServicioEstadosEmpresas } from "App/Dominio/Datos/Servicios/ServicioEstadosEmpresas";
+import ErroresEmpresa from "App/Exceptions/ErroresEmpresa";
+import TblRadioAccion from "App/Infraestructura/Datos/Entidad/RadioAccion";
 
 export class RepositorioModalidadDB implements RepositorioModalidad {
   private servicioEmpresa = new ServicioEstadosEmpresas();
@@ -311,7 +313,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
       return { nombre, clasificado };
     }
 
-    this.servicioEmpresa.Log(idUsuario, idEmpresa,1, 3001);
+    this.servicioEmpresa.Log(idUsuario, idEmpresa, 1, 3001);
     return this.filtros(idUsuario);
   }
 
@@ -320,13 +322,28 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     datosIn: string,
     idEmpresa: string
   ): Promise<{}> {
-    const { nombre, clasificado } = await this.verificarClasificacion(
+     const { nombre, clasificado } = await this.verificarClasificacion(
       idUsuario
     );
     if (clasificado) {
       return { nombre, clasificado };
     }
-    this.servicioEmpresa.Log(idUsuario, idEmpresa,1, 3002);
+
+    
+    const { modalidadesRadio } = JSON.parse(datosIn);
+    for await (const modalidadRadio of modalidadesRadio) {
+      const modalidad = await TblModalidades.find(modalidadRadio.idModalidad);
+      if (!modalidad) {
+        throw new ErroresEmpresa('error al cargar la modalidad, verifique los IDs',400)
+      }
+
+      const radio = await TblRadioAccion.find(modalidadRadio.idRadio);
+      if (!radio) {
+        throw new ErroresEmpresa('error al cargar la modalidad, verifique los IDs',400)
+      }
+    }
+
+    this.servicioEmpresa.Log(idUsuario, idEmpresa, 1, 3002);
     return this.crearActualizar(idUsuario, datosIn);
   }
 

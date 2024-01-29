@@ -14,6 +14,7 @@ import { TblEstadosReportes } from 'App/Infraestructura/Datos/Entidad/EstadosRep
 import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
 import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
 import { ServicioEstadosEmpresas } from 'App/Dominio/Datos/Servicios/ServicioEstadosEmpresas';
+import { TblMeses } from 'App/Infraestructura/Datos/Entidad/Mes';
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
@@ -384,12 +385,19 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
   }
 
   async guardarRespuestas(datos: string, documento: string): Promise<any> {
-    const { reporteId, idVigilado } = JSON.parse(datos);
+    const { reporteId, idVigilado, mesId  } = JSON.parse(datos);
     const reporte = await TblReporte.findOrFail(reporteId)
- 
+   
     if (!reporte) {
      throw new ErroresEmpresa('El reporte no existe.',400)
     }
+
+    const mesActivo = await TblMeses.query().where({'mes_visual': mesId, 'mes_vigencia': reporte.anioVigencia}).first()
+    
+    if(!mesActivo?.estado){
+      throw new ErroresEmpresa('No es posible cargar información para este mes.',400)
+    }
+    
  
     if(reporte.envioSt == '1'){
      throw new ErroresEmpresa('El reporte ya fue enviado a ST.',400)
