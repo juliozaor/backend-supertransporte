@@ -39,7 +39,8 @@
     "./start/Rutas/ruta_formulario",
     "./start/Rutas/ruta_meses",
     "./start/Rutas/ruta_vigencias",
-    "./start/Rutas/ruta_resultados"
+    "./start/Rutas/ruta_resultados",
+    "./start/Rutas/ruta_empresas"
   ],
   "providers": [
     "./providers/AppProvider",

@@ -11,18 +11,5 @@ export default class TblEstadoVigilado extends BaseModel {
   @column({ columnName: 'esv_estado' }) public estado: boolean;
 
 
- /*  public establecerClasificacionDb(clasificacion: Clasificacion) {
-    this.id = clasificacion.id
-  }
-
-  public estableceClasificacionConId(clasificacion: Clasificacion) {
-  }
-
-  public obtenerClasificacion(): Clasificacion {
-    const clasificacion = new Clasificacion()
-    clasificacion.id = this.id
-    return clasificacion
-  }
- */
 
 }

@@ -31,4 +31,18 @@ public async listar ({ request, response }:HttpContextContract) {
     response.status(200).send(crearActualizar);
   }
 
+  public async filtrar ({ request, response }:HttpContextContract) {   
+    const payload = await request.obtenerPayloadJWT() 
+    const {idVigilado} = request.all();
+    const filtros = await this.service.filtrar(idVigilado, payload.documento)
+    response.status(200).send(filtros);
+  }
+
+  public async guardar ({ request, response }:HttpContextContract) {  
+    const payload = await request.obtenerPayloadJWT() 
+    const {idVigilado} = request.all();
+    const crearActualizar = await this.service.guardar(idVigilado, JSON.stringify(request.all()), payload.documento)
+    response.status(200).send(crearActualizar);
+  }
+
 }

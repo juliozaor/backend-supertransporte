@@ -20,10 +20,13 @@ import { EnviadorEmail } from 'App/Dominio/Email/EnviadorEmail'
 import { EmailnotificacionCorreo } from 'App/Dominio/Email/Emails/EmailNotificacionCorreo';
 import Env from '@ioc:Adonis/Core/Env';
 import { EnviadorEmailAdonis } from 'App/Infraestructura/Email/EnviadorEmailAdonis';
+import { ServicioEstadosEmpresas } from '../../../Dominio/Datos/Servicios/ServicioEstadosEmpresas';
+import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   private servicioAcciones = new ServicioAcciones();
+  private servicioEstadosEmpresas = new ServicioEstadosEmpresas();
   private enviadorEmail: EnviadorEmail
   async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
     const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol, termino } = params;
@@ -55,7 +58,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     consulta.preload('estadoVigilado')
 
     if (idEncuesta == 2) {
-     // consulta.where('anio_vigencia', anioVigencia?.anio!)
+      // consulta.where('anio_vigencia', anioVigencia?.anio!)
     }
     if (termino) {
       consulta.andWhere(subquery => {
@@ -102,6 +105,11 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         encuestaId: idEncuesta,
         tipoLog: 3
       })
+
+      if(idRol === '007'){
+        this.servicioEstadosEmpresas.Log(idVigilado,idUsuario,1,3000);
+      }
+
     }
 
 
@@ -151,8 +159,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     let clasificacion = '';
 
 
-
-
     const consulta = TblEncuestas.query().preload('pregunta', sql => {
       sql.preload('clasificacion')
       sql.preload('tiposPregunta')
@@ -168,7 +174,26 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion')
       sqlClasC.has('clasificacion')
+    }).preload('modalidadesRadio', sqlModal => {
+      sqlModal.preload('modalidades')
     }).where('identificacion', idVigilado).first()
+
+
+    let modalidad = '';
+    const modalidadesradio = usuario?.modalidadesRadio;
+    if (modalidadesradio) {
+      for (const key in modalidadesradio) {
+        if (parseInt(key) === 0) {
+          modalidad += modalidadesradio[key].modalidades.nombre
+        } else {
+          modalidad += ', ' + modalidadesradio[key].modalidades.nombre
+        }
+
+      }
+    }
+
+    const totalConductores = usuario?.clasificacionUsuario[0].$extras.pivot_clu_conductores ?? ''
+    const totalVehiculos = usuario?.clasificacionUsuario[0].$extras.pivot_clu_vehiculos ?? ''
 
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
     const descripcionClasificacion = usuario?.clasificacionUsuario[0]?.descripcion;
@@ -180,14 +205,21 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
     let consecutivo: number = 1;
+    let pasosCompletados = 0;
+    let preguntasTotales = 0;
+    let preguntasCompletadas = 0;
+    const pasosObligatorios = usuario?.clasificacionUsuario[0].pasos??24;
     claficiacionesSql.forEach(clasificacionSql => {
       let preguntasArr: any = [];
       clasificacion = clasificacionSql.nombre;
       //validar si el paso es obligatorio      
       const obligatorio = pasos?.find(paso => paso.id === clasificacionSql.id) ? true : false;
+      let preguntasPasos = 0;
+      let PreguntasPasosCompletadas = 0;
       encuestaSql?.pregunta.forEach(pregunta => {
 
         if (clasificacionSql.id === pregunta.clasificacion.id) {
+
           preguntasArr.push({
             idPregunta: pregunta.id,
             numeroPregunta: consecutivo,
@@ -211,9 +243,30 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             observacionCorresponde: pregunta.respuesta[0]?.observacionCorresponde ?? '',
           });
           consecutivo++;
+
+          const resp = pregunta.respuesta[0]?.valor ?? '';
+          const adj = pregunta.respuesta[0]?.documento ?? '';
+          const obs = pregunta.respuesta[0]?.observacion ?? '';
+          if (obligatorio) {
+            preguntasTotales += 1;
+            preguntasPasos += 1;
+            if (resp == 'S' && adj != '') {
+              preguntasCompletadas += 1;
+              PreguntasPasosCompletadas += 1;
+            }else if (resp == 'N' && obs != '') {
+              preguntasCompletadas += 1;
+              PreguntasPasosCompletadas += 1;
+            }
+
+          }
+
+
         }
 
       });
+      if (obligatorio && preguntasPasos == PreguntasPasosCompletadas) {
+        pasosCompletados += 1;
+      }
       if (preguntasArr.length >= 1) {
         clasificacionesArr.push(
           {
@@ -227,6 +280,10 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     });
 
+
+const porcentajePasos = (pasosCompletados/pasosObligatorios)*100;
+const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
+
     const encuesta = {
       tipoAccion,
       estadoActual: estado,
@@ -235,14 +292,16 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       descripcionClasificacion,
       observacion: encuestaSql?.observacion,
       clasificaciones: clasificacionesArr,
-      encuestaEditable, verificacionVisible, verificacionEditable
+      encuestaEditable, verificacionVisible, verificacionEditable,
+      modalidad, totalConductores, totalVehiculos,
+      porcentajePasos, porcentajePreguntas
     }
 
     return encuesta
   }
 
   async enviarSt(params: any): Promise<any> {
-    const { idEncuesta, idReporte, idVigilado, idUsuario, confirmar =false } = params
+    const { idEncuesta, idReporte, idVigilado, idUsuario, confirmar = false } = params
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion', (sqlCla) => {
         sqlCla.preload('pregunta', (sqlPre) => {
@@ -251,7 +310,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
           sqlE.where('id_encuesta', idEncuesta);
         })
       })
-    }).where('identificacion', idUsuario).first()
+    }).where('identificacion', idVigilado).first()
 
     let aprobado = true;
     const faltantes = new Array();
@@ -300,10 +359,10 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
     });
 
-    if(confirmar) aprobado= true;
+    if (confirmar) aprobado = true;
 
     if (aprobado) {
-      this.servicioEstado.Log(idUsuario, 1004, idEncuesta, undefined, confirmar)
+      this.servicioEstado.Log(idVigilado, 1004, idEncuesta, undefined, confirmar)
       const reporte = await TblReporte.findOrFail(idReporte)
       const estado = (reporte.estadoVerificacionId === 7 || reporte.estadoVerificacionId === 1005) ? 4 : 1004
       reporte.fechaEnviost = DateTime.fromJSDate(new Date())
@@ -324,27 +383,52 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
       })
 
-      
-      
-      try {      
+
+
+      try {
         this.enviadorEmail = new EnviadorEmailAdonis()
-            await this.enviadorEmail.enviarTemplate({
-              asunto: 'Envío a ST.',
-              destinatarios: usuario?.correo!,
-              de: Env.get('SMTP_USERNAME')
-            }, new EmailnotificacionCorreo({
-              nombre: usuario?.nombre!,
-              mensaje: 'De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue enviado de manera correcta a la Superintendencia de Transporte.',
-              logo: Env.get('LOGO'),
-              nit:usuario?.identificacion!
-            }))
+        await this.enviadorEmail.enviarTemplate({
+          asunto: 'Envío a ST.',
+          destinatarios: usuario?.correo!,
+          de: Env.get('SMTP_USERNAME')
+        }, new EmailnotificacionCorreo({
+          nombre: usuario?.nombre!,
+          mensaje: 'De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue enviado de manera correcta a la Superintendencia de Transporte.',
+          logo: Env.get('LOGO'),
+          nit: usuario?.identificacion!
+        }))
       } catch (error) {
-        console.log(error);      
+        console.log(error);
       }
-      
+
     }
 
-    return {  aprobado, faltantes  }
+    return { aprobado, faltantes }
+
+  }
+
+
+  async enviarInformacion(params: any): Promise<any> {
+    const { idEncuesta, idReporte, idVigilado, idUsuario, confirmar = false } = params
+   /*  const parametrosDeEnvio = { idEncuesta, idReporte, idVigilado, idUsuario : idVigilado, confirmar } */
+
+   const reporte = await TblReporte.findOrFail(idReporte)
+
+   if (!reporte) {
+    throw new ErroresEmpresa('El reporte no existe.',400)
+   }
+
+   if(reporte.envioSt == '1'){
+    throw new ErroresEmpresa('El reporte ya fue enviado a ST.',400)
+   }
+
+    const { aprobado, faltantes } = await this.enviarSt(params);
+   if(aprobado){
+    this.servicioEstadosEmpresas.Log(idVigilado,idUsuario,1,3004, DateTime.fromJSDate(new Date()))
+   }
+
+   return{ aprobado, faltantes } 
+    
 
   }
 

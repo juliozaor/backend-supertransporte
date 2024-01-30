@@ -1,7 +1,8 @@
 
 import { DateTime } from 'luxon';
-import { BaseModel, HasMany, column, hasMany } from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, HasMany, HasOne, column, hasMany, hasOne } from '@ioc:Adonis/Lucid/Orm';
 import { ClasificacionesUsuario } from 'App/Dominio/Datos/Entidades/ClasificacionesUsuario';
+import TblClasificaciones from './Clasificaciones';
 
 export default class TblClasificacionesUsuario extends BaseModel {
   public static table = 'tbl_clasificacion_usuarios';
@@ -40,6 +41,13 @@ export default class TblClasificacionesUsuario extends BaseModel {
     clasificacionesUsuario.conductores = this.conductores
     return clasificacionesUsuario
   }
+
+  
+  @hasOne(() => TblClasificaciones, {
+    localKey: 'clasificacionId',
+    foreignKey: 'id',
+  })
+  public clasificacion: HasOne<typeof TblClasificaciones>
 
 
 }

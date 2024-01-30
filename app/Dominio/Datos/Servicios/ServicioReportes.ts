@@ -26,6 +26,12 @@ export class ServicioReportes {
     return this.repositorio.obtenerAsignadas(params);
   }
 
+  async obtenerAsignadasF2(params: any): Promise<{ asignadas: Reportadas[], paginacion: Paginador }> {
+    params.pagina = params.pagina??1;
+    params.limite = params.limite??100;
+    return this.repositorio.obtenerAsignadasF2(params);
+  }
+
   async asignar(datos: string, payload:PayloadJWT): Promise<AsyncGeneratorFunction> {
     const asignador = payload.documento;
     if (payload.idRol !== '001') {
@@ -55,6 +61,11 @@ export class ServicioReportes {
     params.idUsuario = payload.documento;
     params.rol = payload.idRol
     return this.repositorio.visualizar(params);
+  }
+  async formularios(params: any, payload:PayloadJWT): Promise<any> {
+    params.idUsuario = payload.documento;
+    params.rol = payload.idRol;
+    return this.repositorio.formularios(params);
   }
 
 }

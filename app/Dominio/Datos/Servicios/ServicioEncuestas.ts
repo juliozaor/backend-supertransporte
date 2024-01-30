@@ -28,6 +28,12 @@ export class ServicioEncuestas {
     return this.repositorio.enviarSt(params);
   }
 
+  async enviarInformacion(params: any, payload:PayloadJWT): Promise<any> {
+    params.idUsuario = payload.documento;
+    params.idRol = payload.idRol
+    return this.repositorio.enviarInformacion(params);
+  }
+
   async obtenerMotivos(): Promise<any> {
     return await TblMotivos.query()
   }

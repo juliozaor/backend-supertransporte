@@ -18,10 +18,14 @@ export default class ControladorRespuesta {
   public async guardar ({ request, response, params }:HttpContextContract) {
     const {idReporte} = params
     const payload = await request.obtenerPayloadJWT()
-    const respuesta = await this.service.guardar(JSON.stringify(request.all()), idReporte, payload )
-  /*   response.status(200).send({
-      mensaje: "Encuesta guardada correctamente"
-    }) */
+    const respuesta = await this.service.guardar(JSON.stringify(request.all()), idReporte, payload )  
+    response.status(200).send(respuesta) 
+  }
+
+  public async guardarReporte ({ request, response, params }:HttpContextContract) {
+    const {idReporte} = params
+    const payload = await request.obtenerPayloadJWT()
+    const respuesta = await this.service.guardarReporte(JSON.stringify(request.all()), idReporte, payload )  
     response.status(200).send(respuesta) 
   }
 
@@ -35,6 +39,15 @@ export default class ControladorRespuesta {
     const enviado = await this.service.finalizar(request.all(), payload)
     if(enviado && !enviado.aprobado){
       return response.status(400). send(enviado)
+      }
+      return enviado
+  }
+
+  public async finalizarF2 ({ request, response }:HttpContextContract) {   
+    const payload = await request.obtenerPayloadJWT()
+    const enviado = await this.service.finalizarF2(request.all(), payload)
+    if(enviado && !enviado.aprobado){
+      return response.status(400).send(enviado)
       }
       return enviado
   }

@@ -1,6 +1,7 @@
 import { DateTime } from 'luxon';
-import { BaseModel, column} from '@ioc:Adonis/Lucid/Orm';
+import { BaseModel, BelongsTo, belongsTo, column} from '@ioc:Adonis/Lucid/Orm';
 import { ModalidadRadio } from 'App/Dominio/Datos/Entidades/ModalidadRadio';
+import TblModalidades from './modalidad';
 
 export default class TblModalidadesRadios extends BaseModel {
   public static table = 'tbl_modalidades_radios';
@@ -23,5 +24,11 @@ export default class TblModalidadesRadios extends BaseModel {
     this.estado = modalidadRadio.estado
     
   }
+
+  @belongsTo(() => TblModalidades, {
+    localKey: 'id',
+    foreignKey: 'modalidadId',
+  })
+  public modalidades: BelongsTo<typeof TblModalidades>
 
 }

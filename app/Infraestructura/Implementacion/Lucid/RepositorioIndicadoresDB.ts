@@ -1,7 +1,5 @@
 import { RepositorioIndicador } from 'App/Dominio/Repositorios/RepositorioIndicador';
 import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
-import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
-import TblRespuestas from 'App/Infraestructura/Datos/Entidad/Respuesta';
 import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria';
 import { DateTime } from 'luxon';
 import { TblFormulariosIndicadores } from 'App/Infraestructura/Datos/Entidad/FormularioIndicadores';
@@ -13,13 +11,16 @@ import { TblArchivosTemporales } from 'App/Infraestructura/Datos/Entidad/Archivo
 import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
 import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
 import { TblEstadosReportes } from 'App/Infraestructura/Datos/Entidad/EstadosReportes';
-import Reporte from 'App/Infraestructura/Datos/Entidad/Reporte';
-import Respuestas from 'App/Infraestructura/Datos/Entidad/Respuesta';
+import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
+import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
+import { ServicioEstadosEmpresas } from 'App/Dominio/Datos/Servicios/ServicioEstadosEmpresas';
+import { TblMeses } from 'App/Infraestructura/Datos/Entidad/Mes';
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   private servicioAcciones = new ServicioAcciones();
+  private servicioEstadosEmpresas = new ServicioEstadosEmpresas();
   async visualizar(params: any): Promise<any> {
     const { idUsuario, idVigilado, idReporte, idMes, historico, idRol } = params;
 
@@ -44,8 +45,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       newEstadoReporte.save()
     }
 
-  // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
-   const encuestaEditable = true
+    // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
+    const encuestaEditable = true
     const soloLectura = (historico && historico == 'true' || !encuestaEditable) ?? false;
 
     const consulta = TblFormulariosIndicadores.query()
@@ -241,13 +242,13 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     if (aprobado) {
 
 
-       this.servicioEstado.Log(indicadores.idVigilado, 1004, indicadores.idEncuesta)
-       this.servicioEstado.estadoReporte(idReporte, indicadores.vigencia, idMes, 1004, DateTime.fromJSDate(new Date()))
-       const reporte = await TblReporte.findOrFail(idReporte)
-       reporte.fechaEnviost = DateTime.fromJSDate(new Date())
-       reporte.envioSt = '1'
-       reporte.estadoVerificacionId = 1004
-       reporte.save();
+      this.servicioEstado.Log(indicadores.idVigilado, 1004, indicadores.idEncuesta)
+      this.servicioEstado.estadoReporte(idReporte, indicadores.vigencia, idMes, 1004, DateTime.fromJSDate(new Date()))
+      const reporte = await TblReporte.findOrFail(idReporte)
+      reporte.fechaEnviost = DateTime.fromJSDate(new Date())
+      reporte.envioSt = '1'
+      reporte.estadoVerificacionId = 1004
+      reporte.save();
     }
 
     //return indicadores
@@ -255,27 +256,45 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
   }
 
+  async enviarInformacion(params: any): Promise<any> {
+    const { idReporte, idVigilado, idUsuario} = params
+   
+   const reporte = await TblReporte.findOrFail(idReporte)
+
+   if (!reporte) {
+    throw new ErroresEmpresa('El reporte no existe.',400)
+   }
+
+   if(reporte.envioSt == '1'){
+    throw new ErroresEmpresa('El reporte ya fue enviado a ST.',400)
+   }
+
+    const { aprobado, faltantesIndicadores, faltantesEvidencias } = await this.enviarSt(params);
+   if(aprobado){
+    this.servicioEstadosEmpresas.Log(idVigilado,idUsuario,2,3004, DateTime.fromJSDate(new Date()))
+   }
+
+   return{ aprobado, faltantesIndicadores, faltantesEvidencias } 
+    
+
+  }
+
 
   async guardar(datos: string, documento: string): Promise<any> {
+
+    try {
+      
+    
     const { respuestas, reporteId, evidencias, mesId } = JSON.parse(datos);
 
     const { anioVigencia } = await TblReporte.findByOrFail('id', reporteId)
 
     this.servicioEstado.estadoReporte(reporteId, anioVigencia ?? 2023, mesId, 1003)
-    this.servicioEstado.Log(documento, 1003, undefined, reporteId)
-    /* this.servicioAuditoria.Auditar({
-      accion: "Guardar Respuesta",
-      modulo: "Encuesta",
-      usuario: usuarioCreacion ?? '',
-      vigilado: loginVigilado ?? '',
-      descripcion: 'Primer guardado de la encuesta',
-      encuestaId: idEncuesta,
-      tipoLog: 4
-    }) */
+    this.servicioEstado.Log(documento, 1003, 2, reporteId)
+   
+
+
     for await (const respuesta of respuestas) {
-      //Evaluar si el archivo en la tabla temporal y borrarlo
-      //validar si existe
-      //   const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
 
       const existeDatos = await TblDetalleDatos.query().where({ 'ddt_dato_indicador_id': respuesta.preguntaId, 'ddt_reporte_id': reporteId }).first()
 
@@ -314,10 +333,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     }
 
     for await (const evidencia of evidencias) {
-      //Evaluar si el archivo en la tabla temporal y borrarlo
-      //validar si existe
-      //   const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
-
+  
       const existeDatosE = await TblDetalleDatosEvidencias.query().where({ 'dde_dato_evidencia_id': evidencia.evidenciaId, 'dde_reporte_id': reporteId }).first()
 
       let data: DetalleEvidencia = {
@@ -361,17 +377,45 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     return {
       mensaje: "Formulario guardado correctamente"
+    } 
+
+  } catch (error) {
+      return error
+  }
+  }
+
+  async guardarRespuestas(datos: string, documento: string): Promise<any> {
+    const { reporteId, idVigilado, mesId  } = JSON.parse(datos);
+    if(!reporteId || !idVigilado || !mesId ){
+      throw new ErroresEmpresa('Faltan datos obligatorios por cargar.',400)
+    }
+    const reporte = await TblReporte.findOrFail(reporteId)
+   
+    if (!reporte) {
+     throw new ErroresEmpresa('El reporte no existe.',400)
     }
 
+    const mesActivo = await TblMeses.query().where({'mes_visual': mesId, 'mes_vigencia': reporte.anioVigencia}).first()
+    
+    if(!mesActivo?.estado){
+      throw new ErroresEmpresa('No es posible cargar información para este mes.',400)
+    }
+    
+ 
+    if(reporte.envioSt == '1'){
+     throw new ErroresEmpresa('El reporte ya fue enviado a ST.',400)
+    }
+
+    return await this.guardar(datos, idVigilado);
 
   }
 
 
   async finalizarFaseDos(mes) {
-    const sql = await Reporte.query().where('id_encuesta', 2)
-  
+    const sql = await TblReporte.query().where('id_encuesta', 2)
+
     sql.forEach(async reporte => {
-    //for await (const reporte of sql) {
+      //for await (const reporte of sql) {
       const respuestaEnviado = await this.enviarSt({
         "idEncuesta": 2,
         "idReporte": reporte.id,
@@ -380,13 +424,13 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       })
       if (respuestaEnviado.aprobado) {
         console.log("Finalizado : ", reporte.id);
-      }else{
-        const respuesta = await TblDetalleDatos.query().where('ddt_reporte_id',reporte.id!).first()
-              
-        if(respuesta){
+      } else {
+        const respuesta = await TblDetalleDatos.query().where('ddt_reporte_id', reporte.id!).first()
+
+        if (respuesta) {
           console.log("En Proceso : ", reporte.id);
           this.servicioEstado.estadoReporte(reporte.id!, reporte.anioVigencia!, mes, 1003, null)
-        
+
 
         }/* else{
           console.log("Inicio : ", reporte.id);
@@ -395,17 +439,58 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
          reporteBD.estadoVerificacionId = 1003
          reporteBD.save();
         } */
-       
+
       }
-    
-      
-    //}
-    
+
+
+      //}
+
     });
 
-  //  return { finalizados, enProceso }
+    //  return { finalizados, enProceso }
 
   }
+
+
+  //verificar fase 2
+  async verificar(datos: string, payload: PayloadJWT): Promise<any> {
+    const { idReporte, evidencias, anio } = JSON.parse(datos)
+
+    /*    this.servicioEstadoVerificado.Log(idReporte, 2, payload.documento) */
+
+    evidencias.forEach(async evidencia => {
+
+      const existeRespuesta = await TblDetalleDatosEvidencias.query()
+        .where({ 'dde_dato_evidencia_id': evidencia.evidenciaId, 'dde_reporte_id': idReporte, 'dde_anio_activo_id': anio }).first()
+
+      if (existeRespuesta) {
+        existeRespuesta.estableceVerificacion(evidencia)
+        existeRespuesta.save();
+
+
+      } else {
+        let data: DetalleEvidencia = {
+          datoEvidenciaId: evidencia.evidenciaId,
+          reporteId: idReporte,
+          fechaActualizacion: DateTime.fromJSDate(new Date),
+          anioActivoId: anio,
+          cumple: evidencia.cumple,
+          observacionCumple: evidencia.observacionCumple,
+          corresponde: evidencia.corresponde,
+          observacionCorresponde: evidencia.observacionCorresponde
+        }
+        const evidenciaDB = new TblDetalleDatosEvidencias();
+        evidenciaDB.establecerDetalleEvidenciaDb(data)
+        evidenciaDB.save();
+      }
+
+
+
+
+    });
+
+  }
+
 
 
 }

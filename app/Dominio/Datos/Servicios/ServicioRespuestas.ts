@@ -11,6 +11,11 @@ export class ServicioRespuestas {
     return this.repositorio.guardar(datos, idReporte, documento);
   }
 
+  async guardarReporte(datos: string, idReporte: number, payload:PayloadJWT): Promise<any> {
+    const {documento} = payload;
+    return this.repositorio.guardarReporte(datos, idReporte, documento);
+  }
+
   async verificar(datos: string, payload:PayloadJWT): Promise<any> {
     if(payload.idRol !== '002'){
       throw new Error("Usted no tiene autorización para hacer una verificación");      
@@ -25,5 +30,14 @@ export class ServicioRespuestas {
     params.idUsuario = payload.documento;
     return this.repositorio.finalizar(params);
   }
+
+  async finalizarF2(params: any, payload:PayloadJWT): Promise<any> {
+    if(payload.idRol !== '002'){
+      throw new Error("Usted no tiene autorización para hacer una verificación");      
+    }
+    params.idUsuario = payload.documento;
+    return this.repositorio.finalizarF2(params);
+  }
+
 
 }
