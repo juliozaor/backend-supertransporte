@@ -7,7 +7,7 @@ export class RolDto{
     public modulos: ModuloDto[]
     
     constructor(rol: Rol){
-        this.nombre = rol.nombre,
+        this.nombre = rol.nombre
         this.id = rol.id
         this.modulos = rol.modulos.map( modulo => new ModuloDto( modulo ))
     }
