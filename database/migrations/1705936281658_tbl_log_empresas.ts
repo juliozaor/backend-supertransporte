@@ -9,7 +9,6 @@ export default class extends BaseSchema {
       table.string('tle_empresa')
       table.string('tle_vigilado')
       table.integer('tle_estado')
-      table.integer('tle_estado')
       table.timestamp('tle_enviost')
       table.timestamp('tle_created_at', { useTz: true }).defaultTo( this.now() )
       table.timestamp('tle_updated_at', { useTz: true }).defaultTo( this.now() )

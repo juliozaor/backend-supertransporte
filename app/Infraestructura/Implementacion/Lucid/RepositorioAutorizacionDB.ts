@@ -26,6 +26,7 @@ export class RepositorioAutorizacionDB implements RepositorioAutorizacion {
             .innerJoin(this.TABLA_ROLES_MODULOS, `${this.TABLA_MODULOS}.mod_id`, '=', `${this.TABLA_ROLES_MODULOS}.rom_modulo_id`)
             .innerJoin(this.TABLA_ROLES, `${this.TABLA_ROLES}.rol_id`, '=', `${this.TABLA_ROLES_MODULOS}.rom_rol_id`)
             .where(`${this.TABLA_ROLES}.rol_id`, idRol)
+            .orderBy(`${this.TABLA_MODULOS}.mod_orden`, 'asc')
         return modulosDb.map(moduloDb => {
             return moduloDb.obtenerModulo()
         })
