@@ -1,125 +1,173 @@
-
-import { Paginador } from 'App/Dominio/Paginador';
-import { MapeadorPaginacionDB } from './MapeadorPaginacionDB';
-import { RepositorioEncuesta } from 'App/Dominio/Repositorios/RepositorioEncuesta';
-import { Reportadas } from 'App/Dominio/Dto/Encuestas/Reportadas';
-import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
-import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
-import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
-import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
-import TblRespuestas from 'App/Infraestructura/Datos/Entidad/Respuesta';
+import { Paginador } from "App/Dominio/Paginador";
+import { MapeadorPaginacionDB } from "./MapeadorPaginacionDB";
+import { RepositorioEncuesta } from "App/Dominio/Repositorios/RepositorioEncuesta";
+import { Reportadas } from "App/Dominio/Dto/Encuestas/Reportadas";
+import TblEncuestas from "App/Infraestructura/Datos/Entidad/Encuesta";
+import TblReporte from "App/Infraestructura/Datos/Entidad/Reporte";
+import TblUsuarios from "App/Infraestructura/Datos/Entidad/Usuario";
+import TbClasificacion from "App/Infraestructura/Datos/Entidad/Clasificacion";
+import TblRespuestas from "App/Infraestructura/Datos/Entidad/Respuesta";
 //import NoAprobado from 'App/Exceptions/NoAprobado';
-import { Respuesta } from 'App/Dominio/Datos/Entidades/Respuesta';
-import { Pregunta } from 'App/Dominio/Datos/Entidades/Pregunta';
-import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria';
-import { ServicioEstados } from 'App/Dominio/Datos/Servicios/ServicioEstados';
-import { DateTime } from 'luxon';
-import { TblAnioVigencias } from 'App/Infraestructura/Datos/Entidad/AnioVigencia';
-import { ServicioAcciones } from 'App/Dominio/Datos/Servicios/ServicioAcciones';
-import { EnviadorEmail } from 'App/Dominio/Email/EnviadorEmail'
-import { EmailnotificacionCorreo } from 'App/Dominio/Email/Emails/EmailNotificacionCorreo';
-import Env from '@ioc:Adonis/Core/Env';
-import { EnviadorEmailAdonis } from 'App/Infraestructura/Email/EnviadorEmailAdonis';
-import { ServicioEstadosEmpresas } from '../../../Dominio/Datos/Servicios/ServicioEstadosEmpresas';
-import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
+import { Respuesta } from "App/Dominio/Datos/Entidades/Respuesta";
+import { Pregunta } from "App/Dominio/Datos/Entidades/Pregunta";
+import { ServicioAuditoria } from "App/Dominio/Datos/Servicios/ServicioAuditoria";
+import { ServicioEstados } from "App/Dominio/Datos/Servicios/ServicioEstados";
+import { DateTime } from "luxon";
+import { TblAnioVigencias } from "App/Infraestructura/Datos/Entidad/AnioVigencia";
+import { ServicioAcciones } from "App/Dominio/Datos/Servicios/ServicioAcciones";
+import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
+import { EmailnotificacionCorreo } from "App/Dominio/Email/Emails/EmailNotificacionCorreo";
+import Env from "@ioc:Adonis/Core/Env";
+import { EnviadorEmailAdonis } from "App/Infraestructura/Email/EnviadorEmailAdonis";
+import { ServicioEstadosEmpresas } from "../../../Dominio/Datos/Servicios/ServicioEstadosEmpresas";
+import ErroresEmpresa from "App/Exceptions/ErroresEmpresa";
+import { TblMeses } from "App/Infraestructura/Datos/Entidad/Mes";
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   private servicioAcciones = new ServicioAcciones();
   private servicioEstadosEmpresas = new ServicioEstadosEmpresas();
-  private enviadorEmail: EnviadorEmail
-  async obtenerReportadas(params: any): Promise<{ reportadas: Reportadas[], paginacion: Paginador }> {
-    const { idUsuario, idEncuesta, pagina, limite, idVigilado, idRol, termino } = params;
+  private enviadorEmail: EnviadorEmail;
+  async obtenerReportadas(
+    params: any
+  ): Promise<{ reportadas: Reportadas[]; paginacion: Paginador }> {
+    const {
+      idUsuario,
+      idEncuesta,
+      pagina,
+      limite,
+      idVigilado,
+      idRol,
+      termino,
+    } = params;
 
-    const anioVigencia = await TblAnioVigencias.query().where('anv_estado', true).orderBy('anv_id', 'desc').select('anv_anio').first()
+    /* const anioVigencia = await TblAnioVigencias.query()
+      .where("anv_estado", true)
+      .orderBy("anv_id", "desc")
+      .select("anv_anio")
+      .first(); */
 
+    /// crear reporte
+    const mesesActivos = await TblMeses.query()
+    .where("mes_estado", true)
+    .distinct("mes_vigencia");
+    const vigencias = mesesActivos.map((mes) => mes.vigencia);
+    if(idRol === "003" || idRol === "007"){
+   // const existeReporte = TblReporte.query().where({'id_encuesta': idEncuesta, 'login_vigilado': idVigilado})
+    if (idEncuesta == 2) {
+      for await (const vigencia of vigencias) {
+        
+        const resporteF2 = await TblReporte.query().where({'id_encuesta': idEncuesta, 'login_vigilado': idVigilado,'anio_vigencia':vigencia});
+      
+        if (resporteF2.length <= 0) {
+        await this.crearReporte(idUsuario,idEncuesta,idVigilado,idRol, vigencia);
 
-    const reportadas: Reportadas[] = []
-    const consulta = TblReporte.query().preload('usuario', sqlUsuario => {
-      sqlUsuario.preload('clasificacionUsuario')
+        }
+      }
+    } else {
+      const resporteF1 = await TblReporte.query().where({'id_encuesta': idEncuesta, 'login_vigilado': idVigilado});
+          if (resporteF1.length <= 0) {
+        await this.crearReporte(idUsuario,idEncuesta,idVigilado,idRol);
+      }
+    }
 
+  }
+
+    const reportadas: Reportadas[] = [];
+    const consulta = TblReporte.query().preload("usuario", (sqlUsuario) => {
+      sqlUsuario.preload("clasificacionUsuario");
     });
 
     if (idEncuesta) {
-      consulta.preload('encuesta', sqlE => {
-        sqlE.where('id', idEncuesta);
-      }).whereHas('encuesta', sqlE => {
-        sqlE.where('id', idEncuesta);
-      })
+      consulta
+        .preload("encuesta", (sqlE) => {
+          sqlE.where("id", idEncuesta);
+        })
+        .whereHas("encuesta", (sqlE) => {
+          sqlE.where("id", idEncuesta);
+        });
     } else {
-      consulta.preload('encuesta', sqlE => {
-      })
+      consulta.preload("encuesta", (sqlE) => {});
     }
 
-    if (idRol === '003' || idRol === '007') {
-      consulta.where('login_vigilado', idVigilado);
+    if (idRol === "003" || idRol === "007") {
+      consulta.where("login_vigilado", idVigilado);
     }
-    consulta.preload('estadoVerificado')
-    consulta.preload('estadoVigilado')
+    consulta.preload("estadoVerificado");
+    consulta.preload("estadoVigilado");
 
-    if (idEncuesta == 2) {
-      // consulta.where('anio_vigencia', anioVigencia?.anio!)
-    }
     if (termino) {
-      consulta.andWhere(subquery => {
-        subquery.where('nit_rues', 'ilike', `%${params.termino}%`)
-        subquery.orWhere('razon_social_rues', 'ilike', `%${params.termino}%`)
+      consulta.andWhere((subquery) => {
+        subquery.where("nit_rues", "ilike", `%${params.termino}%`);
+        subquery.orWhere("razon_social_rues", "ilike", `%${params.termino}%`);
         if (Number.isInteger(parseInt(params.termino))) {
-          subquery.orWhere('id_reporte', `${params.termino}`)
+          subquery.orWhere("id_reporte", `${params.termino}`);
         }
-      })
+      });
+    }
+    if (idEncuesta == 2) {
+      consulta.andWhere( s=>{
+        vigencias.forEach(vigencia => {    
+          s.orWhere('anio_vigencia', vigencia)
+        });
+
+        }
+
+        )
+        
     }
 
+    let reportadasBD = await consulta
+      .orderBy("fecha_enviost", "desc")
+      .paginate(pagina, limite);
 
-    let reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
+    /* if (reportadasBD.length <= 0 && (idRol === "003" || idRol === "007")) {
+      const usuario = await TblUsuarios.query()
+        .where("identificacion", idUsuario)
+        .first();
 
-    if (reportadasBD.length <= 0 && (idRol === '003' || idRol === '007')) {
-
-
-      const usuario = await TblUsuarios.query().where('identificacion', idUsuario).first()
-
-
-      const reporte = new TblReporte()
+      const reporte = new TblReporte();
       reporte.estableceReporteConId({
         idEncuesta: idEncuesta,
-        envioSt: '0',
+        envioSt: "0",
         loginVigilado: idVigilado,
         razonSocialRues: usuario?.nombre!,
         nitRues: idVigilado,
         usuarioCreacion: idUsuario,
         estadoVerificacionId: 1002,
-        anioVigencia: anioVigencia?.anio ?? undefined
-      })
+        anioVigencia: anioVigencia?.anio ?? undefined,
+      });
 
       await reporte.save();
-      reportadasBD = await consulta.orderBy('fecha_enviost', 'desc').paginate(pagina, limite)
+      reportadasBD = await consulta
+        .orderBy("fecha_enviost", "desc")
+        .paginate(pagina, limite);
 
-      this.servicioEstado.Log(idUsuario, 1002, idEncuesta)
+      this.servicioEstado.Log(idUsuario, 1002, idEncuesta);
 
       this.servicioAuditoria.Auditar({
         accion: "Listar Encuestas",
         modulo: "Encuesta",
         usuario: idUsuario,
         vigilado: idVigilado,
-        descripcion: 'Entra por primera vez a la encuesta',
+        descripcion: "Entra por primera vez a la encuesta",
         encuestaId: idEncuesta,
-        tipoLog: 3
-      })
+        tipoLog: 3,
+      });
 
-      if(idRol === '007'){
-        this.servicioEstadosEmpresas.Log(idVigilado,idUsuario,1,3000);
+      if (idRol === "007") {
+        this.servicioEstadosEmpresas.Log(idVigilado, idUsuario, 1, 3000);
       }
+    } */
 
-    }
-
-
-    reportadasBD.map(reportada => {
-      let estado = 'FORMULARIO EN BORRADOR';
+    reportadasBD.map((reportada) => {
+      let estado = "FORMULARIO EN BORRADOR";
       estado = reportada.estadoVerificado?.nombre ?? estado;
       estado = reportada.estadoVigilado?.nombre ?? estado;
       reportadas.push({
         idEncuestaDiligenciada: reportada.encuesta?.id,
-        clasificacion: reportada.usuario.clasificacionUsuario[0]?.nombre ?? 'Sin Clasificar',
+        clasificacion:
+          reportada.usuario.clasificacionUsuario[0]?.nombre ?? "Sin Clasificar",
         idVigilado: reportada.loginVigilado,
         numeroReporte: reportada.id!,
         encuesta: reportada.encuesta?.nombre,
@@ -134,155 +182,198 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         asignado: reportada.asignado,
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
         estado,
-        vigencia: reportada.anioVigencia ?? undefined
+        vigencia: reportada.anioVigencia ?? undefined,
       });
-    })
+    });
 
-
-
-
-    const paginacion = MapeadorPaginacionDB.obtenerPaginacion(reportadasBD)
-    return { reportadas, paginacion }
+    const paginacion = MapeadorPaginacionDB.obtenerPaginacion(reportadasBD);
+    return { reportadas, paginacion };
   }
 
+  async crearReporte(
+    idUsuario: string,
+    idEncuesta: number,
+    idVigilado: string,
+    idRol: string,
+    anioVigencia?
+  ) {
+    const usuario = await TblUsuarios.query()
+      .where("identificacion", idUsuario)
+      .first();
 
+    const reporte = new TblReporte();
+    reporte.estableceReporteConId({
+      idEncuesta: idEncuesta,
+      envioSt: "0",
+      loginVigilado: idVigilado,
+      razonSocialRues: usuario?.nombre!,
+      nitRues: idVigilado,
+      usuarioCreacion: idUsuario,
+      estadoVerificacionId: 1002,
+      anioVigencia: anioVigencia ?? undefined,
+    });
+
+    await reporte.save();
+    this.servicioEstado.Log(idUsuario, 1002, idEncuesta);
+
+    this.servicioAuditoria.Auditar({
+      accion: "Listar Encuestas",
+      modulo: "Encuesta",
+      usuario: idUsuario,
+      vigilado: idVigilado,
+      descripcion: "Entra por primera vez a la encuesta",
+      encuestaId: idEncuesta,
+      tipoLog: 3,
+    });
+
+    if (idRol === "007") {
+      this.servicioEstadosEmpresas.Log(idVigilado, idUsuario, 1, 3000);
+    }
+  }
 
   async visualizar(params: any): Promise<any> {
-
     const { idEncuesta, idUsuario, idVigilado, idReporte, idRol } = params;
-    let tipoAccion = (idUsuario === idVigilado) ? 2 : 1;
+    let tipoAccion = idUsuario === idVigilado ? 2 : 1;
     let clasificacionesArr: any = [];
-    let estado = '';
-    const reporte = await TblReporte.query().preload('estadoVerificado').preload('estadoVigilado').where('id_reporte', idReporte).first()
+    let estado = "";
+    const reporte = await TblReporte.query()
+      .preload("estadoVerificado")
+      .preload("estadoVigilado")
+      .where("id_reporte", idReporte)
+      .first();
     estado = reporte?.estadoVerificado?.nombre ?? estado;
     estado = reporte?.estadoVigilado?.nombre ?? estado;
-    let clasificacion = '';
+    let clasificacion = "";
 
-
-    const consulta = TblEncuestas.query().preload('pregunta', sql => {
-      sql.preload('clasificacion')
-      sql.preload('tiposPregunta')
-      sql.preload('respuesta', sqlResp => {
-        sqlResp.where('id_reporte', idReporte)
+    const consulta = TblEncuestas.query()
+      .preload("pregunta", (sql) => {
+        sql.preload("clasificacion");
+        sql.preload("tiposPregunta");
+        sql.preload("respuesta", (sqlResp) => {
+          sqlResp.where("id_reporte", idReporte);
+        });
+        sql.where("estado", 1);
       })
-      sql.where('estado', 1)
-
-    }).where({ 'id_encuesta': idEncuesta }).first();
-    const encuestaSql = await consulta
+      .where({ id_encuesta: idEncuesta })
+      .first();
+    const encuestaSql = await consulta;
 
     //BUscar la clasificacion del usuario
-    const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
-      sqlClasC.preload('clasificacion')
-      sqlClasC.has('clasificacion')
-    }).preload('modalidadesRadio', sqlModal => {
-      sqlModal.preload('modalidades')
-    }).where('identificacion', idVigilado).first()
+    const usuario = await TblUsuarios.query()
+      .preload("clasificacionUsuario", (sqlClasC) => {
+        sqlClasC.preload("clasificacion");
+        sqlClasC.has("clasificacion");
+      })
+      .preload("modalidadesRadio", (sqlModal) => {
+        sqlModal.preload("modalidades");
+      })
+      .where("identificacion", idVigilado)
+      .first();
 
-
-    let modalidad = '';
+    let modalidad = "";
     const modalidadesradio = usuario?.modalidadesRadio;
     if (modalidadesradio) {
       for (const key in modalidadesradio) {
         if (parseInt(key) === 0) {
-          modalidad += modalidadesradio[key].modalidades.nombre
+          modalidad += modalidadesradio[key].modalidades.nombre;
         } else {
-          modalidad += ', ' + modalidadesradio[key].modalidades.nombre
+          modalidad += ", " + modalidadesradio[key].modalidades.nombre;
         }
-
       }
     }
 
-    const totalConductores = usuario?.clasificacionUsuario[0].$extras.pivot_clu_conductores ?? ''
-    const totalVehiculos = usuario?.clasificacionUsuario[0].$extras.pivot_clu_vehiculos ?? ''
+    const totalConductores =
+      usuario?.clasificacionUsuario[0].$extras.pivot_clu_conductores ?? "";
+    const totalVehiculos =
+      usuario?.clasificacionUsuario[0].$extras.pivot_clu_vehiculos ?? "";
 
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
-    const descripcionClasificacion = usuario?.clasificacionUsuario[0]?.descripcion;
-    const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
+    const descripcionClasificacion =
+      usuario?.clasificacionUsuario[0]?.descripcion;
+    const pasos = usuario?.clasificacionUsuario[0]?.clasificacion;
 
     const fechaActual = DateTime.now();
-    const rolDefecto = (fechaActual < encuestaSql?.fechaFin!) ? idRol : '000'
-    const { encuestaEditable, verificacionVisible, verificacionEditable } = await this.servicioAcciones.obtenerAccion(reporte?.estadoVerificacionId ?? 0, rolDefecto);
+    const rolDefecto = fechaActual < encuestaSql?.fechaFin! ? idRol : "000";
+    const { encuestaEditable, verificacionVisible, verificacionEditable } =
+      await this.servicioAcciones.obtenerAccion(
+        reporte?.estadoVerificacionId ?? 0,
+        rolDefecto
+      );
 
-    const claficiacionesSql = await TbClasificacion.query().orderBy('id_clasificacion', 'asc');
+    const claficiacionesSql = await TbClasificacion.query().orderBy(
+      "id_clasificacion",
+      "asc"
+    );
     let consecutivo: number = 1;
     let pasosCompletados = 0;
     let preguntasTotales = 0;
     let preguntasCompletadas = 0;
-    const pasosObligatorios = usuario?.clasificacionUsuario[0].pasos??24;
-    claficiacionesSql.forEach(clasificacionSql => {
+    const pasosObligatorios = usuario?.clasificacionUsuario[0].pasos ?? 24;
+    claficiacionesSql.forEach((clasificacionSql) => {
       let preguntasArr: any = [];
       clasificacion = clasificacionSql.nombre;
-      //validar si el paso es obligatorio      
-      const obligatorio = pasos?.find(paso => paso.id === clasificacionSql.id) ? true : false;
+      //validar si el paso es obligatorio
+      const obligatorio = pasos?.find((paso) => paso.id === clasificacionSql.id)
+        ? true
+        : false;
       let preguntasPasos = 0;
       let PreguntasPasosCompletadas = 0;
-      encuestaSql?.pregunta.forEach(pregunta => {
-
+      encuestaSql?.pregunta.forEach((pregunta) => {
         if (clasificacionSql.id === pregunta.clasificacion.id) {
-
           preguntasArr.push({
             idPregunta: pregunta.id,
             numeroPregunta: consecutivo,
             pregunta: pregunta.pregunta,
-            obligatoria: obligatorio, //obligatorio,// 
-            respuesta: pregunta.respuesta[0]?.valor ?? '',
+            obligatoria: obligatorio, //obligatorio,//
+            respuesta: pregunta.respuesta[0]?.valor ?? "",
             tipoDeEvidencia: pregunta.tipoEvidencia,
-            documento: pregunta.respuesta[0]?.documento ?? '',
-            nombreOriginal: pregunta.respuesta[0]?.nombredocOriginal ?? '',
-            ruta: pregunta.respuesta[0]?.ruta ?? '',
+            documento: pregunta.respuesta[0]?.documento ?? "",
+            nombreOriginal: pregunta.respuesta[0]?.nombredocOriginal ?? "",
+            ruta: pregunta.respuesta[0]?.ruta ?? "",
             adjuntable: pregunta.adjuntable,
-            adjuntableObligatorio: obligatorio,// pregunta.adjuntableObligatorio,
+            adjuntableObligatorio: obligatorio, // pregunta.adjuntableObligatorio,
             tipoPregunta: pregunta.tiposPregunta.nombre,
             tamanio: pregunta.tamanio,
             valoresPregunta: pregunta.tiposPregunta.opciones,
             validaciones: pregunta.tiposPregunta.validaciones,
-            observacion: pregunta.respuesta[0]?.observacion ?? '',
-            cumple: pregunta.respuesta[0]?.cumple ?? '',
-            observacionCumple: pregunta.respuesta[0]?.observacionCumple ?? '',
-            corresponde: pregunta.respuesta[0]?.corresponde ?? '',
-            observacionCorresponde: pregunta.respuesta[0]?.observacionCorresponde ?? '',
+            observacion: pregunta.respuesta[0]?.observacion ?? "",
+            cumple: pregunta.respuesta[0]?.cumple ?? "",
+            observacionCumple: pregunta.respuesta[0]?.observacionCumple ?? "",
+            corresponde: pregunta.respuesta[0]?.corresponde ?? "",
+            observacionCorresponde:
+              pregunta.respuesta[0]?.observacionCorresponde ?? "",
           });
           consecutivo++;
 
-          const resp = pregunta.respuesta[0]?.valor ?? '';
-          const adj = pregunta.respuesta[0]?.documento ?? '';
-          const obs = pregunta.respuesta[0]?.observacion ?? '';
+          const resp = pregunta.respuesta[0]?.valor ?? "";
+          const adj = pregunta.respuesta[0]?.documento ?? "";
+          const obs = pregunta.respuesta[0]?.observacion ?? "";
           if (obligatorio) {
             preguntasTotales += 1;
             preguntasPasos += 1;
-            if (resp == 'S' && adj != '') {
+            if (resp == "S" && adj != "") {
               preguntasCompletadas += 1;
               PreguntasPasosCompletadas += 1;
-            }else if (resp == 'N' && obs != '') {
+            } else if (resp == "N" && obs != "") {
               preguntasCompletadas += 1;
               PreguntasPasosCompletadas += 1;
             }
-
           }
-
-
         }
-
       });
       if (obligatorio && preguntasPasos == PreguntasPasosCompletadas) {
         pasosCompletados += 1;
       }
       if (preguntasArr.length >= 1) {
-        clasificacionesArr.push(
-          {
-            clasificacion,
-            preguntas: preguntasArr
-          }
-
-        );
+        clasificacionesArr.push({
+          clasificacion,
+          preguntas: preguntasArr,
+        });
       }
-
-
     });
 
-
-const porcentajePasos = (pasosCompletados/pasosObligatorios)*100;
-const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
+    const porcentajePasos = (pasosCompletados / pasosObligatorios) * 100;
+    const porcentajePreguntas = (preguntasCompletadas / preguntasTotales) * 100;
 
     const encuesta = {
       tipoAccion,
@@ -292,84 +383,114 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
       descripcionClasificacion,
       observacion: encuestaSql?.observacion,
       clasificaciones: clasificacionesArr,
-      encuestaEditable, verificacionVisible, verificacionEditable,
-      modalidad, totalConductores, totalVehiculos,
-      porcentajePasos, porcentajePreguntas
-    }
+      encuestaEditable,
+      verificacionVisible,
+      verificacionEditable,
+      modalidad,
+      totalConductores,
+      totalVehiculos,
+      porcentajePasos,
+      porcentajePreguntas,
+    };
 
-    return encuesta
+    return encuesta;
   }
 
   async enviarSt(params: any): Promise<any> {
-    const { idEncuesta, idReporte, idVigilado, idUsuario, confirmar = false } = params
-    const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
-      sqlClasC.preload('clasificacion', (sqlCla) => {
-        sqlCla.preload('pregunta', (sqlPre) => {
-          sqlPre.where('id_encuesta', idEncuesta)
-        }).whereHas('pregunta', sqlE => {
-          sqlE.where('id_encuesta', idEncuesta);
-        })
+    const {
+      idEncuesta,
+      idReporte,
+      idVigilado,
+      idUsuario,
+      confirmar = false,
+    } = params;
+    const usuario = await TblUsuarios.query()
+      .preload("clasificacionUsuario", (sqlClasC) => {
+        sqlClasC.preload("clasificacion", (sqlCla) => {
+          sqlCla
+            .preload("pregunta", (sqlPre) => {
+              sqlPre.where("id_encuesta", idEncuesta);
+            })
+            .whereHas("pregunta", (sqlE) => {
+              sqlE.where("id_encuesta", idEncuesta);
+            });
+        });
       })
-    }).where('identificacion', idVigilado).first()
+      .where("identificacion", idVigilado)
+      .first();
 
     let aprobado = true;
     const faltantes = new Array();
-    const pasos = usuario?.clasificacionUsuario[0]?.clasificacion
-    const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
-    pasos?.forEach(paso => {
-      paso.pregunta.forEach(preguntaPaso => {
-        let repuestaExiste = true
-        let archivoExiste = true
-        const respuesta = respuestas.find(r => r.idPregunta === preguntaPaso.id)
+    const pasos = usuario?.clasificacionUsuario[0]?.clasificacion;
+    const respuestas = await TblRespuestas.query()
+      .where("id_reporte", idReporte)
+      .orderBy("id_pregunta", "asc");
+    pasos?.forEach((paso) => {
+      paso.pregunta.forEach((preguntaPaso) => {
+        let repuestaExiste = true;
+        let archivoExiste = true;
+        const respuesta = respuestas.find(
+          (r) => r.idPregunta === preguntaPaso.id
+        );
         if (preguntaPaso.obligatoria) {
           if (!respuesta) {
-            //throw new NoAprobado('Faltan preguntas por responder')     
-            repuestaExiste = false
+            //throw new NoAprobado('Faltan preguntas por responder')
+            repuestaExiste = false;
           }
 
-          if (respuesta && respuesta.valor === '') {
-            repuestaExiste = false
+          if (respuesta && respuesta.valor === "") {
+            repuestaExiste = false;
           }
 
-          if (respuesta && respuesta.valor === 'N' && (!respuesta.observacion || respuesta.observacion === '')) {
-            repuestaExiste = false
+          if (
+            respuesta &&
+            respuesta.valor === "N" &&
+            (!respuesta.observacion || respuesta.observacion === "")
+          ) {
+            repuestaExiste = false;
           }
 
-
-          if (respuesta && respuesta.valor === 'S' && preguntaPaso.adjuntableObligatorio) {
+          if (
+            respuesta &&
+            respuesta.valor === "S" &&
+            preguntaPaso.adjuntableObligatorio
+          ) {
             console.log(respuesta.observacion);
 
             archivoExiste = this.validarDocumento(respuesta, preguntaPaso);
           }
-
         }
-
 
         if (!repuestaExiste || !archivoExiste) {
-          aprobado = false
+          aprobado = false;
           faltantes.push({
             preguntaId: preguntaPaso.id,
-            archivoObligatorio: preguntaPaso.adjuntableObligatorio
-          })
-
+            archivoObligatorio: preguntaPaso.adjuntableObligatorio,
+          });
         }
-
-
       });
-
     });
 
     if (confirmar) aprobado = true;
 
     if (aprobado) {
-      this.servicioEstado.Log(idVigilado, 1004, idEncuesta, undefined, confirmar)
-      const reporte = await TblReporte.findOrFail(idReporte)
-      const estado = (reporte.estadoVerificacionId === 7 || reporte.estadoVerificacionId === 1005) ? 4 : 1004
-      reporte.fechaEnviost = DateTime.fromJSDate(new Date())
-      reporte.envioSt = '1'
-      reporte.estadoVerificacionId = estado
+      this.servicioEstado.Log(
+        idVigilado,
+        1004,
+        idEncuesta,
+        undefined,
+        confirmar
+      );
+      const reporte = await TblReporte.findOrFail(idReporte);
+      const estado =
+        reporte.estadoVerificacionId === 7 ||
+        reporte.estadoVerificacionId === 1005
+          ? 4
+          : 1004;
+      reporte.fechaEnviost = DateTime.fromJSDate(new Date());
+      reporte.envioSt = "1";
+      reporte.estadoVerificacionId = estado;
       reporte.save();
-
 
       this.servicioAuditoria.Auditar({
         accion: "Enviar a St",
@@ -377,68 +498,74 @@ const porcentajePreguntas = (preguntasCompletadas/preguntasTotales)* 100;
         usuario: idUsuario,
         jsonNuevo: JSON.stringify(respuestas),
         vigilado: idVigilado,
-        descripcion: 'Se envia a ST',
+        descripcion: "Se envia a ST",
         encuestaId: idEncuesta,
-        tipoLog: 5
-
-      })
-
-
+        tipoLog: 5,
+      });
 
       try {
-        this.enviadorEmail = new EnviadorEmailAdonis()
-        await this.enviadorEmail.enviarTemplate({
-          asunto: 'Envío a ST.',
-          destinatarios: usuario?.correo!,
-          de: Env.get('SMTP_USERNAME')
-        }, new EmailnotificacionCorreo({
-          nombre: usuario?.nombre!,
-          mensaje: 'De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue enviado de manera correcta a la Superintendencia de Transporte.',
-          logo: Env.get('LOGO'),
-          nit: usuario?.identificacion!
-        }))
+        this.enviadorEmail = new EnviadorEmailAdonis();
+        await this.enviadorEmail.enviarTemplate(
+          {
+            asunto: "Envío a ST.",
+            destinatarios: usuario?.correo!,
+            de: Env.get("SMTP_USERNAME"),
+          },
+          new EmailnotificacionCorreo({
+            nombre: usuario?.nombre!,
+            mensaje:
+              "De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue enviado de manera correcta a la Superintendencia de Transporte.",
+            logo: Env.get("LOGO"),
+            nit: usuario?.identificacion!,
+          })
+        );
       } catch (error) {
         console.log(error);
       }
-
     }
 
-    return { aprobado, faltantes }
-
+    return { aprobado, faltantes };
   }
 
-
   async enviarInformacion(params: any): Promise<any> {
-    const { idEncuesta, idReporte, idVigilado, idUsuario, confirmar = false } = params
-   /*  const parametrosDeEnvio = { idEncuesta, idReporte, idVigilado, idUsuario : idVigilado, confirmar } */
+    const {
+      idEncuesta,
+      idReporte,
+      idVigilado,
+      idUsuario,
+      confirmar = false,
+    } = params;
+    /*  const parametrosDeEnvio = { idEncuesta, idReporte, idVigilado, idUsuario : idVigilado, confirmar } */
 
-   const reporte = await TblReporte.findOrFail(idReporte)
+    const reporte = await TblReporte.findOrFail(idReporte);
 
-   if (!reporte) {
-    throw new ErroresEmpresa('El reporte no existe.',400)
-   }
+    if (!reporte) {
+      throw new ErroresEmpresa("El reporte no existe.", 400);
+    }
 
-   if(reporte.envioSt == '1'){
-    throw new ErroresEmpresa('El reporte ya fue enviado a ST.',400)
-   }
+    if (reporte.envioSt == "1") {
+      throw new ErroresEmpresa("El reporte ya fue enviado a ST.", 400);
+    }
 
     const { aprobado, faltantes } = await this.enviarSt(params);
-   if(aprobado){
-    this.servicioEstadosEmpresas.Log(idVigilado,idUsuario,1,3004, DateTime.fromJSDate(new Date()))
-   }
+    if (aprobado) {
+      this.servicioEstadosEmpresas.Log(
+        idVigilado,
+        idUsuario,
+        1,
+        3004,
+        DateTime.fromJSDate(new Date())
+      );
+    }
 
-   return{ aprobado, faltantes } 
-    
-
+    return { aprobado, faltantes };
   }
 
   validarDocumento = (r: Respuesta, p: Pregunta): boolean => {
     if (!r.documento || r.documento.length <= 0) {
       //throw new NoAprobado('Faltan archivos adjuntar')
-      return false
+      return false;
     }
-    return true
-  }
-
-
+    return true;
+  };
 }
