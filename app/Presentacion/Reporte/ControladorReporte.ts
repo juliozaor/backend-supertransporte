@@ -86,4 +86,14 @@ export default class ControladorArchivo {
     return encuestas
   }
 
+  public async aprobar({ request, response }:HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    if (payload.idRol !== '001') {
+      
+      return response.status(401).send('No tiene perminos para acceder a esta consulta')
+    }
+    return this.service.aprobarVerificacion(request.all());
+  }
+
+
 }

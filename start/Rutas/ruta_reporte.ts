@@ -11,4 +11,5 @@ Route.group(() => {
   Route.get('/enviadas', accion_path + '.enviadas')
   Route.get('/visualizar', `${accion_path}.visualizar`)
   Route.get('/formularios', accion_path + '.formularios')
+  Route.post('/aprobar-verificacion', accion_path + '.aprobar')
 }).prefix('api/v1/reportes').middleware('autenticacionJwt')
