@@ -27,6 +27,9 @@ export default class Reporte extends BaseModel {
   @column({ columnName: 'asignador' }) public asignador?: string;
   @column({ columnName: 'fecha_asignacion' }) public fechaAsignacion?: DateTime;
   @column({ columnName: 'anio_vigencia' }) public anioVigencia?: number;
+  @column({ columnName: 'observacion' }) public observacion?: string;
+  @column({ columnName: 'aprobado' }) public aprobado?: boolean;
+  @column({ columnName: 'no_obligado' }) public noObligado?: boolean;
 
   @column.dateTime({ autoCreate: true , columnName: 'fecha_creacion'}) public fechaCreacion: DateTime
 
@@ -70,7 +73,17 @@ export default class Reporte extends BaseModel {
     this.estadoVerificacionId = estado
   }
 
- 
+  public establecerEstadoAdministrador(aprobado: boolean = false, observacion?: string) {
+    this.aprobado = aprobado
+    this.observacion = observacion
+  }
+
+  public establecerEstadoobligado(estado: boolean) {
+    this.noObligado = estado
+  }
+
+
+
   public obtenerReporte(): ReporteI {
     const reporte = new ReporteI()
     reporte.id = this.id 
@@ -85,6 +98,9 @@ export default class Reporte extends BaseModel {
     reporte.ultimoUsuarioAsignado = this.ultimoUsuarioAsignado 
     reporte.estadoVerificacionId = this.estadoVerificacionId
     reporte.anioVigencia = this.anioVigencia
+    reporte.observacion = this.observacion
+    reporte.noObligado = this.noObligado
+    reporte.aprobado = this.aprobado
     return reporte
   }
 

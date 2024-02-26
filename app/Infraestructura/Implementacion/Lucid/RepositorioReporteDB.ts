@@ -35,8 +35,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
       }
     }
 
-    if (rol === '002') {
-      consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador });
+    if (rol === '002') {  
+      consulta.where({ 'asignado': true, 'ultimo_usuario_asignado': idVerificador, 'aprobado':false });
 
     }
     consulta.preload('encuesta', sqlEncuesta => {
@@ -52,6 +52,13 @@ export class RepositorioReporteDB implements RepositorioReporte {
       let estadoValidacion = '';
       estadoValidacion = reportada.estadoVerificado?.nombre ?? estadoValidacion;
       estadoValidacion = reportada.estadoVigilado?.nombre ?? estadoValidacion;
+      let estadoAprobado = ''
+
+      if (!reportada.aprobado && reportada.observacion !=='' && reportada.observacion !==null) {
+        estadoAprobado = 'Devuelto';
+      }
+
+
       asignadas.push({
         idReporte: reportada.id!,
         nit: reportada.nitRues,
@@ -62,7 +69,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
         fechaEnvioST: reportada.fechaEnviost!,
         asignado: reportada.asignado,
         email: reportada.usuario?.correo,
-        estadoValidacion
+        estadoValidacion,
+        estadoAprobado,
+        observacion: reportada.observacion
       });
 
   

@@ -126,9 +126,15 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
   //verificar fase 1
   async verificar(datos: string, payload: PayloadJWT): Promise<any> {
-    const { idReporte, respuestas } = JSON.parse(datos)
+    const { idReporte, respuestas, noOblidado } = JSON.parse(datos)
 
     this.servicioEstadoVerificado.Log(idReporte, 2, payload.documento)
+
+    if(noOblidado){
+      const reporteDb = await TblReporte.findBy('id_reporte', idReporte)
+      reporteDb?.establecerEstadoobligado(noOblidado);
+      reporteDb?.save()
+    }
 
     respuestas.forEach(async respuesta => {
 

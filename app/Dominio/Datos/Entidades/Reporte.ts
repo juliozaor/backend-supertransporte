@@ -14,4 +14,7 @@ export class ReporteI {
   fechaAsignacion?: DateTime;
   estadoVerificacionId?:number;
   anioVigencia?:number;
+  observacion?: string;
+  aprobado?: boolean;
+  noObligado?: boolean;
 }
