@@ -130,17 +130,16 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
     this.servicioEstadoVerificado.Log(idReporte, 2, payload.documento)
 
-    if(noObligado){
+
       const reporteDb = await TblReporte.findBy('id_reporte', idReporte)
       reporteDb?.establecerEstadoobligado(noObligado);
-      reporteDb?.save()
-    }
+      await reporteDb?.save()
 
     respuestas.forEach(async respuesta => {
 
       const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
       existeRespuesta?.estableceVerificacion(respuesta)
-      existeRespuesta?.save()
+      await existeRespuesta?.save()
     });
 
   }

@@ -78,7 +78,7 @@ export default class Reporte extends BaseModel {
     this.observacion = observacion
   }
 
-  public establecerEstadoobligado(estado: boolean) {
+  public establecerEstadoobligado(estado: boolean) {    
     this.noObligado = estado
   }
 

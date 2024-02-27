@@ -355,6 +355,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       totalVehiculos,
       porcentajePasos,
       porcentajePreguntas,
+      noObligado: encuestaSql?.reportes[0].noObligado
     };
 
     return encuesta;
