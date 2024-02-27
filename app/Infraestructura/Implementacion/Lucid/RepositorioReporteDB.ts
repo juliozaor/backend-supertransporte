@@ -10,13 +10,17 @@ import TbClasificacion from "App/Infraestructura/Datos/Entidad/Clasificacion";
 import TblUsuarios from "App/Infraestructura/Datos/Entidad/Usuario";
 import TblEncuestas from "App/Infraestructura/Datos/Entidad/Encuesta";
 import { ServicioAcciones } from "App/Dominio/Datos/Servicios/ServicioAcciones";
-import { TblAnioVigencias } from "App/Infraestructura/Datos/Entidad/AnioVigencia";
 import { TblFormulariosIndicadores } from "App/Infraestructura/Datos/Entidad/FormularioIndicadores";
 import { TblEstadosReportes } from "App/Infraestructura/Datos/Entidad/EstadosReportes";
+import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
+import { EmailnotificacionCorreo } from "App/Dominio/Email/Emails/EmailNotificacionCorreo";
+import Env from '@ioc:Adonis/Core/Env';
+import { EnviadorEmailAdonis } from "App/Infraestructura/Email/EnviadorEmailAdonis";
 
 export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado();
   private servicioAcciones = new ServicioAcciones();
+  private enviadorEmail: EnviadorEmail
   async obtenerAsignadas(
     params: any
   ): Promise<{ asignadas: Reportadas[]; paginacion: Paginador }> {
@@ -712,11 +716,40 @@ export class RepositorioReporteDB implements RepositorioReporte {
     const { idReporte, aprobar = false, observacion } = params;
 
     if(idReporte){
-      const reporteDb = await TblReporte.findBy('id_reporte', idReporte)
+
+      const reporteDb = await TblReporte.query().preload('usuario').where('id_reporte', idReporte).first()
       reporteDb?.establecerEstadoAdministrador(aprobar, observacion)
       reporteDb?.save()
+
+      if (aprobar) {
+        // Enviar correo al vigilado
+        const usuario = reporteDb?.usuario
+        if (usuario) {
+          try {
+            this.enviadorEmail = new EnviadorEmailAdonis();
+            await this.enviadorEmail.enviarTemplate({
+              asunto: 'Encuesta aprobada.',
+              destinatarios: usuario.correo,
+              de: Env.get('SMTP_USERNAME')
+            }, new EmailnotificacionCorreo({
+              nombre: usuario.nombre,
+              mensaje:
+                "De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue aprobada.",
+              logo: Env.get("LOGO"),
+              nit: usuario.identificacion,
+            }))
+            
+          } catch (error) {
+            console.log(error);
+          }
+          
+        }
+
+      }      
+      
     }
     let mensaje = 'El reporte fue aprobado'
+    
     if (!aprobar) {
       mensaje = "El reporte fue devuelto al verificador"
     }

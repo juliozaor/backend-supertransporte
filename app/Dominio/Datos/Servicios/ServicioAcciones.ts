@@ -9,6 +9,8 @@ export class ServicioAcciones {
         return this.vigilados(estado);
       case '002':
         return this.verificador(estado);
+        case '001':
+        return this.verificador(6);
       default:
         return {
           encuestaEditable: false,
