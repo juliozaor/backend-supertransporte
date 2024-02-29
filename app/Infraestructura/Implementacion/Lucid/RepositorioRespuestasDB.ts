@@ -148,7 +148,15 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
   async finalizar(params: any): Promise<any> {
 
 
-    const { idEncuesta, idReporte, idUsuario, idVigilado } = params
+    const { idEncuesta, idReporte, idUsuario, idVigilado, noObligado=false } = params
+    let aprobado = true;
+    let cumple = true;
+    const faltantes = new Array();
+
+    if(noObligado){
+      this.servicioEstadoVerificado.Log(idReporte, 8, idUsuario)
+      return { aprobado, faltantes }
+    }
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion', (sqlCla) => {
         sqlCla.preload('pregunta', (sqlPre) => {
@@ -163,9 +171,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
     }).where('identificacion', idVigilado).first()
 
 
-    let aprobado = true;
-    let cumple = true;
-    const faltantes = new Array();
+    
     const clasificaciones = await TbClasificacion.query().preload('pregunta').where('estado', 1);
     const pasos = usuario?.clasificacionUsuario[0].clasificacion
     const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
