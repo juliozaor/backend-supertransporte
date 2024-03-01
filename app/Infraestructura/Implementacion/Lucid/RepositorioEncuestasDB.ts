@@ -243,6 +243,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       .first();
     estado = reporte?.estadoVerificado?.nombre ?? estado;
     estado = reporte?.estadoVigilado?.nombre ?? estado;
+    const observacionAdmin = reporte?.observacion ?? '';
     let clasificacion = "";
 
     const consulta = TblEncuestas.query()
@@ -391,6 +392,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       totalVehiculos,
       porcentajePasos,
       porcentajePreguntas,
+      observacionAdmin
     };
 
     return encuesta;
