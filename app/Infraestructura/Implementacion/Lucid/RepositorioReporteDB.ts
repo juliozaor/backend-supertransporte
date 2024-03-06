@@ -714,7 +714,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
   }
 
   async aprobarVerificacion(params: any): Promise<any> {
-    const { idReporte, aprobar = false, observacion } = params;
+    const { idReporte, aprobar = false, observacion, documento } = params;
 
     if(idReporte){
 
@@ -746,12 +746,16 @@ export class RepositorioReporteDB implements RepositorioReporte {
           
         }
 
+        this.servicioEstadoVerificado.Log(idReporte, 9, documento)
+
       }      
       
     }
     let mensaje = 'El reporte fue aprobado'
     
     if (!aprobar) {
+      this.servicioEstadoVerificado.Log(idReporte, 2, documento)
+
       mensaje = "El reporte fue devuelto al verificador"
     }
 

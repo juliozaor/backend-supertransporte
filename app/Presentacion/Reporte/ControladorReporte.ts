@@ -92,7 +92,7 @@ export default class ControladorArchivo {
       
       return response.status(401).send('No tiene perminos para acceder a esta consulta')
     }
-    return this.service.aprobarVerificacion(request.all());
+    return this.service.aprobarVerificacion(request.all(), payload.documento);
   }
 
 
