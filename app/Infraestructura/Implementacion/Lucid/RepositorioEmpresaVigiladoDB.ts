@@ -81,6 +81,8 @@ export class RepositorioEmpresaVigiladoDB
 
       return this.obtenerSeleccionadas(documento);
     } catch (error) {
+      console.log(error);
+      
       throw new Error(`Se presento un error durante la consulta`);
     }
   }
