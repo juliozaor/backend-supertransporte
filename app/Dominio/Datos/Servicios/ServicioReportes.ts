@@ -67,7 +67,7 @@ export class ServicioReportes {
     params.rol = payload.idRol;
     return this.repositorio.formularios(params);
   }
-  async aprobarVerificacion(params: any, documento:number): Promise<any> {
+  async aprobarVerificacion(params: any, documento:string): Promise<any> {
     params.documento = documento
     return this.repositorio.aprobarVerificacion(params);
   }
