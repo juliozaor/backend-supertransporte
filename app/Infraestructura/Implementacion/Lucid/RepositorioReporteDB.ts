@@ -475,6 +475,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
     const encuestaEditable = true;
     const soloLectura =
       true; /* (historico && historico == 'true' || !encuestaEditable) ?? false; */
+      const soloLecturaV = (reporte?.estadoVerificacionId == 6 || reporte?.estadoVerificacionId == 7) 
 
     const consulta = TblFormulariosIndicadores.query();
     const vigencia = reporte?.anioVigencia ?? undefined;
@@ -710,6 +711,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       evidenciasEntregadas,
       estadoActual,
       enviadosSt,
+      soloLecturaV 
     };
   }
 
