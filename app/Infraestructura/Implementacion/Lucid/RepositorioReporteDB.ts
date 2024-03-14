@@ -475,7 +475,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
     const encuestaEditable = true;
     const soloLectura =
       true; /* (historico && historico == 'true' || !encuestaEditable) ?? false; */
-      const soloLecturaV = (reporte?.estadoVerificacionId == 6 || reporte?.estadoVerificacionId == 7) 
+      const soloLecturaV = false/* (reporte?.estadoVerificacionId == 6 || reporte?.estadoVerificacionId == 7) */
 
     const consulta = TblFormulariosIndicadores.query();
     const vigencia = reporte?.anioVigencia ?? undefined;
@@ -719,11 +719,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
     const { idReporte, aprobar = false, observacion, documento } = params;
 
     if(idReporte){
-
       const reporteDb = await TblReporte.query().preload('usuario').where('id_reporte', idReporte).first()
       reporteDb?.establecerEstadoAdministrador(aprobar, observacion)
       reporteDb?.save()
-
       if (aprobar) {
         // Enviar correo al vigilado
         const usuario = reporteDb?.usuario
