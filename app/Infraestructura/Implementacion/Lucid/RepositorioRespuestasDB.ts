@@ -347,6 +347,7 @@ formulariosBD.forEach(formulario => {
         estado = 6;
       }
       this.servicioEstadoVerificado.Log(idReporte, estado, idUsuario)
+      this.servicioEstadoVerificado.Enviados(idReporte, estado, idMes, vigencia!)
     }
 
 

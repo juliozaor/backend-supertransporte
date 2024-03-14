@@ -31,9 +31,8 @@ export class ServicioAcciones {
     if (estado === 7) {
       verificacionVisible = true
     }
-    if (estado === 2 || estado === 3 || estado === 4 || estado === 6 || estado === 1 || estado === 1004) {
+    if (estado === 2 || estado === 3 || estado === 4 || estado === 6 || estado === 1 || estado === 1004 || estado === 8 || estado === 8) {
       encuestaEditable = false
-      verificacionVisible = false
     }
 
     if (estado === 6) {
@@ -56,7 +55,7 @@ export class ServicioAcciones {
 
 
 
-    if (estado === 3 || estado === 6 || estado === 7) {
+    if (estado === 3 || estado === 6 || estado === 7 || estado === 9) {
       verificacionEditable = false
     }
 

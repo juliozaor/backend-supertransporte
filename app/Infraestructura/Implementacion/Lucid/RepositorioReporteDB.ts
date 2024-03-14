@@ -16,6 +16,7 @@ import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
 import { EmailnotificacionCorreo } from "App/Dominio/Email/Emails/EmailNotificacionCorreo";
 import Env from '@ioc:Adonis/Core/Env';
 import { EnviadorEmailAdonis } from "App/Infraestructura/Email/EnviadorEmailAdonis";
+import TblEnviadosStFormularios from "App/Infraestructura/Datos/Entidad/EnviadosStFormuarios";
 
 export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado();
@@ -470,12 +471,20 @@ export class RepositorioReporteDB implements RepositorioReporte {
       usuario?.clasificacionUsuario[0].$extras.pivot_clu_vehiculos ?? "";
 
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
-
-    // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
+    
     const encuestaEditable = true;
     const soloLectura =
-      true; /* (historico && historico == 'true' || !encuestaEditable) ?? false; */
-      const soloLecturaV = false/* (reporte?.estadoVerificacionId == 6 || reporte?.estadoVerificacionId == 7) */
+    true; /* (historico && historico == 'true' || !encuestaEditable) ?? false; */
+    
+    const estadoEnviado = await TblEnviadosStFormularios.query().where({
+      reporte: idReporte,
+      mes: idMes,
+      vigencia: reporte?.anioVigencia,
+    }).first()
+    let soloLecturaV = false
+    if (estadoEnviado?.estado == 6 || estadoEnviado?.estado == 7 || estadoEnviado?.estado == 8 || estadoEnviado?.estado == 9) {
+      soloLecturaV = true
+    }
 
     const consulta = TblFormulariosIndicadores.query();
     const vigencia = reporte?.anioVigencia ?? undefined;
@@ -755,8 +764,11 @@ export class RepositorioReporteDB implements RepositorioReporte {
     
     if (!aprobar) {
       this.servicioEstadoVerificado.Log(idReporte, 2, documento)
+      //this.servicioEstadoVerificado.Enviados(idReporte, 2, documento)
 
       mensaje = "El reporte fue devuelto al verificador"
+    }else{
+     // this.servicioEstadoVerificado.Enviados(idReporte, 2, documento)
     }
 
 

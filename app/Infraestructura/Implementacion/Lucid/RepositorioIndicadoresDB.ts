@@ -15,12 +15,14 @@ import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
 import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
 import { ServicioEstadosEmpresas } from 'App/Dominio/Datos/Servicios/ServicioEstadosEmpresas';
 import { TblMeses } from 'App/Infraestructura/Datos/Entidad/Mes';
+import { ServicioEstadosVerificado } from 'App/Dominio/Datos/Servicios/ServicioEstadosVerificado';
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   private servicioAcciones = new ServicioAcciones();
   private servicioEstadosEmpresas = new ServicioEstadosEmpresas();
+  private servicioEstadoVerificado = new ServicioEstadosVerificado()
   async visualizar(params: any): Promise<any> {
     const { idUsuario, idVigilado, idReporte, idMes, historico, idRol } = params;
 
@@ -243,6 +245,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
 
       this.servicioEstado.Log(indicadores.idVigilado, 1004, indicadores.idEncuesta)
+      this.servicioEstadoVerificado.Enviados(idReporte, 1004, idMes, indicadores.vigencia)
       this.servicioEstado.estadoReporte(idReporte, indicadores.vigencia, idMes, 1004, DateTime.fromJSDate(new Date()))
       const reporte = await TblReporte.findOrFail(idReporte)
       reporte.fechaEnviost = DateTime.fromJSDate(new Date())
