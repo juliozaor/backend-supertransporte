@@ -16,6 +16,7 @@ import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
 import { ServicioEstadosEmpresas } from 'App/Dominio/Datos/Servicios/ServicioEstadosEmpresas';
 import { TblMeses } from 'App/Infraestructura/Datos/Entidad/Mes';
 import { ServicioEstadosVerificado } from 'App/Dominio/Datos/Servicios/ServicioEstadosVerificado';
+import TblEnviadosStFormularios from 'App/Infraestructura/Datos/Entidad/EnviadosStFormuarios';
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
@@ -47,6 +48,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       newEstadoReporte.save()
     }
 
+    
+
     // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
    
 
@@ -56,8 +59,16 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     const consulta = TblFormulariosIndicadores.query()
     const vigencia = reporte.anioVigencia ?? undefined
-    const observacionAdmin = reporte?.observacion ?? '';
-    const aprobado = reporte?.aprobado;
+
+const enviadoSt = await TblEnviadosStFormularios.query().where({
+  reporte: idReporte,
+  mes: idMes,
+  vigencia: vigencia,
+})
+.first();
+
+    const observacionAdmin = enviadoSt?.observacion ?? '';
+    const aprobado = enviadoSt?.aprobado;    
 
     consulta.preload('subIndicadores', subIndicador => {
       if (reporte && reporte.anioVigencia == 2023) {

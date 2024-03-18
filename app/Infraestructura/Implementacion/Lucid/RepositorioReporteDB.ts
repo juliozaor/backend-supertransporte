@@ -730,13 +730,13 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
   async aprobarVerificacion(params: any): Promise<any> {
     const { idReporte, aprobar = false, observacion, documento, idMes } = params;
-
+    let mensaje = 'El reporte fue aprobado'
     if(idReporte){
       const reporteDb = await TblReporte.query().preload('usuario').where('id_reporte', idReporte).first()
       reporteDb?.establecerEstadoAdministrador(aprobar, observacion)
       reporteDb?.save()
-      if (aprobar) {
-        // Enviar correo al vigilado
+      if (aprobar ) {
+        if(reporteDb?.idEncuesta == 1){        // Enviar correo al vigilado
         const usuario = reporteDb?.usuario
         if (usuario) {
           try {
@@ -755,32 +755,47 @@ export class RepositorioReporteDB implements RepositorioReporte {
             
           } catch (error) {
             console.log(error);
-          }
-          
+          }          
         }
 
-        this.servicioEstadoVerificado.Log(idReporte, 9, documento)        
-
+        this.servicioEstadoVerificado.Log(idReporte, 9, documento)   
+             
+      }else if(reporteDb?.idEncuesta == 2){
+        const usuario = reporteDb?.usuario
+        if (usuario) {
+          try {
+            this.enviadorEmail = new EnviadorEmailAdonis();
+            await this.enviadorEmail.enviarTemplate({
+              asunto: 'Encuesta aprobada.',
+              destinatarios: usuario.correo,
+              de: Env.get('SMTP_USERNAME')
+            }, new EmailnotificacionCorreo({
+              nombre: usuario.nombre,
+              mensaje:
+                "De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue aprobada, parta el mes "+idMes+" del "+reporteDb?.anioVigencia,
+              logo: Env.get("LOGO"),
+              nit: usuario.identificacion,
+            }))
+            
+          } catch (error) {
+            console.log(error);
+          }
+        }
+        this.servicioEstadoVerificado.Enviados(idReporte, 9, idMes, reporteDb?.anioVigencia!,observacion,aprobar)
+      }
       }else{
-        //this.servicioEstadoVerificado.Log(idReporte, 4, documento)
+        mensaje = "El reporte fue devuelto al verificador"
+       // this.servicioEstadoVerificado.Log(idReporte, 4, documento)
+       if(reporteDb?.idEncuesta == 1){
+         this.servicioEstadoVerificado.Log(idReporte, 4, documento)
+       }
         if (reporteDb?.idEncuesta == 2) {          
-          this.servicioEstadoVerificado.Enviados(idReporte, 4, idMes, reporteDb?.anioVigencia!)
+          this.servicioEstadoVerificado.Enviados(idReporte, 4, idMes, reporteDb?.anioVigencia!,observacion,aprobar)
         }
       }      
       
     }
-    let mensaje = 'El reporte fue aprobado'
     
-    if (!aprobar) {
-      this.servicioEstadoVerificado.Log(idReporte, 4, documento)
-      
-      //this.servicioEstadoVerificado.Enviados(idReporte, 2, documento)
-
-      mensaje = "El reporte fue devuelto al verificador"
-    }else{
-     // this.servicioEstadoVerificado.Enviados(idReporte, 2, documento)
-    }
-
 
     return {mensaje, estadoReporte:aprobar}
 

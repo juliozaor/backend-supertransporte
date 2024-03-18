@@ -9,7 +9,12 @@ export default class TblEnviadosStFormularios extends BaseModel {
   @column({ columnName: 'reporte' }) public reporte: number;
   @column({ columnName: 'estado' }) public estado: number;
   @column({ columnName: 'mes' }) public mes: number;
-  @column({ columnName: 'vigencia' }) public vigencia: number;
+  @column({ columnName: 'vigencia' }) public vigencia: number;  
+  @column({ columnName: 'observacion' })
+  public observacion?: string;
+  @column({ columnName: 'aprobado' })
+  public aprobado?: boolean;
+
 
   @column.dateTime({ autoCreate: true, columnName: 'created_at' })
   public creacion: DateTime

@@ -10,6 +10,8 @@ export default class extends BaseSchema {
       table.integer('estado')      
       table.string('mes')      
       table.string('vigencia')   
+      table.string('observacion')   
+      table.boolean('aprobado').defaultTo(false)  
       table.timestamp('created_at', { useTz: true })
       table.timestamp('updated_at', { useTz: true })
     })
