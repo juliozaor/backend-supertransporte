@@ -329,7 +329,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
     estadoActual =
       encuestaSql?.reportes[0].estadoVigilado?.nombre ?? estadoActual;
 
-    const { encuestaEditable, verificacionVisible, verificacionEditable } =
+    let { encuestaEditable, verificacionVisible, verificacionEditable } =
       await this.servicioAcciones.obtenerAccion(
         encuestaSql?.reportes[0]?.estadoVerificacionId ?? 0,
         rol
@@ -337,6 +337,11 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     const porcentajePasos = (pasosCompletados / pasosObligatorios) * 100;
     const porcentajePreguntas = (preguntasCompletadas / preguntasTotales) * 100;
+
+   const noObligado = encuestaSql?.reportes[0].noObligado
+   if(noObligado){
+    verificacionEditable = false
+   }
 
     const encuesta = {
       tipoAccion,
