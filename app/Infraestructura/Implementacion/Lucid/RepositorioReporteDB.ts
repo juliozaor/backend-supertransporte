@@ -337,9 +337,10 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     const porcentajePasos = (pasosCompletados / pasosObligatorios) * 100;
     const porcentajePreguntas = (preguntasCompletadas / preguntasTotales) * 100;
+    
 
    const noObligado = encuestaSql?.reportes[0].noObligado
-   if(noObligado){
+   if(noObligado && rol === "002"){
     verificacionEditable = false
    }
 
