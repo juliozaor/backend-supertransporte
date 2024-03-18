@@ -33,7 +33,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
     consulta.preload("estadoVerificado");
     consulta.preload("estadoVigilado");
 
-    if (rol === "001") {
+    if (rol === "001" ||rol === "010") {
       consulta.where("asignado", true);
       if (idVerificador) {
         consulta.andWhere("ultimo_usuario_asignado", idVerificador);
@@ -762,9 +762,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
         this.servicioEstadoVerificado.Log(idReporte, 9, documento)        
 
       }else{
-        this.servicioEstadoVerificado.Log(idReporte, 2, documento)
+        //this.servicioEstadoVerificado.Log(idReporte, 4, documento)
         if (reporteDb?.idEncuesta == 2) {          
-          this.servicioEstadoVerificado.Enviados(idReporte, 2, idMes, reporteDb?.anioVigencia!)
+          this.servicioEstadoVerificado.Enviados(idReporte, 4, idMes, reporteDb?.anioVigencia!)
         }
       }      
       
@@ -772,7 +772,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
     let mensaje = 'El reporte fue aprobado'
     
     if (!aprobar) {
-      this.servicioEstadoVerificado.Log(idReporte, 2, documento)
+      this.servicioEstadoVerificado.Log(idReporte, 4, documento)
+      
       //this.servicioEstadoVerificado.Enviados(idReporte, 2, documento)
 
       mensaje = "El reporte fue devuelto al verificador"
