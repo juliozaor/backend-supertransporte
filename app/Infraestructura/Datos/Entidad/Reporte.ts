@@ -75,7 +75,7 @@ export default class Reporte extends BaseModel {
 
   public establecerEstadoAdministrador(aprobado: boolean = false, observacion?: string) {
     this.aprobado = aprobado
-    this.observacion = observacion
+    this.observacion = observacion?.trim()
   }
 
   public establecerEstadoobligado(estado: boolean) {    
