@@ -48,7 +48,10 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
     }
 
     // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
-    const encuestaEditable = true
+   
+
+
+    const encuestaEditable = (estadoreportes?.estado !== 1004) //true
     const soloLectura = (historico && historico == 'true' || !encuestaEditable) ?? false;
 
     const consulta = TblFormulariosIndicadores.query()
