@@ -475,6 +475,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
     const encuestaEditable = true;
     const soloLectura =
     true; /* (historico && historico == 'true' || !encuestaEditable) ?? false; */
+    const observacionAdmin = reporte?.observacion ?? '';
+    const aprobado = reporte?.aprobado;
     
     const estadoEnviado = await TblEnviadosStFormularios.query().where({
       reporte: idReporte,
@@ -720,7 +722,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
       evidenciasEntregadas,
       estadoActual,
       enviadosSt,
-      soloLecturaV 
+      soloLecturaV,
+      observacionAdmin,
+      aprobado
     };
   }
 

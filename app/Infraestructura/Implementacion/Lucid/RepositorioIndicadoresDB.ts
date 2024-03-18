@@ -56,6 +56,8 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
     const consulta = TblFormulariosIndicadores.query()
     const vigencia = reporte.anioVigencia ?? undefined
+    const observacionAdmin = reporte?.observacion ?? '';
+    const aprobado = reporte?.aprobado;
 
     consulta.preload('subIndicadores', subIndicador => {
       if (reporte && reporte.anioVigencia == 2023) {
@@ -204,7 +206,9 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       idEncuesta: reporte.idEncuesta,
       vigencia,
       mensaje: 'Cumplimiento del paso #20 de la metodología definida en la Res. 40595 de 2022.',
-      formularios
+      formularios,
+      observacionAdmin,
+      aprobado
     }
   }
 
