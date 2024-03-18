@@ -736,7 +736,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       reporteDb?.establecerEstadoAdministrador(aprobar, observacion)
       reporteDb?.save()
       if (aprobar ) {
-        if(reporteDb?.idEncuesta == 1){        // Enviar correo al vigilado
+        if(reporteDb?.idEncuesta == 1){  
         const usuario = reporteDb?.usuario
         if (usuario) {
           try {
@@ -760,7 +760,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
         this.servicioEstadoVerificado.Log(idReporte, 9, documento)   
              
-      }else if(reporteDb?.idEncuesta == 2){
+      }else if(reporteDb?.idEncuesta == 2){        
         const usuario = reporteDb?.usuario
         if (usuario) {
           try {
@@ -789,7 +789,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
        if(reporteDb?.idEncuesta == 1){
          this.servicioEstadoVerificado.Log(idReporte, 4, documento)
        }
-        if (reporteDb?.idEncuesta == 2) {          
+        if (reporteDb?.idEncuesta == 2) {    
+          console.log("Entro1");
+                
           this.servicioEstadoVerificado.Enviados(idReporte, 4, idMes, reporteDb?.anioVigencia!,observacion,aprobar)
         }
       }      

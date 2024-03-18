@@ -56,7 +56,7 @@ export class ServicioEstadosVerificado {
       reporteEstado.estado = estado;
       reporteEstado.mes = mes;
       reporteEstado.vigencia = vigencia;
-      if(observacion){
+      if(observacion){        
         reporteEstado.observacion = observacion;
       }
       if(aprobado){
@@ -64,6 +64,12 @@ export class ServicioEstadosVerificado {
       }
       await reporteEstado.save();
     } else {
+      if(observacion){        
+        exiteEstado.observacion = observacion;
+      }
+      if(aprobado){
+        exiteEstado.aprobado = aprobado;
+      }
       exiteEstado.estado = estado;
       await exiteEstado.save();
     }
