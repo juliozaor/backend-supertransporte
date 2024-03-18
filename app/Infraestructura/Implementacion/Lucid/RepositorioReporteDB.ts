@@ -725,7 +725,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
   }
 
   async aprobarVerificacion(params: any): Promise<any> {
-    const { idReporte, aprobar = false, observacion, documento } = params;
+    const { idReporte, aprobar = false, observacion, documento, idMes } = params;
 
     if(idReporte){
       const reporteDb = await TblReporte.query().preload('usuario').where('id_reporte', idReporte).first()
@@ -755,8 +755,13 @@ export class RepositorioReporteDB implements RepositorioReporte {
           
         }
 
-        this.servicioEstadoVerificado.Log(idReporte, 9, documento)
+        this.servicioEstadoVerificado.Log(idReporte, 9, documento)        
 
+      }else{
+        this.servicioEstadoVerificado.Log(idReporte, 2, documento)
+        if (reporteDb?.idEncuesta == 2) {          
+          this.servicioEstadoVerificado.Enviados(idReporte, 2, idMes, reporteDb?.anioVigencia!)
+        }
       }      
       
     }
