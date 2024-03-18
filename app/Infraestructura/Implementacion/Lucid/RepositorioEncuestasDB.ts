@@ -169,18 +169,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       }
     } */
 
-
+    
     reportadasBD.map((reportada) => {
-      let estadoAprobado = "";
-
-      if (
-        !reportada.aprobado &&
-        reportada.observacion !== "" &&
-        reportada.observacion !== null
-      ) {
-        estadoAprobado = "Devuelto";
-      }
-
       let estado = "FORMULARIO EN BORRADOR";
       estado = reportada.estadoVerificado?.nombre ?? estado;
       estado = reportada.estadoVigilado?.nombre ?? estado;
@@ -203,8 +193,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
         estado,
         vigencia: reportada.anioVigencia ?? undefined,
-        estadoAprobado,
-        observacion: reportada.observacion,
       });
     });
 

@@ -404,6 +404,15 @@ export class RepositorioReporteDB implements RepositorioReporte {
       estadoValidacion = reportada.estadoVerificado?.nombre ?? estadoValidacion;
       estadoValidacion = reportada.estadoVigilado?.nombre ?? estadoValidacion;
       const vigencia = reportada?.anioVigencia ?? 2023;
+      let estadoAprobado = "";
+      if (
+        !reportada.aprobado &&
+        reportada.observacion !== "" &&
+        reportada.observacion !== null
+      ) {
+        estadoAprobado = "Devuelto";
+      }
+
 
       asignadas.push({
         idReporte: reportada.id!,
@@ -417,6 +426,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
         email: reportada.usuario?.correo,
         estadoValidacion,
         vigencia,
+        estadoAprobado,
+        observacion: reportada.observacion,
       });
     }
 
@@ -565,6 +576,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       const nombre = formulario.nombre;
       const mensaje = formulario.mensaje;
       const subIndicador: any = [];
+      
       formulario.subIndicadores.forEach((subInd) => {
         const preguntas: any = [];
         subInd.datosIndicadores.forEach((datos) => {
