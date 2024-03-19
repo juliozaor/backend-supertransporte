@@ -766,7 +766,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
             }, new EmailnotificacionCorreo({
               nombre: usuario.nombre,
               mensaje:
-                "De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue aprobada.",
+                "Por medio de la presente la Superintendencia de Transporte, le informa que su formulario número uno del PESV fue analizado, lo invitamos a que ingrese al sistema para que vea en detalle en análisis.",
               logo: Env.get("LOGO"),
               nit: usuario.identificacion,
             }))
@@ -790,7 +790,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
             }, new EmailnotificacionCorreo({
               nombre: usuario.nombre,
               mensaje:
-                "De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue aprobada, parta el mes "+idMes+" del "+reporteDb?.anioVigencia,
+                "Por medio de la presente la Superintendencia de Transporte, le informa que su formulario número dos del PESV, para el mes "+idMes+" del "+reporteDb?.anioVigencia+"  fue analizado, lo invitamos a que ingrese al sistema para que vea en detalle en análisis",
               logo: Env.get("LOGO"),
               nit: usuario.identificacion,
             }))
