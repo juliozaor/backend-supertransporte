@@ -51,7 +51,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     modalidades.forEach((modalidad) => {
       modalidad.radios.forEach((radio) => {
         filasModalidades.push({
-          id: radio.$extras.pivot_tmr_id,
+          id: radio?.$extras?.pivot_tmr_id,
           modalidad: modalidad.nombre,
           radio: radio.nombre,
         });

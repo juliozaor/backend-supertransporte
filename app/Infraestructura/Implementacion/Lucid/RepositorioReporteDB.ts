@@ -241,9 +241,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
     }
 
     const totalConductores =
-      usuario?.clasificacionUsuario[0]?.$extras.pivot_clu_conductores ?? "";
+      usuario?.clasificacionUsuario[0]?.$extras?.pivot_clu_conductores ?? "";
     const totalVehiculos =
-      usuario?.clasificacionUsuario[0]?.$extras.pivot_clu_vehiculos ?? "";
+      usuario?.clasificacionUsuario[0]?.$extras?.pivot_clu_vehiculos ?? "";
 
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
     const pasos = usuario?.clasificacionUsuario[0]?.clasificacion;
@@ -483,9 +483,9 @@ export class RepositorioReporteDB implements RepositorioReporte {
     }
 
     const totalConductores =
-      usuario?.clasificacionUsuario[0].$extras.pivot_clu_conductores ?? "";
+      usuario?.clasificacionUsuario[0]?.$extras?.pivot_clu_conductores ?? "";
     const totalVehiculos =
-      usuario?.clasificacionUsuario[0].$extras.pivot_clu_vehiculos ?? "";
+      usuario?.clasificacionUsuario[0]?.$extras?.pivot_clu_vehiculos ?? "";
 
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
     

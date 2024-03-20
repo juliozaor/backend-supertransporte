@@ -39,11 +39,11 @@ let acceso = '';
 
   traza.usuario?.usuarioEncuesta?.forEach(e => {
     if (e.id == traza.idEncuesta) {
-     if(e.$extras.pivot_use_estado_vigilado_id == 1){
-      acceso = e.$extras.pivot_use_creacion
+     if(e?.$extras?.pivot_use_estado_vigilado_id == 1){
+      acceso = e?.$extras?.pivot_use_creacion
       }
       if(e.$extras.pivot_use_estado_vigilado_id == 2){
-        inicioDiligenciamiento = e.$extras.pivot_use_creacion
+        inicioDiligenciamiento = e?.$extras?.pivot_use_creacion
       }
     }
   
@@ -55,8 +55,8 @@ let acceso = '';
     nit: traza.nitRues,
     razonSocial: traza.razonSocialRues,
     acceso,
-    cantConductores:traza.usuario?.clasificacionUsuario[0]?.$extras.pivot_clu_conductores??'',
-    cantVehiculos: (traza.usuario?.clasificacionUsuario[0]?.$extras.pivot_clu_vehiculos)??'',
+    cantConductores:traza.usuario?.clasificacionUsuario[0]?.$extras?.pivot_clu_conductores??'',
+    cantVehiculos: (traza.usuario?.clasificacionUsuario[0]?.$extras?.pivot_clu_vehiculos)??'',
     clasificacion: (traza.usuario?.clasificacionUsuario[0]?.nombre)??'',
     inicioDiligenciamiento,
     envioSt:traza.fechaEnviost,
@@ -64,9 +64,9 @@ let acceso = '';
     asignador:traza.asignador,
     fechaAsignacion: traza.fechaAsignacion,
     validador:traza.ultimoUsuarioAsignado,
-    pendiente: traza.reporteEstadoVerificado?.find(r => r.id == 1)?.$extras.pivot_rev_creacion??'',
-    proceso: traza.reporteEstadoVerificado?.find(r => r.id == 2)?.$extras.pivot_rev_creacion??'',
-    validado: traza.reporteEstadoVerificado?.find(r => r.id == 3)?.$extras.pivot_rev_creacion??'',
+    pendiente: traza.reporteEstadoVerificado?.find(r => r.id == 1)?.$extras?.pivot_rev_creacion??'',
+    proceso: traza.reporteEstadoVerificado?.find(r => r.id == 2)?.$extras?.pivot_rev_creacion??'',
+    validado: traza.reporteEstadoVerificado?.find(r => r.id == 3)?.$extras?.pivot_rev_creacion??'',
   })
 });
 
