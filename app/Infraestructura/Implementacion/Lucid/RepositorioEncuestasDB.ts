@@ -127,7 +127,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     }
 
     let reportadasBD = await consulta
-      .orderBy("fecha_enviost", "desc")
+      .orderBy("fecha_creacion", "desc")
       .paginate(pagina, limite);
 
     /* if (reportadasBD.length <= 0 && (idRol === "003" || idRol === "007")) {
