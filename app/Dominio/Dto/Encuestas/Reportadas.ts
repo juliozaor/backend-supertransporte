@@ -17,5 +17,7 @@ export interface Reportadas {
     estado : string,
     asignado?: boolean,
     ultimoUsuarioAsignado?: string,
-    vigencia?:number
+    vigencia?:number,
+    estadoAprobado?:string,
+    observacion?:string
 }

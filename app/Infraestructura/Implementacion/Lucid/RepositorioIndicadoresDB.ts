@@ -15,12 +15,15 @@ import { PayloadJWT } from 'App/Dominio/Dto/PayloadJWT';
 import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
 import { ServicioEstadosEmpresas } from 'App/Dominio/Datos/Servicios/ServicioEstadosEmpresas';
 import { TblMeses } from 'App/Infraestructura/Datos/Entidad/Mes';
+import { ServicioEstadosVerificado } from 'App/Dominio/Datos/Servicios/ServicioEstadosVerificado';
+import TblEnviadosStFormularios from 'App/Infraestructura/Datos/Entidad/EnviadosStFormuarios';
 
 export class RepositorioIndicadoresDB implements RepositorioIndicador {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   private servicioAcciones = new ServicioAcciones();
   private servicioEstadosEmpresas = new ServicioEstadosEmpresas();
+  private servicioEstadoVerificado = new ServicioEstadosVerificado()
   async visualizar(params: any): Promise<any> {
     const { idUsuario, idVigilado, idReporte, idMes, historico, idRol } = params;
 
@@ -45,12 +48,27 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       newEstadoReporte.save()
     }
 
+    
+
     // const { encuestaEditable } = await this.servicioAcciones.obtenerAccion(estadoreportes?.estado ?? 0, idRol);
-    const encuestaEditable = true
+   
+
+
+    const encuestaEditable = (estadoreportes?.estado !== 1004) //true
     const soloLectura = (historico && historico == 'true' || !encuestaEditable) ?? false;
 
     const consulta = TblFormulariosIndicadores.query()
     const vigencia = reporte.anioVigencia ?? undefined
+
+const enviadoSt = await TblEnviadosStFormularios.query().where({
+  reporte: idReporte,
+  mes: idMes,
+  vigencia: vigencia,
+})
+.first();
+
+    const observacionAdmin = enviadoSt?.observacion ?? '';
+    const aprobado = enviadoSt?.aprobado;    
 
     consulta.preload('subIndicadores', subIndicador => {
       if (reporte && reporte.anioVigencia == 2023) {
@@ -199,7 +217,9 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
       idEncuesta: reporte.idEncuesta,
       vigencia,
       mensaje: 'Cumplimiento del paso #20 de la metodología definida en la Res. 40595 de 2022.',
-      formularios
+      formularios,
+      observacionAdmin,
+      aprobado
     }
   }
 
@@ -243,6 +263,7 @@ export class RepositorioIndicadoresDB implements RepositorioIndicador {
 
 
       this.servicioEstado.Log(indicadores.idVigilado, 1004, indicadores.idEncuesta)
+      this.servicioEstadoVerificado.Enviados(idReporte, 1004, idMes, indicadores.vigencia)
       this.servicioEstado.estadoReporte(idReporte, indicadores.vigencia, idMes, 1004, DateTime.fromJSDate(new Date()))
       const reporte = await TblReporte.findOrFail(idReporte)
       reporte.fechaEnviost = DateTime.fromJSDate(new Date())

@@ -34,7 +34,7 @@ export class ServicioReportes {
 
   async asignar(datos: string, payload:PayloadJWT): Promise<AsyncGeneratorFunction> {
     const asignador = payload.documento;
-    if (payload.idRol !== '001') {
+    if (payload.idRol !== '001' && payload.idRol !== '010') {
       throw new Error("Usted no tiene permisos para asignar");
       
     }
@@ -66,6 +66,10 @@ export class ServicioReportes {
     params.idUsuario = payload.documento;
     params.rol = payload.idRol;
     return this.repositorio.formularios(params);
+  }
+  async aprobarVerificacion(params: any, documento:string): Promise<any> {
+    params.documento = documento
+    return this.repositorio.aprobarVerificacion(params);
   }
 
 }

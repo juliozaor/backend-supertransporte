@@ -126,15 +126,20 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
   //verificar fase 1
   async verificar(datos: string, payload: PayloadJWT): Promise<any> {
-    const { idReporte, respuestas } = JSON.parse(datos)
+    const { idReporte, respuestas, noObligado } = JSON.parse(datos)
 
     this.servicioEstadoVerificado.Log(idReporte, 2, payload.documento)
+
+
+      const reporteDb = await TblReporte.findBy('id_reporte', idReporte)
+      reporteDb?.establecerEstadoobligado(noObligado);
+      await reporteDb?.save()
 
     respuestas.forEach(async respuesta => {
 
       const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
       existeRespuesta?.estableceVerificacion(respuesta)
-      existeRespuesta?.save()
+      await existeRespuesta?.save()
     });
 
   }
@@ -143,7 +148,15 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
   async finalizar(params: any): Promise<any> {
 
 
-    const { idEncuesta, idReporte, idUsuario, idVigilado } = params
+    const { idEncuesta, idReporte, idUsuario, idVigilado, noObligado=false } = params
+    let aprobado = true;
+    let cumple = true;
+    const faltantes = new Array();
+
+    if(noObligado){
+      this.servicioEstadoVerificado.Log(idReporte, 8, idUsuario)
+      return { aprobado, faltantes }
+    }
     const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion', (sqlCla) => {
         sqlCla.preload('pregunta', (sqlPre) => {
@@ -158,9 +171,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
     }).where('identificacion', idVigilado).first()
 
 
-    let aprobado = true;
-    let cumple = true;
-    const faltantes = new Array();
+    
     const clasificaciones = await TbClasificacion.query().preload('pregunta').where('estado', 1);
     const pasos = usuario?.clasificacionUsuario[0].clasificacion
     const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
@@ -336,6 +347,7 @@ formulariosBD.forEach(formulario => {
         estado = 6;
       }
       this.servicioEstadoVerificado.Log(idReporte, estado, idUsuario)
+      this.servicioEstadoVerificado.Enviados(idReporte, estado, idMes, vigencia!)
     }
 
 

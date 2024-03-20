@@ -22,12 +22,14 @@ import { EnviadorEmailAdonis } from "App/Infraestructura/Email/EnviadorEmailAdon
 import { ServicioEstadosEmpresas } from "../../../Dominio/Datos/Servicios/ServicioEstadosEmpresas";
 import ErroresEmpresa from "App/Exceptions/ErroresEmpresa";
 import { TblMeses } from "App/Infraestructura/Datos/Entidad/Mes";
+import { Estados } from "App/Infraestructura/Util/Estados";
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
   private servicioAcciones = new ServicioAcciones();
   private servicioEstadosEmpresas = new ServicioEstadosEmpresas();
   private enviadorEmail: EnviadorEmail;
+  private estados = new Estados();
   async obtenerReportadas(
     params: any
   ): Promise<{ reportadas: Reportadas[]; paginacion: Paginador }> {
@@ -97,11 +99,18 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     consulta.preload("estadoVigilado");
 
     if (termino) {
-      consulta.andWhere((subquery) => {
-        subquery.where("nit_rues", "ilike", `%${params.termino}%`);
-        subquery.orWhere("razon_social_rues", "ilike", `%${params.termino}%`);
-        if (Number.isInteger(parseInt(params.termino))) {
-          subquery.orWhere("id_reporte", `${params.termino}`);
+        const estadoF = this.estados.obtenerEstado(termino);
+        
+        
+        consulta.andWhere((subquery) => {
+          subquery.where("nit_rues", "ilike", `%${params.termino}%`);
+          subquery.orWhere("razon_social_rues", "ilike", `%${params.termino}%`);
+          if (Number.isInteger(parseInt(params.termino))) {
+            subquery.orWhere("id_reporte", `${params.termino}`);
+          }
+          if (estadoF.length > 0) {
+            subquery.orWhereIn("estado_verificacion_id", estadoF);
+            
         }
       });
     }
@@ -160,6 +169,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       }
     } */
 
+    
     reportadasBD.map((reportada) => {
       let estado = "FORMULARIO EN BORRADOR";
       estado = reportada.estadoVerificado?.nombre ?? estado;
@@ -243,6 +253,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       .first();
     estado = reporte?.estadoVerificado?.nombre ?? estado;
     estado = reporte?.estadoVigilado?.nombre ?? estado;
+    const observacionAdmin = reporte?.observacion ?? '';
+    const aprobado = reporte?.aprobado;
     let clasificacion = "";
 
     const consulta = TblEncuestas.query()
@@ -391,6 +403,8 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       totalVehiculos,
       porcentajePasos,
       porcentajePreguntas,
+      observacionAdmin,
+      aprobado
     };
 
     return encuesta;

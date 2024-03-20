@@ -37,7 +37,7 @@ export default class ControladorArchivo {
   public async asignados({ request, params, response }: HttpContextContract) {
     const payload = await request.obtenerPayloadJWT()
     const parametros = request.all()
-    if (payload.idRol !== '006' && payload.idRol !== '002' && payload.idRol !== '001') {      
+    if (payload.idRol !== '006' && payload.idRol !== '002' && payload.idRol !== '001' && payload.idRol !== '010') {      
       return response.status(401).send('No tiene perminos para acceder a esta consulta')
     }
     if(payload.idRol === '002'){
@@ -52,7 +52,7 @@ export default class ControladorArchivo {
   public async asignadosF2({ request, params, response }: HttpContextContract) {
     const payload = await request.obtenerPayloadJWT()
     const parametros = request.all()
-    if (payload.idRol !== '006' && payload.idRol !== '002' && payload.idRol !== '001') {      
+    if (payload.idRol !== '006' && payload.idRol !== '002' && payload.idRol !== '001' && payload.idRol !== '010') {      
       return response.status(401).send('No tiene perminos para acceder a esta consulta')
     }
     if(payload.idRol === '002'){
@@ -67,7 +67,7 @@ export default class ControladorArchivo {
 
   public async enviadas({ request, response }:HttpContextContract) {
     const payload = await request.obtenerPayloadJWT()
-    if (payload.idRol !== '001') {
+    if (payload.idRol !== '001' && payload.idRol !== '010') {
       
       return response.status(401).send('No tiene perminos para acceder a esta consulta')
     }
@@ -85,5 +85,15 @@ export default class ControladorArchivo {
     const encuestas = await this.service.formularios(request.all(), payload)
     return encuestas
   }
+
+  public async aprobar({ request, response }:HttpContextContract) {
+    const payload = await request.obtenerPayloadJWT()
+    if (payload.idRol !== '001' && payload.idRol !== '010') {
+      
+      return response.status(401).send('No tiene perminos para acceder a esta consulta')
+    }
+    return this.service.aprobarVerificacion(request.all(), payload.documento);
+  }
+
 
 }
