@@ -14,14 +14,14 @@ import { TblFormulariosIndicadores } from "App/Infraestructura/Datos/Entidad/For
 import { TblEstadosReportes } from "App/Infraestructura/Datos/Entidad/EstadosReportes";
 import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
 import { EmailnotificacionCorreo } from "App/Dominio/Email/Emails/EmailNotificacionCorreo";
-import Env from '@ioc:Adonis/Core/Env';
+import Env from "@ioc:Adonis/Core/Env";
 import { EnviadorEmailAdonis } from "App/Infraestructura/Email/EnviadorEmailAdonis";
 import TblEnviadosStFormularios from "App/Infraestructura/Datos/Entidad/EnviadosStFormuarios";
 
 export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado();
   private servicioAcciones = new ServicioAcciones();
-  private enviadorEmail: EnviadorEmail
+  private enviadorEmail: EnviadorEmail;
   async obtenerAsignadas(
     params: any
   ): Promise<{ asignadas: Reportadas[]; paginacion: Paginador }> {
@@ -33,7 +33,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
     consulta.preload("estadoVerificado");
     consulta.preload("estadoVigilado");
 
-    if (rol === "001" ||rol === "010") {
+    if (rol === "001" || rol === "010") {
       consulta.where("asignado", true);
       if (idVerificador) {
         consulta.andWhere("ultimo_usuario_asignado", idVerificador);
@@ -337,12 +337,11 @@ export class RepositorioReporteDB implements RepositorioReporte {
 
     const porcentajePasos = (pasosCompletados / pasosObligatorios) * 100;
     const porcentajePreguntas = (preguntasCompletadas / preguntasTotales) * 100;
-    
 
-   const noObligado = encuestaSql?.reportes[0].noObligado
-   if(noObligado && rol === "002"){
-    verificacionEditable = false
-   }
+    const noObligado = encuestaSql?.reportes[0].noObligado;
+    if (noObligado && rol === "002") {
+      verificacionEditable = false;
+    }
 
     const encuesta = {
       tipoAccion,
@@ -362,7 +361,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       totalVehiculos,
       porcentajePasos,
       porcentajePreguntas,
-      noObligado: encuestaSql?.reportes[0].noObligado
+      noObligado: encuestaSql?.reportes[0].noObligado,
     };
 
     return encuesta;
@@ -418,7 +417,6 @@ export class RepositorioReporteDB implements RepositorioReporte {
       ) {
         estadoAprobado = "Devuelto";
       }
-
 
       asignadas.push({
         idReporte: reportada.id!,
@@ -488,21 +486,28 @@ export class RepositorioReporteDB implements RepositorioReporte {
       usuario?.clasificacionUsuario[0]?.$extras?.pivot_clu_vehiculos ?? "";
 
     const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
-    
+
     const encuestaEditable = true;
     const soloLectura =
-    true; /* (historico && historico == 'true' || !encuestaEditable) ?? false; */
-    const observacionAdmin = reporte?.observacion ?? '';
+      true; /* (historico && historico == 'true' || !encuestaEditable) ?? false; */
+    const observacionAdmin = reporte?.observacion ?? "";
     const aprobado = reporte?.aprobado;
-    
-    const estadoEnviado = await TblEnviadosStFormularios.query().where({
-      reporte: idReporte,
-      mes: idMes,
-      vigencia: reporte?.anioVigencia,
-    }).first()
-    let soloLecturaV = false
-    if (estadoEnviado?.estado == 6 || estadoEnviado?.estado == 7 || estadoEnviado?.estado == 8 || estadoEnviado?.estado == 9) {
-      soloLecturaV = true
+
+    const estadoEnviado = await TblEnviadosStFormularios.query()
+      .where({
+        reporte: idReporte,
+        mes: idMes,
+        vigencia: reporte?.anioVigencia,
+      })
+      .first();
+    let soloLecturaV = false;
+    if (
+      estadoEnviado?.estado == 6 ||
+      estadoEnviado?.estado == 7 ||
+      estadoEnviado?.estado == 8 ||
+      estadoEnviado?.estado == 9
+    ) {
+      soloLecturaV = true;
     }
 
     const consulta = TblFormulariosIndicadores.query();
@@ -582,7 +587,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
       const nombre = formulario.nombre;
       const mensaje = formulario.mensaje;
       const subIndicador: any = [];
-      
+
       formulario.subIndicadores.forEach((subInd) => {
         const preguntas: any = [];
         subInd.datosIndicadores.forEach((datos) => {
@@ -742,82 +747,118 @@ export class RepositorioReporteDB implements RepositorioReporte {
       enviadosSt,
       soloLecturaV,
       observacionAdmin,
-      aprobado
+      aprobado,
     };
   }
 
   async aprobarVerificacion(params: any): Promise<any> {
-    const { idReporte, aprobar = false, observacion, documento, idMes } = params;
-    let mensaje = 'El reporte fue aprobado'
-    if(idReporte){
-      const reporteDb = await TblReporte.query().preload('usuario').where('id_reporte', idReporte).first()
-      reporteDb?.establecerEstadoAdministrador(aprobar, observacion)
-      reporteDb?.save()
-      if (aprobar ) {
-        if(reporteDb?.idEncuesta == 1){  
-        const usuario = reporteDb?.usuario
+    const {
+      idReporte,
+      aprobar = false,
+      observacion,
+      documento,
+      idMes,
+    } = params;
+    let mensaje = "El reporte fue aprobado";
+    if (idReporte) {
+      const reporteDb = await TblReporte.query()
+        .preload("usuario")
+        .where("id_reporte", idReporte)
+        .first();
+      reporteDb?.establecerEstadoAdministrador(aprobar, observacion);
+      reporteDb?.save();
+      const usuario = reporteDb?.usuario;
+      if (aprobar) {
         if (usuario) {
-          try {
-            this.enviadorEmail = new EnviadorEmailAdonis();
-            await this.enviadorEmail.enviarTemplate({
-              asunto: 'Encuesta aprobada.',
-              destinatarios: usuario.correo,
-              de: Env.get('SMTP_USERNAME')
-            }, new EmailnotificacionCorreo({
-              nombre: usuario.nombre,
-              mensaje:
-                "Por medio de la presente la Superintendencia de Transporte, le informa que su formulario número uno del PESV fue analizado, lo invitamos a que ingrese al sistema para que vea en detalle en análisis.",
-              logo: Env.get("LOGO"),
-              nit: usuario.identificacion,
-            }))
-            
-          } catch (error) {
-            console.log(error);
-          }          
-        }
+          let mensaje: string = "";
+          if (reporteDb?.idEncuesta == 1) {
+            mensaje =
+              "Por medio de la presente la Superintendencia de Transporte, le informa que su formulario número uno del PESV fue analizado, lo invitamos a que ingrese al sistema para que vea en detalle en análisis.";
+            this.servicioEstadoVerificado.Log(idReporte, 9, documento);
+          } else if (reporteDb?.idEncuesta == 2) {
+            mensaje =
+              "Por medio de la presente la Superintendencia de Transporte, le informa que su formulario número dos del PESV, para el mes " +
+              idMes +
+              " del " +
+              reporteDb?.anioVigencia +
+              "  fue analizado, lo invitamos a que ingrese al sistema para que vea en detalle en análisis";
 
-        this.servicioEstadoVerificado.Log(idReporte, 9, documento)   
-             
-      }else if(reporteDb?.idEncuesta == 2){        
-        const usuario = reporteDb?.usuario
-        if (usuario) {
-          try {
-            this.enviadorEmail = new EnviadorEmailAdonis();
-            await this.enviadorEmail.enviarTemplate({
-              asunto: 'Encuesta aprobada.',
-              destinatarios: usuario.correo,
-              de: Env.get('SMTP_USERNAME')
-            }, new EmailnotificacionCorreo({
-              nombre: usuario.nombre,
-              mensaje:
-                "Por medio de la presente la Superintendencia de Transporte, le informa que su formulario número dos del PESV, para el mes "+idMes+" del "+reporteDb?.anioVigencia+"  fue analizado, lo invitamos a que ingrese al sistema para que vea en detalle en análisis",
-              logo: Env.get("LOGO"),
-              nit: usuario.identificacion,
-            }))
-            
-          } catch (error) {
-            console.log(error);
+            this.servicioEstadoVerificado.Enviados(
+              idReporte,
+              9,
+              idMes,
+              reporteDb?.anioVigencia!,
+              observacion,
+              aprobar
+            );
+          }
+          await this.enviarCorreo(
+            usuario.correo,
+            usuario.nombre,
+            mensaje,
+            usuario.identificacion
+          );
+
+          const verificador = await TblUsuarios.query()
+            .where("usn_identificacion", reporteDb?.ultimoUsuarioAsignado!)
+            .first();
+          if (verificador) {
+            const mensaje = `Por medio de la presente la Superintendencia de Transporte, le informa que el formulario con reporte número ${reporteDb?.id}, del vigilado ${usuario.nombre} fue analizado, lo invitamos a que ingrese al sistema para que vea en detalle en análisis`;
+            await this.enviarCorreo(
+              verificador.correo,
+              verificador.nombre,
+              mensaje,
+              verificador.identificacion
+            );
           }
         }
-        this.servicioEstadoVerificado.Enviados(idReporte, 9, idMes, reporteDb?.anioVigencia!,observacion,aprobar)
-      }
-      }else{
-        mensaje = "El reporte fue devuelto al verificador"
-       // this.servicioEstadoVerificado.Log(idReporte, 4, documento)
-       if(reporteDb?.idEncuesta == 1){
-         this.servicioEstadoVerificado.Log(idReporte, 4, documento)
-       }
-        if (reporteDb?.idEncuesta == 2) {    
-          console.log("Entro1");
-                
-          this.servicioEstadoVerificado.Enviados(idReporte, 4, idMes, reporteDb?.anioVigencia!,observacion,aprobar)
+      } else {
+        mensaje = "El reporte fue devuelto al verificador";
+        // this.servicioEstadoVerificado.Log(idReporte, 4, documento)
+        if (reporteDb?.idEncuesta == 1) {
+          this.servicioEstadoVerificado.Log(idReporte, 4, documento);
         }
-      }      
-      
+        if (reporteDb?.idEncuesta == 2) {
+          console.log("Entro1");
+
+          this.servicioEstadoVerificado.Enviados(
+            idReporte,
+            4,
+            idMes,
+            reporteDb?.anioVigencia!,
+            observacion,
+            aprobar
+          );
+        }
+      }
     }
-    
 
-    return {mensaje, estadoReporte:aprobar}
-
+    return { mensaje, estadoReporte: aprobar };
   }
+
+  enviarCorreo = async (
+    correo: string,
+    nombre: string,
+    mensaje: string,
+    nit: string
+  ) => {
+    try {
+      this.enviadorEmail = new EnviadorEmailAdonis();
+      await this.enviadorEmail.enviarTemplate(
+        {
+          asunto: "Encuesta aprobada.",
+          destinatarios: correo,
+          de: Env.get("SMTP_USERNAME"),
+        },
+        new EmailnotificacionCorreo({
+          nombre: nombre,
+          mensaje,
+          logo: Env.get("LOGO"),
+          nit,
+        })
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 }
