@@ -803,7 +803,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
             .where("usn_identificacion", reporteDb?.ultimoUsuarioAsignado!)
             .first();
           if (verificador) {
-            const mensaje = `Por medio de la presente la Superintendencia de Transporte, le informa que el formulario con reporte número ${reporteDb?.id}, del vigilado ${usuario.nombre} fue analizado, lo invitamos a que ingrese al sistema para que vea en detalle en análisis`;
+            const mensaje = `Por medio de la presente la Superintendencia de Transporte, le informa que el formulario con reporte número ${reporteDb?.id}, del vigilado ${usuario.nombre} fue aprobado`;
             await this.enviarCorreo(
               verificador.correo,
               verificador.nombre,
