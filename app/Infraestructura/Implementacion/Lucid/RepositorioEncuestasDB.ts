@@ -101,12 +101,12 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     if (termino) {
         const estadoF = this.estados.obtenerEstado(termino);
         
-        
         consulta.andWhere((subquery) => {
-          subquery.where("nit_rues", "ilike", `%${params.termino}%`);
-          subquery.orWhere("razon_social_rues", "ilike", `%${params.termino}%`);
-          if (Number.isInteger(parseInt(params.termino))) {
-            subquery.orWhere("id_reporte", `${params.termino}`);
+          subquery.orWhere("nit_rues", `${termino}`);
+          subquery.orWhere("razon_social_rues", "ilike", `%${termino}%`);
+          subquery.orWhere("login_vigilado", `${termino}`);
+          if (Number.isInteger(parseInt(termino))) {
+            subquery.orWhere("id_reporte", `${termino}`);
           }
           if (estadoF.length > 0) {
             subquery.orWhereIn("estado_verificacion_id", estadoF);
