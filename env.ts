@@ -34,5 +34,7 @@ export default Env.rules({
 
   RUTA_FICHEROS: Env.schema.string(),
 
-  URL_SERVICIO_ARCHIVOS: Env.schema.string({ format: 'url' })
+  URL_SERVICIO_ARCHIVOS: Env.schema.string({ format: 'url' }),
+  VIGIA: Env.schema.number(),
+  URL_VIGIA: Env.schema.string({ format: 'url' })
 })
