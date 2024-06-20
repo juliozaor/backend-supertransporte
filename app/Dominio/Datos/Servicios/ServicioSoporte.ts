@@ -86,6 +86,10 @@ export class ServicioSoporte {
         return this.repositorio.obtenerSoportes(pagina, limite, filtros)
     }
 
+    async listarVigilado(nit:string) {
+        return this.repositorio.obtenerSoportesVigilado(nit)
+    }
+
     async guardar(peticion: PeticionCrearSoporte, problemaAcceso: boolean) {
         if (problemaAcceso) {
             return await this.guardarSoporteProblemasAcceso(peticion)

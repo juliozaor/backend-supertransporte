@@ -83,6 +83,12 @@ export default class ControladorSoporte{
         response.status(200).send(paginable)
     }
 
+    async listarVigilado({ request, response }: HttpContextContract ){
+        const {nit} = request.all()
+        const soportes = await this.servicio.listarVigilado(nit)
+        response.status(200).send(soportes)
+    }
+
     async listarMotivos({response}: HttpContextContract){
         const motivos = await this.repositorioMotivos.listar()
         response.status(200).send(motivos)

@@ -47,6 +47,13 @@ export class RepositorioSoporteDB implements RepositorioSoporte{
         }
     }
 
+    async obtenerSoportesVigilado(nit:string): Promise<any> {
+        const datos = await Soportes.query()
+        .where('nit', nit)
+        .andWhere('problema_acceso', false)
+        return datos
+    }
+
     async actualizarSoporte(soporte: Soporte): Promise<Soporte> {
         const soporteDb = await Soportes.findOrFail(soporte.id)
         soporteDb.establecer(soporte, true)

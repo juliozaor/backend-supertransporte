@@ -10,6 +10,7 @@ Route.group(() => {
 // sin autenticación ↓ ↓ ↓
 Route.group(() => {
   Route.get('/archivo/:archivo', `${controlador}.descargarAdjunto`)
+  Route.get('/vigilado', `${controlador}.listarVigilado`)
   Route.get('/archivo_respuesta/:archivo', `${controlador}.descargarAdjuntoRespuesta`)
   Route.post('/acceso', `${controlador}.guardarSinAcceso`)
 }).prefix('/api/v1/soportes')
