@@ -153,6 +153,7 @@ const cabeceras = [
         return m.visual;
       });
 
+      
       const reportef2 = await TblReporte.query()
         .where("login_vigilado", nit)
         .andWhere("id_encuesta", 2)
@@ -163,16 +164,21 @@ const cabeceras = [
         const estadoReportes = await TblEstadosReportes.query().where(
           "reporte",
           reportef2.id!
-        );
+        ).andWhere('estado',1004);
 
         mesesActivos.forEach((mes) => {
+          
           const estado = estadoReportes.find((e) => e.mes == mes)?.estado;
+          
           if (estado && estado == 1004) {
             estadoFase2 = true;
           } else {
             estadoFase2 = false;
           }
         });
+
+        
+      console.log(estadoFase2);
       }
     }
 
