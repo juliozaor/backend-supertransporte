@@ -44,9 +44,10 @@ export class ServicioUsuarios {
     const clave = await this.generarContraseña.generar()
     usuario.id = uuidv4();
     usuario.clave = await this.encriptador.encriptar(clave)
+    usuario.claveTemporal = false
     usuario.usuario = usuario.identificacion.toString()
     const user = this.repositorio.guardarUsuario(usuario);
-    await this.enviadorEmail.enviarTemplate<Credenciales>({ 
+  /*   await this.enviadorEmail.enviarTemplate<Credenciales>({ 
       asunto: `Bienvenido(a) ${usuario.nombre}`, 
       destinatarios: usuario.correo,
     }, new EmailBienvenida({ clave: clave, nombre: usuario.nombre, usuario: usuario.usuario, logo: Env.get('LOGO') }))
@@ -57,7 +58,7 @@ export class ServicioUsuarios {
       jsonNuevo: JSON.stringify(user),
       usuario: payload.documento,
       descripcion: 'Se creo un usuario'
-    })
+    }) */
 
     return user
   }
