@@ -13,6 +13,7 @@ import TbClasificacion from 'App/Infraestructura/Datos/Entidad/Clasificacion';
 import { TblFormulariosIndicadores } from 'App/Infraestructura/Datos/Entidad/FormularioIndicadores';
 import ErroresEmpresa from 'App/Exceptions/ErroresEmpresa';
 import { ServicioEstadosEmpresas } from 'App/Dominio/Datos/Servicios/ServicioEstadosEmpresas';
+import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 export class RepositorioRespuestasDB implements RepositorioRespuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
@@ -153,11 +154,11 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
     let cumple = true;
     const faltantes = new Array();
 
-    if(noObligado){
+    /* if(noObligado){
       this.servicioEstadoVerificado.Log(idReporte, 8, idUsuario)
       return { aprobado, faltantes }
-    }
-    const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
+    } */
+    /* const usuario = await TblUsuarios.query().preload('clasificacionUsuario', (sqlClasC) => {
       sqlClasC.preload('clasificacion', (sqlCla) => {
         sqlCla.preload('pregunta', (sqlPre) => {
           sqlPre.preload('respuesta', sqlResp => {
@@ -177,11 +178,16 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
     const respuestas = await TblRespuestas.query().where('id_reporte', idReporte).orderBy('id_pregunta', 'asc')
     clasificaciones.forEach(clasificacion => {
       const paso = pasos?.find(p => p.id === clasificacion.id);
-      if (paso) {
+      
+      if (paso) {        
         paso.pregunta.forEach(preguntaPaso => {
           const respuesta = preguntaPaso.respuesta[0];
+          if(respuesta.idPregunta == 22){
+            console.log({respuesta});
+            
+          }
 
-          if (respuesta) {
+          if (respuesta) {            
             if (!respuesta.cumple || respuesta.cumple == 0 || !respuesta.corresponde || respuesta.corresponde == 0) {
               faltantes.push(respuesta.idPregunta)
               aprobado = false
@@ -206,6 +212,10 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
 
         });
 
+      
+      
+      
+      
       } else {
 
         clasificacion.pregunta.forEach(preguntaClasificacion => {
@@ -231,6 +241,67 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
         });
 
       }
+    }); */
+
+
+
+    const consulta = TblEncuestas.query().preload("pregunta", (sql) => {
+      sql.preload("clasificacion");
+      sql.preload("tiposPregunta");
+      sql.preload("respuesta", (sqlResp) => {
+        sqlResp.where("id_reporte", idReporte);
+      });
+      sql.where("estado", 1);
+    });
+    consulta.preload("reportes", (sqlReporte) => {
+      sqlReporte.preload("estadoVerificado");
+      sqlReporte.preload("estadoVigilado");
+      sqlReporte.where("id_reporte", idReporte);
+    });
+
+    consulta.where({ id_encuesta: idEncuesta });
+    const encuestaSql = await consulta.orderBy('id','asc').first();
+
+    
+
+      const claficiacionesSql = await TbClasificacion.query().orderBy(
+      "id_clasificacion",
+      "asc"
+    );
+    
+    claficiacionesSql.forEach((clasificacionSql) => {      
+      encuestaSql?.pregunta.forEach((pregunta) => {
+        if (clasificacionSql.id === pregunta.clasificacion.id) {
+          //pregunta.respuesta[0]
+
+          const respuesta = pregunta.respuesta[0];
+         
+
+          if (respuesta && respuesta.valor != '') {            
+            if (!respuesta.cumple || respuesta.cumple == 0 || !respuesta.corresponde || respuesta.corresponde == 0) {
+              faltantes.push(respuesta.idPregunta)
+              aprobado = false
+            }
+
+
+            if (respuesta.cumple && respuesta.cumple == 2 && (!respuesta.observacionCumple || respuesta.observacionCumple == '')) {
+              faltantes.push(respuesta.idPregunta)
+              aprobado = false
+            }
+
+            if (respuesta.corresponde && respuesta.corresponde == 2 && (!respuesta.observacionCorresponde || respuesta.observacionCorresponde == '')) {
+              faltantes.push(respuesta.idPregunta)
+              aprobado = false
+            }
+
+            if (respuesta.corresponde == 2 || respuesta.cumple == 2) {
+              cumple = false;
+            }
+
+          }
+
+        }
+      });
     });
 
 

@@ -40,6 +40,7 @@
     "./start/Rutas/ruta_meses",
     "./start/Rutas/ruta_vigencias",
     "./start/Rutas/ruta_resultados",
+    "./start/Rutas/ruta_informes",
     "./start/Rutas/ruta_empresas"
   ],
   "providers": [

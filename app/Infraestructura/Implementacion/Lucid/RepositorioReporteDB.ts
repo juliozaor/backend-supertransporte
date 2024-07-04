@@ -214,7 +214,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
     });
 
     consulta.where({ id_encuesta: idEncuesta });
-    const encuestaSql = await consulta.first();
+    const encuestaSql = await consulta.orderBy('id','asc').first();
 
     //BUscar la clasificacion del usuario
     const usuario = await TblUsuarios.query()
