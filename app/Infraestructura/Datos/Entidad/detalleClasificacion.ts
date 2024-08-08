@@ -10,18 +10,23 @@ export default class TblDetallesClasificaciones extends BaseModel {
 @column({ columnName: 'tdc_valor' }) public valor:string;
 @column({ columnName: 'tdc_fila_columna_id' }) public filaColumnaId:number;
 @column({ columnName: 'tdc_usuario_id' }) public usuarioId:string;
+@column({ columnName: 'tdc_vigencia' }) public vigencia:number;
 
 public establecerDetalleDetalleClasificacionDb (detalleClasificacion:DetalleClasificacion) {
   this.id = detalleClasificacion.id
   this.valor = detalleClasificacion.valor
   this.filaColumnaId = detalleClasificacion.filaColumnaId
   this.usuarioId = detalleClasificacion.usuarioId
+  this.vigencia = detalleClasificacion.vigencia
+
 }
 
 public estableceDetalleDetalleClasificacionConId (detalleClasificacion:DetalleClasificacion) {
   this.valor = detalleClasificacion.valor
   this.filaColumnaId = detalleClasificacion.filaColumnaId
   this.usuarioId = detalleClasificacion.usuarioId
+  this.vigencia = detalleClasificacion.vigencia
+
 }
 
 public obtenerDetalleDetalleClasificacion ():DetalleClasificacion {
@@ -30,6 +35,7 @@ public obtenerDetalleDetalleClasificacion ():DetalleClasificacion {
   detalleClasificacion.valor = this.valor 
   detalleClasificacion.filaColumnaId = this.filaColumnaId 
   detalleClasificacion.usuarioId = this.usuarioId 
+  detalleClasificacion.vigencia = this.vigencia 
   return detalleClasificacion
 }
 
