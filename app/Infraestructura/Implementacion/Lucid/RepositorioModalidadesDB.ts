@@ -12,6 +12,7 @@ import TblClasificacionesUsuario from "App/Infraestructura/Datos/Entidad/Clasifi
 import { ServicioEstadosEmpresas } from "App/Dominio/Datos/Servicios/ServicioEstadosEmpresas";
 import ErroresEmpresa from "App/Exceptions/ErroresEmpresa";
 import TblRadioAccion from "App/Infraestructura/Datos/Entidad/RadioAccion";
+import { TblAnioVigencias } from "App/Infraestructura/Datos/Entidad/AnioVigencia";
 
 export class RepositorioModalidadDB implements RepositorioModalidad {
   private servicioEmpresa = new ServicioEstadosEmpresas();
@@ -41,9 +42,16 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     ];
     const filasModalidades: any[] = [];
 
+    const anioVigencia = await TblAnioVigencias.query()
+    .where("anv_estado", true)
+    .orderBy("anv_id", "desc")
+    .select("anv_anio")
+    .first();
+
+
     const modalidades = await TblModalidades.query()
       .preload("radios", (sql) => {
-        sql.where("tmr_usuario_id", idUsuario);
+        sql.where({"tmr_usuario_id": idUsuario, 'tmr_vigencia': anioVigencia?.anio});
       })
       .has("radios");
 
@@ -71,7 +79,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
           sqlFila
             .preload("filasColumas", (sqlFilaCol) => {
               sqlFilaCol.preload("detalles", (sqlDet) => {
-                sqlDet.where("usuarioId", idUsuario);
+                sqlDet.where({"usuarioId": idUsuario, 'vigencia':anioVigencia?.anio});
               });
             })
             .preload("filasColumnasDet");
@@ -148,6 +156,15 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     const totalConductores = totales.conductores;
     const totalVehiculos = totales.vehiculos;
 
+
+    const anioVigencia = await TblAnioVigencias.query()
+    .where("anv_estado", true)
+    .orderBy("anv_id", "desc")
+    .select("anv_anio")
+    .first();
+
+
+
     //Guardar Modalidades Radios
     if (modalidadesRadio.length >= 1) {
       //const datosMR: ModalidadRadio[] = [];
@@ -158,6 +175,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
             tmr_modalidad_id: mr.idModalidad,
             tmr_radio_id: mr.idRadio,
             tmr_usuario_id: idUsuario,
+            tmr_vigencia: anioVigencia?.anio,
           })
           .first();
 
@@ -168,6 +186,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
             radioId: mr.idRadio,
             usuarioId: idUsuario,
             estado: true,
+            vigencia: anioVigencia?.anio!
           });
 
           modalidadesRadiosBd.save();
@@ -199,6 +218,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
             .where({
               tdc_fila_columna_id: filaColumna.id,
               tdc_usuario_id: idUsuario,
+              tdc_vigencia: anioVigencia?.anio
             })
             .first();
           //  const detalleClasificacion = new TblDetallesClasificaciones();
@@ -207,6 +227,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
               valor: dato.valor,
               filaColumnaId: detalle.filaColumnaId,
               usuarioId: detalle.usuarioId,
+              vigencia: anioVigencia?.anio!
             });
 
             detalle.save();
@@ -216,6 +237,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
               valor: dato.valor,
               filaColumnaId: filaColumna.id,
               usuarioId: idUsuario,
+              vigencia: anioVigencia?.anio!
             });
             detalleClasificacion.save();
           }
@@ -227,7 +249,8 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     const { nombre, clasificado } = await this.clasificar(
       totalConductores,
       totalVehiculos,
-      idUsuario
+      idUsuario,
+      anioVigencia?.anio!
     );
 
     return { nombre, clasificado };
@@ -236,15 +259,17 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
   clasificar = async (
     totalConductores: number,
     totalVehiculos: number,
-    idUsuario: string
+    idUsuario: string,
+    vigencia:number
   ) => {
     let idClasificado;
     let clasificado: boolean = true;
     let nombre = "";
+    
 
     const modalidad = await TblModalidadesRadios.query()
       .whereIn("tmr_modalidad_id", [1, 2, 3, 4])
-      .andWhere("tmr_usuario_id", idUsuario);
+      .andWhere({"tmr_usuario_id": idUsuario,'tmr_vigencia':vigencia});
 
     if (modalidad.length >= 1) {
       if (totalVehiculos > 50 || totalConductores > 50) {
@@ -277,7 +302,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
     }
 
     const estaClasificado = await TblClasificacionesUsuario.query()
-      .where("clu_usuario_id", idUsuario)
+      .where({"usuarioId": idUsuario,'vigencia':vigencia})
       .first();
     if (!estaClasificado) {
       const clasificacionUsuario = new TblClasificacionesUsuario();
@@ -287,6 +312,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
         estado: clasificado,
         vehiculos: totalVehiculos,
         conductores: totalConductores,
+        vigencia
       });
       clasificacionUsuario.save();
     }
@@ -298,6 +324,7 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
         estado: clasificado,
         vehiculos: totalVehiculos,
         conductores: totalConductores,
+        vigencia
       });
       estaClasificado.save();
     }
@@ -354,10 +381,19 @@ export class RepositorioModalidadDB implements RepositorioModalidad {
   }
 
   verificarClasificacion = async (idUsuario: string): Promise<any> => {
+    const anioVigencia = await TblAnioVigencias.query()
+    .where("anv_estado", true)
+    .orderBy("anv_id", "desc")
+    .select("anv_anio")
+    .first();
+
+
     const estaClasificado = await TblClasificacionesUsuario.query()
       .preload("clasificacion")
-      .where({ clu_usuario_id: idUsuario, estado: true })
+      .where({ usuarioId: idUsuario, estado: true, vigencia:anioVigencia?.anio })
       .first();
+
+      
     if (!estaClasificado) {
       return { nombre: "", clasificado: false };
     }

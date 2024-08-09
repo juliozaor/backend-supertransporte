@@ -14,6 +14,7 @@ export default class TblClasificacionesUsuario extends BaseModel {
   @column({ columnName: 'estado' }) public estado: boolean;
   @column({ columnName: 'clu_vehiculos' }) public vehiculos: number;
   @column({ columnName: 'clu_conductores' }) public conductores: number;
+  @column({ columnName: 'clu_vigencia' }) public vigencia: number;
 
   public establecerClasificacionesUsuarioDb(clasificacionesUsuario: ClasificacionesUsuario) {
     this.id = clasificacionesUsuario.id
@@ -22,6 +23,7 @@ export default class TblClasificacionesUsuario extends BaseModel {
     this.estado = clasificacionesUsuario.estado
     this.vehiculos = clasificacionesUsuario.vehiculos
     this.conductores = clasificacionesUsuario.conductores
+    this.vigencia = clasificacionesUsuario.vigencia
   }
 
   public estableceClasificacionesUsuarioConId(clasificacionesUsuario: ClasificacionesUsuario) {
@@ -30,6 +32,8 @@ export default class TblClasificacionesUsuario extends BaseModel {
     this.estado = clasificacionesUsuario.estado
     this.vehiculos = clasificacionesUsuario.vehiculos
     this.conductores = clasificacionesUsuario.conductores
+    this.vigencia = clasificacionesUsuario.vigencia
+
   }
 
   public obtenerClasificacionesUsuario(): ClasificacionesUsuario {
@@ -39,6 +43,7 @@ export default class TblClasificacionesUsuario extends BaseModel {
     clasificacionesUsuario.estado = this.estado
     clasificacionesUsuario.vehiculos = this.vehiculos
     clasificacionesUsuario.conductores = this.conductores
+    clasificacionesUsuario.vigencia = this.vigencia
     return clasificacionesUsuario
   }
 

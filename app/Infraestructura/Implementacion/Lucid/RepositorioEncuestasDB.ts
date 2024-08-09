@@ -23,6 +23,7 @@ import { ServicioEstadosEmpresas } from "../../../Dominio/Datos/Servicios/Servic
 import ErroresEmpresa from "App/Exceptions/ErroresEmpresa";
 import { TblMeses } from "App/Infraestructura/Datos/Entidad/Mes";
 import { Estados } from "App/Infraestructura/Util/Estados";
+import { TblAnioClasificaciones } from "App/Infraestructura/Datos/Entidad/AnioClasificacion";
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
@@ -43,16 +44,13 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       termino,
     } = params;
 
-    /* const anioVigencia = await TblAnioVigencias.query()
-      .where("anv_estado", true)
-      .orderBy("anv_id", "desc")
-      .select("anv_anio")
-      .first(); */
+    
 
     /// crear reporte
     const mesesActivos = await TblMeses.query()
     .where("mes_estado", true)
     .distinct("mes_vigencia");
+
     const vigencias = mesesActivos.map((mes) => mes.vigencia);
     if(idRol === "003" || idRol === "007"){
    // const existeReporte = TblReporte.query().where({'id_encuesta': idEncuesta, 'login_vigilado': idVigilado})
@@ -67,9 +65,16 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         }
       }
     } else {
-      const resporteF1 = await TblReporte.query().where({'id_encuesta': idEncuesta, 'login_vigilado': idVigilado});
+      
+   /*  const anioClasificacion = await TblAnioClasificaciones.query().where('estado', true).first() */
+   const anioVigencia = await TblAnioVigencias.query()
+      .where("anv_estado", true)
+      .orderBy("anv_id", "desc")
+      .select("anv_anio")
+      .first();
+      const resporteF1 = await TblReporte.query().where({'id_encuesta': idEncuesta, 'login_vigilado': idVigilado, 'anioVigencia': anioVigencia?.anio});
           if (resporteF1.length <= 0) {
-        await this.crearReporte(idUsuario,idEncuesta,idVigilado,idRol);
+        await this.crearReporte(idUsuario,idEncuesta,idVigilado,idRol, anioVigencia?.anio);
       }
     }
 

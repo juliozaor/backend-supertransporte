@@ -12,6 +12,7 @@ export default class TblModalidadesRadios extends BaseModel {
   @column({ columnName: 'tmr_radio_id' }) public radioId: number
   @column({ columnName: 'tmr_usuario_id' }) public usuarioId: string
   @column({ columnName: 'tmr_estado' }) public estado: boolean
+  @column({ columnName: 'tmr_vigencia' }) public vigencia: number
 
   @column.dateTime({ autoCreate: true , columnName: 'tmr_creado'}) public createdAt?: DateTime
 
@@ -22,6 +23,7 @@ export default class TblModalidadesRadios extends BaseModel {
     this.radioId =modalidadRadio.radioId
     this.usuarioId = modalidadRadio.usuarioId
     this.estado = modalidadRadio.estado
+    this.vigencia = modalidadRadio.vigencia
     
   }
 
