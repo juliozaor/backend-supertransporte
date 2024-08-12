@@ -101,7 +101,7 @@ export default class TblUsuarios extends BaseModel {
     pivotForeignKey: 'clu_usuario_id',
     relatedKey: 'id',
     pivotRelatedForeignKey: 'clu_clasificacion_id', 
-    pivotColumns: ['clu_vehiculos','clu_conductores'],
+    pivotColumns: ['clu_vehiculos','clu_conductores','clu_vigencia'],
     pivotTable: 'tbl_clasificacion_usuarios'
   })
   public clasificacionUsuario: ManyToMany<typeof TblClasificaciones>
