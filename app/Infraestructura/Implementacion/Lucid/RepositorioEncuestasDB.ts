@@ -23,6 +23,8 @@ import { ServicioEstadosEmpresas } from "../../../Dominio/Datos/Servicios/Servic
 import ErroresEmpresa from "App/Exceptions/ErroresEmpresa";
 import { TblMeses } from "App/Infraestructura/Datos/Entidad/Mes";
 import { Estados } from "App/Infraestructura/Util/Estados";
+import { TblAnioClasificaciones } from "App/Infraestructura/Datos/Entidad/AnioClasificacion";
+import TblClasificacionesUsuario from "App/Infraestructura/Datos/Entidad/ClasificacionesUsuario";
 export class RepositorioEncuestasDB implements RepositorioEncuesta {
   private servicioAuditoria = new ServicioAuditoria();
   private servicioEstado = new ServicioEstados();
@@ -43,16 +45,13 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       termino,
     } = params;
 
-    /* const anioVigencia = await TblAnioVigencias.query()
-      .where("anv_estado", true)
-      .orderBy("anv_id", "desc")
-      .select("anv_anio")
-      .first(); */
+    
 
     /// crear reporte
     const mesesActivos = await TblMeses.query()
     .where("mes_estado", true)
     .distinct("mes_vigencia");
+
     const vigencias = mesesActivos.map((mes) => mes.vigencia);
     if(idRol === "003" || idRol === "007"){
    // const existeReporte = TblReporte.query().where({'id_encuesta': idEncuesta, 'login_vigilado': idVigilado})
@@ -67,9 +66,16 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         }
       }
     } else {
-      const resporteF1 = await TblReporte.query().where({'id_encuesta': idEncuesta, 'login_vigilado': idVigilado});
+      
+   /*  const anioClasificacion = await TblAnioClasificaciones.query().where('estado', true).first() */
+   const anioVigencia = await TblAnioVigencias.query()
+      .where("anv_estado", true)
+      .orderBy("anv_id", "desc")
+      .select("anv_anio")
+      .first();
+      const resporteF1 = await TblReporte.query().where({'id_encuesta': idEncuesta, 'login_vigilado': idVigilado, 'anioVigencia': anioVigencia?.anio});
           if (resporteF1.length <= 0) {
-        await this.crearReporte(idUsuario,idEncuesta,idVigilado,idRol);
+        await this.crearReporte(idUsuario,idEncuesta,idVigilado,idRol, anioVigencia?.anio);
       }
     }
 
@@ -130,54 +136,16 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       .orderBy("fecha_creacion", "desc")
       .paginate(pagina, limite);
 
-    /* if (reportadasBD.length <= 0 && (idRol === "003" || idRol === "007")) {
-      const usuario = await TblUsuarios.query()
-        .where("identificacion", idUsuario)
-        .first();
-
-      const reporte = new TblReporte();
-      reporte.estableceReporteConId({
-        idEncuesta: idEncuesta,
-        envioSt: "0",
-        loginVigilado: idVigilado,
-        razonSocialRues: usuario?.nombre!,
-        nitRues: idVigilado,
-        usuarioCreacion: idUsuario,
-        estadoVerificacionId: 1002,
-        anioVigencia: anioVigencia?.anio ?? undefined,
-      });
-
-      await reporte.save();
-      reportadasBD = await consulta
-        .orderBy("fecha_enviost", "desc")
-        .paginate(pagina, limite);
-
-      this.servicioEstado.Log(idUsuario, 1002, idEncuesta);
-
-      this.servicioAuditoria.Auditar({
-        accion: "Listar Encuestas",
-        modulo: "Encuesta",
-        usuario: idUsuario,
-        vigilado: idVigilado,
-        descripcion: "Entra por primera vez a la encuesta",
-        encuestaId: idEncuesta,
-        tipoLog: 3,
-      });
-
-      if (idRol === "007") {
-        this.servicioEstadosEmpresas.Log(idVigilado, idUsuario, 1, 3000);
-      }
-    } */
-
-    
-    reportadasBD.map((reportada) => {
-      let estado = "FORMULARIO EN BORRADOR";
+      for await (const reportada of reportadasBD) {
+        let estado = "FORMULARIO EN BORRADOR";
       estado = reportada.estadoVerificado?.nombre ?? estado;
       estado = reportada.estadoVigilado?.nombre ?? estado;
+     
+      const clasificacion = await TblClasificacionesUsuario.query().preload('clasificacion').where({'vigencia': reportada.anioVigencia, 'usuarioId': reportada.usuario.id}).first()
+            
       reportadas.push({
         idEncuestaDiligenciada: reportada.encuesta?.id,
-        clasificacion:
-          reportada.usuario.clasificacionUsuario[0]?.nombre ?? "Sin Clasificar",
+        clasificacion: clasificacion?.clasificacion.nombre ?? "Sin Clasificar",
         idVigilado: reportada.loginVigilado,
         numeroReporte: reportada.id!,
         encuesta: reportada.encuesta?.nombre,
@@ -194,7 +162,36 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         estado,
         vigencia: reportada.anioVigencia ?? undefined,
       });
-    });
+      }
+
+    
+   /* reportadasBD.map(async (reportada) => {
+       let estado = "FORMULARIO EN BORRADOR";
+      estado = reportada.estadoVerificado?.nombre ?? estado;
+      estado = reportada.estadoVigilado?.nombre ?? estado;
+     
+      const clasificacion = await TblClasificacionesUsuario.query().preload('clasificacion').where({'vigencia': reportada.anioVigencia, 'usuarioId': reportada.usuario.id}).first()
+            
+      reportadas.push({
+        idEncuestaDiligenciada: reportada.encuesta?.id,
+        clasificacion: clasificacion?.clasificacion.nombre ?? "Sin Clasificar",
+        idVigilado: reportada.loginVigilado,
+        numeroReporte: reportada.id!,
+        encuesta: reportada.encuesta?.nombre,
+        descripcion: reportada.encuesta?.descripcion,
+        fechaInicio: reportada.encuesta?.fechaInicio,
+        fechaFinal: reportada.encuesta?.fechaFin,
+        fechaEnvioST: reportada.fechaEnviost!,
+        razonSocial: reportada.razonSocialRues,
+        nit: reportada.nitRues,
+        email: reportada.usuario.correo,
+        usuarioCreacion: reportada.usuarioCreacion,
+        asignado: reportada.asignado,
+        ultimoUsuarioAsignado: reportada.ultimoUsuarioAsignado,
+        estado,
+        vigencia: reportada.anioVigencia ?? undefined,
+      }); 
+    });*/
 
     const paginacion = MapeadorPaginacionDB.obtenerPaginacion(reportadasBD);
     return { reportadas, paginacion };
@@ -275,6 +272,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       .preload("clasificacionUsuario", (sqlClasC) => {
         sqlClasC.preload("clasificacion");
         sqlClasC.has("clasificacion");
+        sqlClasC.where('clu_vigencia',reporte?.anioVigencia!)
       })
       .preload("modalidadesRadio", (sqlModal) => {
         sqlModal.preload("modalidades");
@@ -418,6 +416,12 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       idUsuario,
       confirmar = false,
     } = params;
+
+  
+    const reporte = await TblReporte.query()
+    .where("id_reporte", idReporte)
+    .first();
+
     const usuario = await TblUsuarios.query()
       .preload("clasificacionUsuario", (sqlClasC) => {
         sqlClasC.preload("clasificacion", (sqlCla) => {
@@ -429,6 +433,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
               sqlE.where("id_encuesta", idEncuesta);
             });
         });
+        sqlClasC.where('clu_vigencia',reporte?.anioVigencia!)
       })
       .where("identificacion", idVigilado)
       .first();
@@ -436,6 +441,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     let aprobado = true;
     const faltantes = new Array();
     const pasos = usuario?.clasificacionUsuario[0]?.clasificacion;
+    
     const respuestas = await TblRespuestas.query()
       .where("id_reporte", idReporte)
       .orderBy("id_pregunta", "asc");

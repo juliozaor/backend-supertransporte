@@ -6,4 +6,5 @@ clasificacionId:number;
 estado:boolean;
 vehiculos: number;
 conductores: number;
+vigencia: number;
 }

@@ -9,6 +9,7 @@ import TblEncuestas from 'App/Infraestructura/Datos/Entidad/Encuesta';
 import TblClasificacionesUsuario from 'App/Infraestructura/Datos/Entidad/ClasificacionesUsuario';
 import { ServicioAuditoria } from 'App/Dominio/Datos/Servicios/ServicioAuditoria';
 import { PayloadJWT } from '../../../Dominio/Dto/PayloadJWT';
+import { TblAnioVigencias } from 'App/Infraestructura/Datos/Entidad/AnioVigencia';
 export class RepositorioUsuariosDB implements RepositorioUsuario {
   private servicioAuditoria = new ServicioAuditoria();
   async obtenerUsuarios (params: any): Promise<{usuarios: Usuario[], paginacion: Paginador}> {
@@ -107,8 +108,13 @@ if(params.termino){
 
     if(idRol !== '003') return { categorizado, encuestaCategorizable }
 
+    const anioVigencia = await TblAnioVigencias.query()
+      .where("anv_estado", true)
+      .orderBy("anv_id", "desc")
+      .select("anv_anio")
+      .first();
 
-    const categorizadoBd = await TblClasificacionesUsuario.query().where('usuarioId', idUsuario).first();
+    const categorizadoBd = await TblClasificacionesUsuario.query().where({'usuarioId': idUsuario, 'vigencia': anioVigencia?.anio, 'estado':true}).first();
     categorizado = categorizadoBd?.estado ?? false;
 
     

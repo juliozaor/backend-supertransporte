@@ -4,4 +4,5 @@ export class ModalidadRadio {
   radioId: number;
   usuarioId: string;
   estado: boolean;
+  vigencia: number;
 }
