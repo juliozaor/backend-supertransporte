@@ -84,7 +84,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     const reportadas: Reportadas[] = [];
     const consulta = TblReporte.query().preload("usuario", (sqlUsuario) => {
       sqlUsuario.preload("clasificacionUsuario");
-    });
+    }).has('usuario');
 
     if (idEncuesta) {
       consulta
