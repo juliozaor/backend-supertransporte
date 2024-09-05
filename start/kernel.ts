@@ -42,5 +42,6 @@ Server.middleware.register([
 */
 Server.middleware.registerNamed({
   autenticacionJwt : () => import('App/Middlewares/AuntenticacionJWT'),  
-  empresatecnologica: () => import('App/Middlewares/EmpresaTecnonologia') 
+  empresatecnologica: () => import('App/Middlewares/EmpresaTecnonologia'),
+  autenticacionVigia: () => import('App/Middlewares/AutenticacionVigia') 
 })

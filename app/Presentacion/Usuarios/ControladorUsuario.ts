@@ -56,4 +56,12 @@ export default class ControladorUsuario {
       response.status(200).send(e)
     }
   }
+
+  
+  
+  public async guardarUsuarioVigia ({ request }) {
+    const dataUsuario = request.all()
+    const usuario = await this.service.guardarUsuarioVigia(dataUsuario)
+    return usuario
+  }
 }

@@ -11,9 +11,6 @@ import { GeneradorContrasena } from "App/Dominio/GenerarContrasena/GenerarContra
 import { Encriptador } from "App/Dominio/Encriptacion/Encriptador";
 import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
 import { PayloadJWT } from "App/Dominio/Dto/PayloadJWT";
-import { EmailBienvenida } from "App/Dominio/Email/Emails/EmailBienvenida";
-import { Credenciales } from "App/Dominio/Email/Modelos/Credenciales";
-import Env from '@ioc:Adonis/Core/Env';
 import { ServicioAuditoria } from "./ServicioAuditoria";
 
 export class ServicioUsuarios {  
@@ -38,7 +35,7 @@ export class ServicioUsuarios {
   }
 
   async guardarUsuario(usuario: Usuario, payload:PayloadJWT): Promise<Usuario> {
-    if(payload.idRol !== '006' && payload.idRol !== '001' && payload.idRol !== '010'){
+   if(payload.idRol !== '006' && payload.idRol !== '001' && payload.idRol !== '010'){
       throw new Error("Usted no tiene autorización para crear usuarios");      
     }
     const clave = await this.generarContraseña.generar()
@@ -47,7 +44,9 @@ export class ServicioUsuarios {
     usuario.claveTemporal = false
     usuario.usuario = usuario.identificacion.toString()
     const user = this.repositorio.guardarUsuario(usuario);
-  /*   await this.enviadorEmail.enviarTemplate<Credenciales>({ 
+
+
+ /*    this.enviadorEmail.enviarTemplate<Credenciales>({ 
       asunto: `Bienvenido(a) ${usuario.nombre}`, 
       destinatarios: usuario.correo,
     }, new EmailBienvenida({ clave: clave, nombre: usuario.nombre, usuario: usuario.usuario, logo: Env.get('LOGO') }))
@@ -73,4 +72,13 @@ export class ServicioUsuarios {
     usuario.estado = !usuario.estado
     return await this.repositorio.actualizarUsuario(id, usuario);
   }
+
+  async guardarUsuarioVigia(usuario: Usuario): Promise<Usuario> {
+   
+     usuario.id = uuidv4();
+     usuario.usuario = usuario.identificacion.toString()
+     const user = this.repositorio.guardarUsuario(usuario); 
+     return user
+   }
+ 
 }

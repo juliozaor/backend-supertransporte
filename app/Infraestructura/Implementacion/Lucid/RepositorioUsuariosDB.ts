@@ -67,6 +67,10 @@ if(params.termino){
   }
 
   async guardarUsuario (usuario: Usuario): Promise<Usuario> {
+    const usuarioExiste = await TblUsuarios.query().where('identificacion', usuario.identificacion).first();
+    if(usuarioExiste){
+      return usuarioExiste
+      }
     let usuarioDB = new TblUsuarios()
     usuarioDB.establecerUsuarioDb(usuario)
     await usuarioDB.save()
