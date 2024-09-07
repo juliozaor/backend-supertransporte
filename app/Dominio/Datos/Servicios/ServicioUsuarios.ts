@@ -14,6 +14,7 @@ import { PayloadJWT } from "App/Dominio/Dto/PayloadJWT";
 import { ServicioAuditoria } from "./ServicioAuditoria";
 import { Credenciales } from "App/Dominio/Email/Modelos/Credenciales";
 import { EmailBienvenida } from "App/Dominio/Email/Emails/EmailBienvenida";
+import Env from '@ioc:Adonis/Core/Env';
 
 export class ServicioUsuarios {  
   private servicioAuditoria = new ServicioAuditoria();
