@@ -12,6 +12,8 @@ import { Encriptador } from "App/Dominio/Encriptacion/Encriptador";
 import { EnviadorEmail } from "App/Dominio/Email/EnviadorEmail";
 import { PayloadJWT } from "App/Dominio/Dto/PayloadJWT";
 import { ServicioAuditoria } from "./ServicioAuditoria";
+import { Credenciales } from "App/Dominio/Email/Modelos/Credenciales";
+import { EmailBienvenida } from "App/Dominio/Email/Emails/EmailBienvenida";
 
 export class ServicioUsuarios {  
   private servicioAuditoria = new ServicioAuditoria();
@@ -46,7 +48,7 @@ export class ServicioUsuarios {
     const user = this.repositorio.guardarUsuario(usuario);
 
 
- /*    this.enviadorEmail.enviarTemplate<Credenciales>({ 
+    this.enviadorEmail.enviarTemplate<Credenciales>({ 
       asunto: `Bienvenido(a) ${usuario.nombre}`, 
       destinatarios: usuario.correo,
     }, new EmailBienvenida({ clave: clave, nombre: usuario.nombre, usuario: usuario.usuario, logo: Env.get('LOGO') }))
@@ -57,7 +59,7 @@ export class ServicioUsuarios {
       jsonNuevo: JSON.stringify(user),
       usuario: payload.documento,
       descripcion: 'Se creo un usuario'
-    }) */
+    })
 
     return user
   }
@@ -77,6 +79,7 @@ export class ServicioUsuarios {
    
      usuario.id = uuidv4();
      usuario.usuario = usuario.identificacion.toString()
+     usuario.claveTemporal = false
      const user = this.repositorio.guardarUsuario(usuario); 
      return user
    }

@@ -53,7 +53,10 @@ export class ServicioAutenticacion {
 
   public async iniciarSesion(usuario: string, contrasena: string): Promise<RespuestaInicioSesion> {
     const usuarioVerificado = await this.verificarUsuario(usuario)
-    let registroDeBloqueo = await this.repositorioBloqueo.obtenerRegistroPorUsuario(usuarioVerificado.identificacion)
+
+    let registroDeBloqueo: any
+    if (Env.get("VIGIA") != 1) {
+    registroDeBloqueo = await this.repositorioBloqueo.obtenerRegistroPorUsuario(usuarioVerificado.identificacion)
     if (!registroDeBloqueo) {
       registroDeBloqueo = await this.crearRegistroDeBloqueo(usuarioVerificado.identificacion)
     }
@@ -66,7 +69,7 @@ export class ServicioAutenticacion {
       this.servicioEstado.Log(usuario, 1011)
       throw new Exception('Credenciales incorrectas, por favor intente recuperar contraseña con su correo registrado en Vigia', 400)
     }
-
+  }
 
     let isAuthenticated = false;
     try {

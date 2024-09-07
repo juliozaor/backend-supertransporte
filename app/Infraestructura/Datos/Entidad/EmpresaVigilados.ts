@@ -10,6 +10,9 @@ export class TblEmpresaVigilados extends BaseModel {
   @column({ columnName: 'tev_estado' }) public estado: boolean;
   @column({ columnName: 'tev_fecha_inicial' }) public fechaInicial: Date;
   @column({ columnName: 'tev_fecha_final' }) public fechaFinal: Date;
+  @column({ columnName: 'tev_documento' }) public documento?: string;
+  @column({ columnName: 'tev_ruta' }) public ruta?: string;
+  @column({ columnName: 'tev_nombre_original' }) public nombreOriginal?: string;
 
   @column.dateTime({ autoCreate: true, columnName: 'tev_created_at' })
   public creacion: DateTime
@@ -27,6 +30,9 @@ export class TblEmpresaVigilados extends BaseModel {
     this.estado = empresaVigilado.estado
     this.fechaInicial = empresaVigilado.fechaInicial
     this.fechaFinal = empresaVigilado.fechaFinal
+    this.documento = empresaVigilado.documento
+    this.ruta = empresaVigilado.ruta
+    this.nombreOriginal = empresaVigilado.nombreOriginal
 
   }
 
@@ -37,7 +43,9 @@ export class TblEmpresaVigilados extends BaseModel {
     this.estado = empresaVigilado.estado
     this.fechaInicial = empresaVigilado.fechaInicial
     this.fechaFinal = empresaVigilado.fechaFinal
-
+    this.documento = empresaVigilado.documento
+    this.ruta = empresaVigilado.ruta
+    this.nombreOriginal = empresaVigilado.nombreOriginal
   }
 
   public establecerEstado() {
@@ -54,6 +62,9 @@ export class TblEmpresaVigilados extends BaseModel {
     empresaVigilado.estado = this.estado
     empresaVigilado.fechaInicial = this.fechaInicial
     empresaVigilado.fechaFinal = this.fechaFinal
+    empresaVigilado.documento = this.documento
+    empresaVigilado.ruta = this.ruta
+    empresaVigilado.nombreOriginal = this.nombreOriginal
     return empresaVigilado
   }
 

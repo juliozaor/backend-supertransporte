@@ -6,4 +6,7 @@ export class EmpresaVigilado {
   estado: boolean;
   fechaInicial: Date;
   fechaFinal:Date;
+  documento?: string;
+  ruta?: string;
+  nombreOriginal?: string;
 }
