@@ -36,6 +36,9 @@ export class RepositorioEmpresaVigiladoDB
         nombre: empresa.empresaTecno.nombre,
         token: empresa.token,
         estado: empresa.estado,
+        documento:empresa.documento,
+        ruta:empresa.ruta,
+        nombreOriginal:empresa.nombreOriginal,
         fechaInicialMostrar: new Date(empresa.fechaInicial).toLocaleDateString(),
         fechaFinalMostrar: new Date(empresa.fechaFinal).toLocaleDateString(),
         fechaInicial: empresa.fechaInicial,
@@ -49,13 +52,13 @@ export class RepositorioEmpresaVigiladoDB
     }
   }
 
-  async asignar(documento: string, params: any): Promise<any[]> {
-    const { idEmpresa, fechaInicial, fechaFinal } = params;
+  async asignar(idVigilado: string, params: any): Promise<any[]> {
+    const { idEmpresa, fechaInicial, fechaFinal, documento, ruta, nombreOriginal } = params;
     try {
       //Verificar si exite la relacion
       const existe = await TblEmpresaVigilados.query().where({
         tev_empresa: idEmpresa,
-        tev_vigilado: documento,
+        tev_vigilado: idVigilado,
       });
       if (existe.length >= 1) {
         return [{ mensaje: "ya existe un registro con esta empresa" , estado:false}];
@@ -63,23 +66,26 @@ export class RepositorioEmpresaVigiladoDB
       
       //Actualizar el estado a false de los demas registros
       await TblEmpresaVigilados.query()
-        .where("tev_vigilado", documento)
+        .where("tev_vigilado", idVigilado)
         .update({ tev_updated_at: new Date(), tev_estado: false });
 
       // Crear el nuevo registro
       const empresaVigilado = new TblEmpresaVigilados();
       empresaVigilado.estableceEmpresaVigiladoConId({
         idEmpresa: idEmpresa,
-        idVigilado: documento,
+        idVigilado: idVigilado,
         token: uuid(),
         estado: true,
         fechaInicial,
         fechaFinal,
+        documento,
+        ruta,
+        nombreOriginal
       });
 
       await empresaVigilado.save();
 
-      return this.obtenerSeleccionadas(documento);
+      return this.obtenerSeleccionadas(idVigilado);
     } catch (error) {
       console.log(error);
       
