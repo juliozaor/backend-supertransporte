@@ -577,6 +577,10 @@ export class RepositorioReporteDB implements RepositorioReporte {
       soloLecturaV = true;
     }
 
+    if (rol == '001' || rol == '010') {
+      soloLecturaV = true;
+    }
+
     const consulta = TblFormulariosIndicadores.query();
     const vigencia = reporte?.anioVigencia ?? undefined;
 
