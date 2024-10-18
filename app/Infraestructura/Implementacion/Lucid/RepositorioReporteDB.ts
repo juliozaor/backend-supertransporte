@@ -47,13 +47,13 @@ export class RepositorioReporteDB implements RepositorioReporte {
         aprobado: false,
       });
     }
-    consulta.preload("encuesta", (sqlEncuesta) => {
+   /*  consulta.preload("encuesta", (sqlEncuesta) => {
       sqlEncuesta.where("id_encuesta", "1");
     });
 
     consulta.whereHas("encuesta", (sqlEncuesta) => {
       sqlEncuesta.where("id_encuesta", "1");
-    });
+    }); */
 
     let reportadasBD = await consulta
       .orderBy("fecha_enviost", "desc")
