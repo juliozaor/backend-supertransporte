@@ -47,13 +47,80 @@ export class RepositorioReporteDB implements RepositorioReporte {
         aprobado: false,
       });
     }
-   /*  consulta.preload("encuesta", (sqlEncuesta) => {
+    consulta.preload("encuesta", (sqlEncuesta) => {
       sqlEncuesta.where("id_encuesta", "1");
     });
 
     consulta.whereHas("encuesta", (sqlEncuesta) => {
       sqlEncuesta.where("id_encuesta", "1");
-    }); */
+    });
+
+    let reportadasBD = await consulta
+      .orderBy("fecha_enviost", "desc")
+      .paginate(pagina, limite);
+    for await (const reportada of reportadasBD) {
+      let estadoValidacion = "";
+      estadoValidacion = reportada.estadoVerificado?.nombre ?? estadoValidacion;
+      estadoValidacion = reportada.estadoVigilado?.nombre ?? estadoValidacion;
+      let estadoAprobado = "";
+
+      if (
+        !reportada.aprobado &&
+        reportada.observacion !== "" &&
+        reportada.observacion !== null
+      ) {
+        estadoAprobado = "Devuelto";
+      }
+
+      asignadas.push({
+        idReporte: reportada.id!,
+        nit: reportada.nitRues,
+        idEncuesta: reportada.idEncuesta,
+        razonSocial: reportada.razonSocialRues,
+        asignador: reportada.asignador,
+        fechaAsignacion: reportada.fechaAsignacion,
+        fechaEnvioST: reportada.fechaEnviost!,
+        asignado: reportada.asignado,
+        email: reportada.usuario?.correo,
+        estadoValidacion,
+        estadoAprobado,
+        observacion: reportada.observacion,
+      });
+    }
+
+    const paginacion = MapeadorPaginacionDB.obtenerPaginacion(reportadasBD);
+    return { asignadas, paginacion };
+  }
+
+
+
+
+  async asignadosVerificador(
+    params: any
+  ): Promise<{ asignadas: Reportadas[]; paginacion: Paginador }> {
+    const { idVerificador, pagina, limite, rol } = params;
+
+    const asignadas: any[] = [];
+    const consulta = TblReporte.query().preload("usuario");
+    consulta.preload("encuesta");
+    consulta.preload("estadoVerificado");
+    consulta.preload("estadoVigilado");
+
+    if (rol === "001" || rol === "010") {
+      consulta.where("asignado", true);
+      if (idVerificador) {
+        consulta.andWhere("ultimo_usuario_asignado", idVerificador);
+      }
+    }
+
+    if (rol === "002") {
+      consulta.where({
+        asignado: true,
+        ultimo_usuario_asignado: idVerificador,
+        aprobado: false,
+      });
+    }
+
 
     let reportadasBD = await consulta
       .orderBy("fecha_enviost", "desc")
