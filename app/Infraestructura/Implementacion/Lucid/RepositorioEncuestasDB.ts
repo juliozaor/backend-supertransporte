@@ -417,6 +417,74 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       confirmar = false,
     } = params;
 
+    const parametrisVisualizar = { idEncuesta, idUsuario, idVigilado, idReporte, idRol:'003' }
+
+  const visualizar = await this.visualizar(parametrisVisualizar)
+
+  const respuestas = await TblRespuestas.query()
+      .where("id_reporte", idReporte)
+      .orderBy("id_pregunta", "asc");
+
+  let aprobado = true;
+  const faltantes = new Array();    
+
+  visualizar.clasificaciones.forEach(clasificaciones => {
+    clasificaciones.preguntas.forEach(preguntaPaso => {
+
+
+
+        let repuestaExiste = true;
+        let archivoExiste = true;
+        const respuesta = respuestas.find(
+          (r) => r.idPregunta === preguntaPaso.idPregunta
+        );
+        if (preguntaPaso.obligatoria) {
+          if (!respuesta) {
+            //throw new NoAprobado('Faltan preguntas por responder')
+            repuestaExiste = false;
+          }
+
+          if (respuesta && respuesta.valor === "") {
+            repuestaExiste = false;
+          }
+
+          if (
+            respuesta &&
+            respuesta.valor === "N" &&
+            (!respuesta.observacion || respuesta.observacion === "")
+          ) {
+            repuestaExiste = false;
+          }
+
+          if (
+            respuesta &&
+            respuesta.valor === "S" &&
+            preguntaPaso.adjuntableObligatorio
+          ) {
+            archivoExiste = this.validarDocumento(respuesta, preguntaPaso);
+          }
+        }
+
+        if (!repuestaExiste || !archivoExiste) {
+          aprobado = false;          
+          faltantes.push({
+            preguntaId: preguntaPaso.idPregunta,
+            numeroPregunta: preguntaPaso.numeroPregunta,
+            archivoObligatorio: preguntaPaso.adjuntableObligatorio,
+          });
+        }
+
+        
+
+
+
+        
+      });
+  });
+
+  return { aprobado, faltantes };
+
+/*   
   
     const reporte = await TblReporte.query()
     .where("id_reporte", idReporte)
@@ -432,6 +500,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             .whereHas("pregunta", (sqlE) => {
               sqlE.where("id_encuesta", idEncuesta);
             });
+            sqlCla.orderBy('id', "asc")
         });
         sqlClasC.where('clu_vigencia',reporte?.anioVigencia!)
       })
@@ -441,10 +510,15 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
     let aprobado = true;
     const faltantes = new Array();
     const pasos = usuario?.clasificacionUsuario[0]?.clasificacion;
+   
     
     const respuestas = await TblRespuestas.query()
       .where("id_reporte", idReporte)
       .orderBy("id_pregunta", "asc");
+
+      let consecutivo: number = 1;
+      let mostrar = ''
+
     pasos?.forEach((paso) => {
       paso.pregunta.forEach((preguntaPaso) => {
         let repuestaExiste = true;
@@ -487,7 +561,9 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             preguntaId: preguntaPaso.id,
             archivoObligatorio: preguntaPaso.adjuntableObligatorio,
           });
+          mostrar += consecutivo+', '
         }
+        consecutivo++;
       });
     });
 
@@ -542,9 +618,9 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       } catch (error) {
         console.log(error);
       }
-    }
+    } */
 
-    return { aprobado, faltantes };
+   /*  return { aprobado, faltantes, mostrar }; */
   }
 
   async enviarInformacion(params: any): Promise<any> {
