@@ -431,8 +431,6 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
   visualizar.clasificaciones.forEach(clasificaciones => {
     clasificaciones.preguntas.forEach(preguntaPaso => {
 
-
-
         let repuestaExiste = true;
         let archivoExiste = true;
         const respuesta = respuestas.find(
@@ -481,6 +479,60 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         
       });
   });
+
+  if (confirmar) aprobado = true;
+
+  if (aprobado) {
+    this.servicioEstado.Log(
+      idVigilado,
+      1004,
+      idEncuesta,
+      undefined,
+      confirmar
+    );
+    const reporte = await TblReporte.findOrFail(idReporte);
+    const estado =
+      reporte.estadoVerificacionId === 7 ||
+      reporte.estadoVerificacionId === 1005
+        ? 4
+        : 1004;
+    reporte.fechaEnviost = DateTime.fromJSDate(new Date());
+    reporte.envioSt = "1";
+    reporte.estadoVerificacionId = estado;
+    reporte.save();
+
+    this.servicioAuditoria.Auditar({
+      accion: "Enviar a St",
+      modulo: "Encuesta",
+      usuario: idUsuario,
+      jsonNuevo: JSON.stringify(respuestas),
+      vigilado: idVigilado,
+      descripcion: "Se envia a ST",
+      encuestaId: idEncuesta,
+      tipoLog: 5,
+    });
+
+    try {
+      const usuario = await TblUsuarios.query().where('usn_identificacion',idVigilado).first()
+      this.enviadorEmail = new EnviadorEmailAdonis();
+      this.enviadorEmail.enviarTemplate(
+        {
+          asunto: "Envío a ST.",
+          destinatarios: usuario?.correo!,
+          de: Env.get("SMTP_USERNAME"),
+        },
+        new EmailnotificacionCorreo({
+          nombre: usuario?.nombre!,
+          mensaje:
+            "De la manera más cordial nos permitimos informarle que la información Plan Estratégico de Seguridad Vial fue enviado de manera correcta a la Superintendencia de Transporte.",
+          logo: Env.get("LOGO"),
+          nit: usuario?.identificacion!,
+        })
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  } 
 
   return { aprobado, faltantes };
 
@@ -618,7 +670,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
       } catch (error) {
         console.log(error);
       }
-    } */
+    } 
 
    /*  return { aprobado, faltantes, mostrar }; */
   }

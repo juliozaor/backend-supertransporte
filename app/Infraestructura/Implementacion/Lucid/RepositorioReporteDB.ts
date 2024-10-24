@@ -17,15 +17,17 @@ import { EmailnotificacionCorreo } from "App/Dominio/Email/Emails/EmailNotificac
 import Env from "@ioc:Adonis/Core/Env";
 import { EnviadorEmailAdonis } from "App/Infraestructura/Email/EnviadorEmailAdonis";
 import TblEnviadosStFormularios from "App/Infraestructura/Datos/Entidad/EnviadosStFormuarios";
+import { Estados } from "App/Infraestructura/Util/Estados";
 
 export class RepositorioReporteDB implements RepositorioReporte {
   private servicioEstadoVerificado = new ServicioEstadosVerificado();
   private servicioAcciones = new ServicioAcciones();
   private enviadorEmail: EnviadorEmail;
+  private estados = new Estados();
   async obtenerAsignadas(
     params: any
   ): Promise<{ asignadas: Reportadas[]; paginacion: Paginador }> {
-    const { idVerificador, pagina, limite, rol } = params;
+    const { idVerificador, pagina, limite, rol, termino } = params;
 
     const asignadas: any[] = [];
     const consulta = TblReporte.query().preload("usuario");
@@ -54,6 +56,23 @@ export class RepositorioReporteDB implements RepositorioReporte {
     consulta.whereHas("encuesta", (sqlEncuesta) => {
       sqlEncuesta.where("id_encuesta", "1");
     });
+
+    if (termino) {
+      const estadoF = this.estados.obtenerEstado(termino);
+      consulta.andWhere((subquery) => {
+        subquery.orWhere("nit_rues", `${termino}`);
+        subquery.orWhere("login_vigilado", `${termino}`);
+        subquery.orWhere("ultimo_usuario_asignado", `${termino}`);
+        subquery.orWhere("razon_social_rues", "ilike", `%${termino}%`);
+        if (Number.isInteger(parseInt(termino))) {
+          subquery.orWhere("id_reporte", `${termino}`);
+        }
+        if (estadoF.length > 0) {
+          subquery.orWhereIn("estado_verificacion_id", estadoF);
+          
+      }
+    });
+  }
 
     let reportadasBD = await consulta
       .orderBy("fecha_enviost", "desc")
@@ -438,7 +457,7 @@ export class RepositorioReporteDB implements RepositorioReporte {
   async obtenerAsignadasF2(
     params: any
   ): Promise<{ asignadas: Reportadas[]; paginacion: Paginador }> {
-    const { idVerificador, pagina, limite, rol } = params;
+    const { idVerificador, pagina, limite, rol, termino } = params;
 
     const asignadas: any[] = [];
     const consulta = TblReporte.query().preload("usuario");
@@ -466,6 +485,23 @@ export class RepositorioReporteDB implements RepositorioReporte {
     consulta.whereHas("encuesta", (sqlEncuesta) => {
       sqlEncuesta.where("id_encuesta", "2");
     });
+
+    if (termino) {
+      const estadoF = this.estados.obtenerEstado(termino);
+      consulta.andWhere((subquery) => {
+        subquery.orWhere("nit_rues", `${termino}`);
+        subquery.orWhere("login_vigilado", `${termino}`);
+        subquery.orWhere("ultimo_usuario_asignado", `${termino}`);
+        subquery.orWhere("razon_social_rues", "ilike", `%${termino}%`);
+        if (Number.isInteger(parseInt(termino))) {
+          subquery.orWhere("id_reporte", `${termino}`);
+        }
+        if (estadoF.length > 0) {
+          subquery.orWhereIn("estado_verificacion_id", estadoF);
+          
+      }
+    });
+  }
 
     let reportadasBD = await consulta
       .orderBy("fecha_enviost", "desc")
