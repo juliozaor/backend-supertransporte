@@ -28,8 +28,9 @@ export class ServicioEstadosVerificado {
       //const reporte = await TblReporte.findOrFail(idreporte)
     }
     reporte.estadoVerificacionId = estado;
+    if(estado ==  6) reporte.aprobado = true
+    if(estado ==  7) reporte.aprobado = false
     reporte.observacion = "";
-    reporte.aprobado = undefined;
     reporte.save();
   }
 

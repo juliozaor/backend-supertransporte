@@ -38,68 +38,43 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       tipoLog: 4
     })
 
+    let guardarRespuestas = new Array()
+
     for await (const respuesta of respuestas) {
-      //validar si existe
-      const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
 
-      let data: Respuesta = {
-        idPregunta: respuesta.preguntaId,
-        valor: respuesta.valor,
-        usuarioActualizacion: documento,
-        idReporte: idReporte,
-        fechaActualizacion: DateTime.fromJSDate(new Date)
+      const existe = guardarRespuestas.find(r => r.idPregunta == respuesta.preguntaId)
+      if(!existe){
+        let data: any = {
+          idPregunta: respuesta.preguntaId,
+          valor: respuesta.valor,
+          usuarioActualizacion: loginVigilado,
+          idReporte: idReporte,
+          fechaActualizacion: DateTime.fromJSDate(new Date)
+        }
+  
+        if (respuesta.documento) {
+          data.documento = respuesta.documento
+        }
+        if (respuesta.nombreArchivo) {
+          data.nombredocOriginal = respuesta.nombreArchivo
+        }
+        if (respuesta.ruta) {
+          data.ruta = respuesta.ruta
+        }
+        if (respuesta.observacion) {
+          data.observacion = respuesta.observacion
+        }
+  
+        guardarRespuestas.push(data)      
+
       }
 
-      if (respuesta.documento) {
-        data.documento = respuesta.documento
-      }
-      if (respuesta.nombreArchivo) {
-        data.nombredocOriginal = respuesta.nombreArchivo
-      }
-      if (respuesta.ruta) {
-        data.ruta = respuesta.ruta
-      }
-      if (respuesta.observacion) {
-        data.observacion = respuesta.observacion
-      }
-
-
-      if (existeRespuesta) {
-
-
-        existeRespuesta.estableceRespuestaConId(data)
-        const resp = await existeRespuesta.save();
-
-
-        this.servicioAuditoria.Auditar({
-          accion: "Actualizar Respuesta",
-          modulo: "Encuesta",
-          jsonAnterior: JSON.stringify(existeRespuesta.$attributes),
-          jsonNuevo: JSON.stringify(resp.$attributes),
-          usuario: usuarioCreacion ?? '',
-          vigilado: loginVigilado ?? '',
-          descripcion: 'Actualización de respuesta',
-          encuestaId: idEncuesta
-        })
-
-
-      } else {
-
-        const respuestaDB = new TblRespuestas();
-        respuestaDB.establecerRespuestaDb(data)
-        await respuestaDB.save();
-      }
-
-      //Elimnar de la tabla temporal el archivo almacenado     
-
-      if (respuesta.documento) {
-        const temporal = await TblArchivosTemporales.query().where({ 'art_pregunta_id': respuesta.preguntaId, 'art_usuario_id': loginVigilado, 'art_nombre_archivo': respuesta.documento }).first()
-
-        await temporal?.delete()
-      }
-
-      //});
     }
+
+    await TblRespuestas.updateOrCreateMany(
+      ["idPregunta", "idReporte", "usuarioActualizacion"],
+      guardarRespuestas
+    );
 
     return {
       mensaje: "Encuesta guardada correctamente"
@@ -136,12 +111,12 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       reporteDb?.establecerEstadoobligado(noObligado);
       await reporteDb?.save()
 
-    respuestas.forEach(async respuesta => {
+      for await (const respuesta of respuestas) {
+        const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte, 'usuario_actualizacion': reporteDb?.loginVigilado }).first()
+        existeRespuesta?.estableceVerificacion(respuesta)
+        await existeRespuesta?.save()        
+      }
 
-      const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte }).first()
-      existeRespuesta?.estableceVerificacion(respuesta)
-      await existeRespuesta?.save()
-    });
 
   }
 
@@ -153,6 +128,8 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
     let aprobado = true;
     let cumple = true;
     const faltantes = new Array();
+
+    const reporteDb = await TblReporte.findBy('id_reporte', idReporte)
 
     /* if(noObligado){
       this.servicioEstadoVerificado.Log(idReporte, 8, idUsuario)
@@ -249,7 +226,7 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       sql.preload("clasificacion");
       sql.preload("tiposPregunta");
       sql.preload("respuesta", (sqlResp) => {
-        sqlResp.where("id_reporte", idReporte);
+        sqlResp.where({"id_reporte": idReporte, 'usuario_actualizacion': reporteDb?.loginVigilado});
       });
       sql.where("estado", 1);
     });
