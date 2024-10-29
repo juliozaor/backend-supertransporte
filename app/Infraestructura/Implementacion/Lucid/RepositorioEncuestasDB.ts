@@ -259,7 +259,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
         sql.preload("clasificacion");
         sql.preload("tiposPregunta");
         sql.preload("respuesta", (sqlResp) => {
-          sqlResp.where("id_reporte", idReporte);
+          sqlResp.where({"id_reporte": idReporte, "usuario_actualizacion": reporte?.loginVigilado});
         });
         sql.where("estado", 1);
       })
@@ -422,7 +422,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
   const visualizar = await this.visualizar(parametrisVisualizar)
 
   const respuestas = await TblRespuestas.query()
-      .where("id_reporte", idReporte)
+      .where({"id_reporte": idReporte, "usuario_actualizacion": idVigilado})
       .orderBy("id_pregunta", "asc");
 
   let aprobado = true;
@@ -433,12 +433,10 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
 
         let repuestaExiste = true;
         let archivoExiste = true;
-        const respuesta = respuestas.find(
-          (r) => r.idPregunta === preguntaPaso.idPregunta
-        );
+        const respuesta = respuestas.find((r) => r.idPregunta === preguntaPaso.idPregunta );
         if (preguntaPaso.obligatoria) {
+          
           if (!respuesta) {
-            //throw new NoAprobado('Faltan preguntas por responder')
             repuestaExiste = false;
           }
 
@@ -446,10 +444,7 @@ export class RepositorioEncuestasDB implements RepositorioEncuesta {
             repuestaExiste = false;
           }
 
-          if (
-            respuesta &&
-            respuesta.valor === "N" &&
-            (!respuesta.observacion || respuesta.observacion === "")
+          if ( respuesta &&  respuesta.valor === "N" && (!respuesta.observacion || respuesta.observacion === "")
           ) {
             repuestaExiste = false;
           }
