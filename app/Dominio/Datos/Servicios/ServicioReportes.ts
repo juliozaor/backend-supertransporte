@@ -26,6 +26,12 @@ export class ServicioReportes {
     return this.repositorio.obtenerAsignadas(params);
   }
 
+  async asignadosVerificador(params: any): Promise<{ asignadas: Reportadas[], paginacion: Paginador }> {
+    params.pagina = params.pagina??1;
+    params.limite = params.limite??100;
+    return this.repositorio.asignadosVerificador(params);
+  }
+
   async obtenerAsignadasF2(params: any): Promise<{ asignadas: Reportadas[], paginacion: Paginador }> {
     params.pagina = params.pagina??1;
     params.limite = params.limite??100;

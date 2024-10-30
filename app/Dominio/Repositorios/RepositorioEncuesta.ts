@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/semi */
-import { Encuesta } from '../Datos/Entidades/Encuesta';
 import { Reportadas } from '../Dto/Encuestas/Reportadas';
 import { Paginador } from '../Paginador';
 

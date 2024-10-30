@@ -8,6 +8,7 @@ Route.group(() => {
   Route.get('/estados', accion_path + '.estadosVerificado')  
   Route.get('/asignados', accion_path + '.asignados')
   Route.get('/asignados-fasedos', accion_path + '.asignadosF2')
+  Route.get('/asignados-verificador', accion_path + '.asignadosVerificador')
   Route.get('/enviadas', accion_path + '.enviadas')
   Route.get('/visualizar', `${accion_path}.visualizar`)
   Route.get('/formularios', accion_path + '.formularios')
