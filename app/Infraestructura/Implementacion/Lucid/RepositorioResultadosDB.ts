@@ -181,6 +181,17 @@ export class RepositorioResultadosDB implements RepositorioResultado {
 
   consultarDatos = (periodicidad, datosCalcular, codigo1, codigo2, formula) => {
     const columnas = new Array()
+    let span;
+    if(periodicidad.length== 1){
+      span = 12
+    }
+    else if(periodicidad.length== 4){
+      span = 3
+    } else {  
+      span = 1
+    }
+
+
     for (const mes of periodicidad) {
       const dato2 = datosCalcular.find(objeto => objeto.codigo === codigo2 && objeto.mes === mes)?.valor;
       const dato1 = datosCalcular.find(objeto => objeto.codigo === codigo1 && objeto.mes === mes)?.valor;
@@ -189,9 +200,10 @@ export class RepositorioResultadosDB implements RepositorioResultado {
       if (!isNaN(calculo)) {
         valor = calculo;
       }
+
       columnas.push({
         valor,
-        span: 3,
+        span,
         mes
       })
     }
