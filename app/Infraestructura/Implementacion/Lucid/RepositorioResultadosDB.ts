@@ -1,11 +1,13 @@
 
 import { RepositorioResultado } from 'App/Dominio/Repositorios/RepositorioResultado';
 import { TblIndicadores } from 'App/Infraestructura/Datos/Entidad/Indicadores';
+import TblReporte from 'App/Infraestructura/Datos/Entidad/Reporte';
+import TblUsuarios from 'App/Infraestructura/Datos/Entidad/Usuario';
 export class RepositorioResultadosDB implements RepositorioResultado {
 
   async generar(datos: string, documento: string): Promise<any> {
-    const { idReporte, idVigilado, idMes } = JSON.parse(datos);
-    const indicadores = new Array();
+    const { idReporte, idVigilado } = JSON.parse(datos);
+    const indicadoresArr = new Array();
     const datosCalcular = new Array();
     const indicadoresBD = await TblIndicadores.query().preload('subIndicadores', sqlSub => {
       sqlSub.preload('datosIndicadores', subDatos => {
@@ -14,9 +16,9 @@ export class RepositorioResultadosDB implements RepositorioResultado {
             sqlDetalle.where('ddt_reporte_id', idReporte)
           }
         })
-        if (idMes) {
+       /*  if (idMes) {
           subDatos.where('dai_meses', idMes)
-        }
+        } */
       })
       sqlSub.preload('periodo')
 
@@ -48,7 +50,7 @@ export class RepositorioResultadosDB implements RepositorioResultado {
           if (valida) {
             valida = false;
 
-            indicadores.push({
+            indicadoresArr.push({
               id: indicador.id,
               nombre: indicador.nombre,
               periodicidad: subIndicador.periodo.nombre
@@ -59,7 +61,11 @@ export class RepositorioResultadosDB implements RepositorioResultado {
 
       });
     }
-    return this.genrarCalculos(indicadores, datosCalcular);
+
+    const {indicadores} = this.genrarCalculos(indicadoresArr, datosCalcular);
+    const encabezado = await this.generarEncabezado(idReporte, idVigilado);
+
+    return { indicadores, encabezado }
 
   }
 
@@ -175,6 +181,17 @@ export class RepositorioResultadosDB implements RepositorioResultado {
 
   consultarDatos = (periodicidad, datosCalcular, codigo1, codigo2, formula) => {
     const columnas = new Array()
+    let span;
+    if(periodicidad.length== 1){
+      span = 12
+    }
+    else if(periodicidad.length== 4){
+      span = 3
+    } else {  
+      span = 1
+    }
+
+
     for (const mes of periodicidad) {
       const dato2 = datosCalcular.find(objeto => objeto.codigo === codigo2 && objeto.mes === mes)?.valor;
       const dato1 = datosCalcular.find(objeto => objeto.codigo === codigo1 && objeto.mes === mes)?.valor;
@@ -183,9 +200,10 @@ export class RepositorioResultadosDB implements RepositorioResultado {
       if (!isNaN(calculo)) {
         valor = calculo;
       }
+
       columnas.push({
         valor,
-        span: 3,
+        span,
         mes
       })
     }
@@ -216,5 +234,84 @@ export class RepositorioResultadosDB implements RepositorioResultado {
         break;
     }
     return result
+  }
+
+
+  generarEncabezado = async (idReporte, idVigilado) => {
+    const reporte = await TblReporte.query()
+      .preload("estadoVerificado")
+      .preload("estadoVigilado")
+      .where("id_reporte", idReporte)
+      .first();
+
+    //BUscar la clasificacion del usuario
+    const usuario = await TblUsuarios.query()
+      .preload("clasificacionUsuario", (sqlClasC) => {
+        sqlClasC.preload("clasificacion");
+        sqlClasC.has("clasificacion");
+      })
+      .preload("modalidadesRadio", (sqlModal) => {
+        sqlModal.preload("modalidades");
+      })
+      .where("identificacion", idVigilado)
+      .first();
+
+    let modalidad = "";
+    const modalidadesradio = usuario?.modalidadesRadio;
+    if (modalidadesradio) {
+      for (const key in modalidadesradio) {
+        if (parseInt(key) === 0) {
+          modalidad += modalidadesradio[key].modalidades.nombre;
+        } else {
+          modalidad += ", " + modalidadesradio[key].modalidades.nombre;
+        }
+      }
+    }
+
+    const totalConductores =
+      usuario?.clasificacionUsuario[0]?.$extras?.pivot_clu_conductores ?? "";
+    const totalVehiculos =
+      usuario?.clasificacionUsuario[0]?.$extras?.pivot_clu_vehiculos ?? "";
+
+    const nombreClasificaion = usuario?.clasificacionUsuario[0]?.nombre;
+
+    const observacionAdmin = reporte?.observacion ?? "";
+    const aprobado = reporte?.aprobado;
+
+ 
+
+
+    let variablesCompletadas = 0;
+    let evidenciasCompletadas = 0;
+
+    let estadoActual = "";
+
+    estadoActual = reporte?.estadoVerificado?.nombre ?? estadoActual;
+    estadoActual = reporte?.estadoVigilado?.nombre ?? estadoActual;
+
+    const variablesEntregadas = (variablesCompletadas / 41) * 100;
+    const evidenciasEntregadas = (evidenciasCompletadas / 28) * 100;
+
+
+   
+
+    return {
+      idVigilado,
+      razonSocila: usuario?.nombre,
+      idReporte,
+      idEncuesta: reporte?.idEncuesta,
+      vigencia: reporte?.anioVigencia,
+      mensaje:
+        "Cumplimiento del paso #20 de la metodología definida en la Res. 40595 de 2022.",
+      clasificaion: nombreClasificaion,
+      modalidad,
+      totalConductores,
+      totalVehiculos,
+      variablesEntregadas,
+      evidenciasEntregadas,
+      estadoActual,
+      observacionAdmin,
+      aprobado
+    };
   }
 }
