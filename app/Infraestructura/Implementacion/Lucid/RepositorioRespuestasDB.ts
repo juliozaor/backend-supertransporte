@@ -38,17 +38,17 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
       tipoLog: 4
     })
 
-    let guardarRespuestas = new Array()
+   // let guardarRespuestas = new Array()
 
     for await (const respuesta of respuestas) {
 
-      const existe = guardarRespuestas.find(r => r.idPregunta == respuesta.preguntaId)
-      if(!existe){
+      //const existe = guardarRespuestas.find(r => r.idPregunta == respuesta.preguntaId)
+     // if(!existe){
         let data: any = {
           idPregunta: respuesta.preguntaId,
           valor: respuesta.valor,
           usuarioActualizacion: loginVigilado,
-          idReporte: idReporte,
+          idReporte,
           fechaActualizacion: DateTime.fromJSDate(new Date)
         }
   
@@ -65,16 +65,35 @@ export class RepositorioRespuestasDB implements RepositorioRespuesta {
           data.observacion = respuesta.observacion
         }
   
-        guardarRespuestas.push(data)      
+       // guardarRespuestas.push(data)      
 
-      }
+     // }
+try {
+  
+  const existeRespuesta = await TblRespuestas.query().where({ 'id_pregunta': respuesta.preguntaId, 'id_reporte': idReporte, 'usuario_actualizacion': loginVigilado }).first()
+  if (existeRespuesta) {
+   existeRespuesta.estableceRespuestaConId(data)
+   await existeRespuesta.save()
+  }else{
+   const respuestaDb = new TblRespuestas()
+   respuestaDb.establecerRespuestaDb(data)
+   await respuestaDb.save()
+  }
+} catch (error) {
+  console.log(error);
+  
+}
 
     }
 
-    await TblRespuestas.updateOrCreateMany(
+  
+/*     await TblRespuestas.updateOrCreateMany(
       ["idPregunta", "idReporte", "usuarioActualizacion"],
       guardarRespuestas
-    );
+    ); */
+
+   /*  console.log(guardarRespuestas);
+     */
 
     return {
       mensaje: "Encuesta guardada correctamente"
