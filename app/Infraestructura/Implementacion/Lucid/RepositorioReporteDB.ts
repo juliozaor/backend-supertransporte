@@ -35,7 +35,8 @@ export class RepositorioReporteDB implements RepositorioReporte {
     consulta.preload("estadoVerificado");
     consulta.preload("estadoVigilado");
 
-    if (rol === "001" || rol === "010") {
+
+    if (rol === "001" ) {
       consulta.where("asignado", true);
       if (idVerificador) {
         consulta.andWhere("ultimo_usuario_asignado", idVerificador);
